@@ -1,0 +1,21 @@
+kind: Route
+apiVersion: route.openshift.io/v1
+metadata:
+  name: openshift-cli-manager
+  namespace: openshift-cli-manager-operator
+  annotations:
+    haproxy.router.openshift.io/timeout: 5m
+  labels:
+    app: openshift-cli-manager
+spec:
+  path: /cli-manager
+  to:
+    kind: Service
+    name: openshift-cli-manager
+    weight: 100
+  port:
+    targetPort: cli-manager-port
+  tls:
+    termination: edge
+    insecureEdgeTerminationPolicy: Redirect
+  wildcardPolicy: None
