@@ -4,4 +4,4 @@ reviewers:
 approvers:
   - ardaguclu
   - ingvagabund
-component: "openshift-cli-manager"
+component: "openshift-cli-manager-operator"
