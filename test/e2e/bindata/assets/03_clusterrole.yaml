@@ -4,6 +4,13 @@ metadata:
   name: cli-manager-operator
 rules:
   - apiGroups:
+      - operator.openshift.io
+    resources:
+      - climanagers
+      - climanagers/status
+    verbs:
+      - "*"
+  - apiGroups:
       - config.openshift.io
     resources:
       - plugins
@@ -38,7 +45,6 @@ rules:
       - services
       - serviceaccounts
       - configmaps
-      - secrets
       - events
     verbs:
       - "*"

@@ -6,7 +6,8 @@ rules:
   - apiGroups:
       - operator.openshift.io
     resources:
-      - "*"
+      - climanagers
+      - climanagers/status
     verbs:
       - "*"
   - apiGroups:
@@ -44,7 +45,6 @@ rules:
       - services
       - serviceaccounts
       - configmaps
-      - secrets
       - events
     verbs:
       - "*"
