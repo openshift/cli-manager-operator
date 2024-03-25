@@ -5,3 +5,5 @@ metadata:
   namespace: openshift-cli-manager-operator
 spec:
   managementState: Managed
+  logLevel: Normal
+  operatorLogLevel: Normal
