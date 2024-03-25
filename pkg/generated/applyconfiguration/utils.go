@@ -3,8 +3,8 @@
 package applyconfiguration
 
 import (
-	v1alpha1 "github.com/openshift/cli-manager-operator/pkg/apis/plugin/v1alpha1"
-	pluginv1alpha1 "github.com/openshift/cli-manager-operator/pkg/generated/applyconfiguration/plugin/v1alpha1"
+	v1 "github.com/openshift/cli-manager-operator/pkg/apis/climanager/v1"
+	climanagerv1 "github.com/openshift/cli-manager-operator/pkg/generated/applyconfiguration/climanager/v1"
 	schema "k8s.io/apimachinery/pkg/runtime/schema"
 )
 
@@ -12,15 +12,13 @@ import (
 // apply configuration type exists for the given GroupVersionKind.
 func ForKind(kind schema.GroupVersionKind) interface{} {
 	switch kind {
-	// Group=config.openshift.io, Version=v1alpha1
-	case v1alpha1.SchemeGroupVersion.WithKind("FileLocation"):
-		return &pluginv1alpha1.FileLocationApplyConfiguration{}
-	case v1alpha1.SchemeGroupVersion.WithKind("Plugin"):
-		return &pluginv1alpha1.PluginApplyConfiguration{}
-	case v1alpha1.SchemeGroupVersion.WithKind("PluginPlatform"):
-		return &pluginv1alpha1.PluginPlatformApplyConfiguration{}
-	case v1alpha1.SchemeGroupVersion.WithKind("PluginSpec"):
-		return &pluginv1alpha1.PluginSpecApplyConfiguration{}
+	// Group=operator.openshift.io, Version=v1
+	case v1.SchemeGroupVersion.WithKind("CLIManager"):
+		return &climanagerv1.CLIManagerApplyConfiguration{}
+	case v1.SchemeGroupVersion.WithKind("CLIManagerSpec"):
+		return &climanagerv1.CLIManagerSpecApplyConfiguration{}
+	case v1.SchemeGroupVersion.WithKind("CLIManagerStatus"):
+		return &climanagerv1.CLIManagerStatusApplyConfiguration{}
 
 	}
 	return nil

@@ -18,7 +18,7 @@ IMAGE_REGISTRY :=registry.svc.ci.openshift.org
 
 CODEGEN_OUTPUT_PACKAGE :=github.com/openshift/cli-manager-operator/pkg/generated
 CODEGEN_API_PACKAGE :=github.com/openshift/cli-manager-operator/pkg/apis
-CODEGEN_GROUPS_VERSION :=plugin:v1alpha1
+CODEGEN_GROUPS_VERSION :=climanager:v1
 
 # This will call a macro called "build-image" which will generate image specific targets based on the parameters:
 # $0 - macro name
@@ -30,7 +30,7 @@ $(call build-image,ocp-cli-manager-operator,$(IMAGE_REGISTRY)/ocp/4.16:cli-manag
 
 $(call verify-golang-versions,Dockerfile)
 
-$(call add-crd-gen,plugin,./pkg/apis/plugin/v1alpha1,./manifests/,./manifests/)
+$(call add-crd-gen,climanager,./pkg/apis/climanager/v1,./manifests/,./manifests/)
 
 test-e2e: GO_TEST_PACKAGES :=./test/e2e
 test-e2e: test-unit
@@ -40,7 +40,7 @@ generate: update-codegen-crds generate-clients
 .PHONY: generate
 
 generate-clients:
-	bash ./vendor/k8s.io/code-generator/kube_codegen.sh	"applyconfiguration,client,deepcopy,informer,lister" github.com/openshift/cli-manager-operator/pkg/generated github.com/openshift/cli-manager-operator/pkg/apis plugin:v1alpha1 --go-header-file=./hack/boilerplate.go.txt
+	bash ./vendor/k8s.io/code-generator/kube_codegen.sh	"applyconfiguration,client,deepcopy,informer,lister" github.com/openshift/cli-manager-operator/pkg/generated github.com/openshift/cli-manager-operator/pkg/apis climanager:v1 --go-header-file=./hack/boilerplate.go.txt
 .PHONY: generate-clients
 
 clean:

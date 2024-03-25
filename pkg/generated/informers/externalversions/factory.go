@@ -8,8 +8,8 @@ import (
 	time "time"
 
 	versioned "github.com/openshift/cli-manager-operator/pkg/generated/clientset/versioned"
+	climanager "github.com/openshift/cli-manager-operator/pkg/generated/informers/externalversions/climanager"
 	internalinterfaces "github.com/openshift/cli-manager-operator/pkg/generated/informers/externalversions/internalinterfaces"
-	plugin "github.com/openshift/cli-manager-operator/pkg/generated/informers/externalversions/plugin"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	runtime "k8s.io/apimachinery/pkg/runtime"
 	schema "k8s.io/apimachinery/pkg/runtime/schema"
@@ -237,9 +237,9 @@ type SharedInformerFactory interface {
 	// client.
 	InformerFor(obj runtime.Object, newFunc internalinterfaces.NewInformerFunc) cache.SharedIndexInformer
 
-	Plugins() plugin.Interface
+	Climanagers() climanager.Interface
 }
 
-func (f *sharedInformerFactory) Plugins() plugin.Interface {
-	return plugin.New(f, f.namespace, f.tweakListOptions)
+func (f *sharedInformerFactory) Climanagers() climanager.Interface {
+	return climanager.New(f, f.namespace, f.tweakListOptions)
 }

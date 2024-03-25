@@ -4,8 +4,8 @@ package fake
 
 import (
 	clientset "github.com/openshift/cli-manager-operator/pkg/generated/clientset/versioned"
-	pluginsv1alpha1 "github.com/openshift/cli-manager-operator/pkg/generated/clientset/versioned/typed/plugin/v1alpha1"
-	fakepluginsv1alpha1 "github.com/openshift/cli-manager-operator/pkg/generated/clientset/versioned/typed/plugin/v1alpha1/fake"
+	climanagersv1 "github.com/openshift/cli-manager-operator/pkg/generated/clientset/versioned/typed/climanager/v1"
+	fakeclimanagersv1 "github.com/openshift/cli-manager-operator/pkg/generated/clientset/versioned/typed/climanager/v1/fake"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/watch"
 	"k8s.io/client-go/discovery"
@@ -63,7 +63,7 @@ var (
 	_ testing.FakeClient  = &Clientset{}
 )
 
-// PluginsV1alpha1 retrieves the PluginsV1alpha1Client
-func (c *Clientset) PluginsV1alpha1() pluginsv1alpha1.PluginsV1alpha1Interface {
-	return &fakepluginsv1alpha1.FakePluginsV1alpha1{Fake: &c.Fake}
+// ClimanagersV1 retrieves the ClimanagersV1Client
+func (c *Clientset) ClimanagersV1() climanagersv1.ClimanagersV1Interface {
+	return &fakeclimanagersv1.FakeClimanagersV1{Fake: &c.Fake}
 }

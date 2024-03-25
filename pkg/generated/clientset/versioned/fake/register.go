@@ -3,7 +3,7 @@
 package fake
 
 import (
-	pluginsv1alpha1 "github.com/openshift/cli-manager-operator/pkg/apis/plugin/v1alpha1"
+	climanagersv1 "github.com/openshift/cli-manager-operator/pkg/apis/climanager/v1"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	runtime "k8s.io/apimachinery/pkg/runtime"
 	schema "k8s.io/apimachinery/pkg/runtime/schema"
@@ -15,7 +15,7 @@ var scheme = runtime.NewScheme()
 var codecs = serializer.NewCodecFactory(scheme)
 
 var localSchemeBuilder = runtime.SchemeBuilder{
-	pluginsv1alpha1.AddToScheme,
+	climanagersv1.AddToScheme,
 }
 
 // AddToScheme adds all types of this clientset into the given scheme. This allows composition
