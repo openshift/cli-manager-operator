@@ -1,0 +1,67 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: "openshift-cli-manager"
+  namespace: "openshift-cli-manager-operator"
+  labels:
+    app: "openshift-cli-manager"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: "openshift-cli-manager"
+  template:
+    metadata:
+      annotations:
+        kubectl.kubernetes.io/default-container: openshift-cli-manager
+      labels:
+        app: "openshift-cli-manager"
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
+      volumes:
+        - name: certs-dir
+          secret:
+            secretName: openshift-cli-manager-serving-cert
+        - name: krew-plugins
+          emptyDir: {}
+        - name: krew-git
+          emptyDir: {}
+      restartPolicy: "Always"
+      containers:
+        - name: "cli-manager"
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
+          image: ${IMAGE}
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "500Mi"
+          command: ["cli-manager", "start"]
+          ports:
+            - containerPort: 9449
+              protocol: TCP
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: 9449
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 9449
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          volumeMounts:
+            - mountPath: "/certs-dir"
+              name: certs-dir
+            - name: krew-plugins
+              mountPath: "/var/run/plugins"
+            - name: krew-git
+              mountPath: "/var/run/git"
+      serviceAccountName: "openshift-cli-manager"

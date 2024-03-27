@@ -1,0 +1,7 @@
+reviewers:
+  - ardaguclu
+  - ingvagabund
+approvers:
+  - ardaguclu
+  - ingvagabund
+component: "openshift-cli-manager-operator"

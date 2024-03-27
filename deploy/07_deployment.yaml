@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: openshift-cli-manager-operator
+  namespace: openshift-cli-manager-operator
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: openshift-cli-manager-operator
+  template:
+    metadata:
+      labels:
+        name: openshift-cli-manager-operator
+    spec:
+      containers:
+        - name: openshift-cli-manager-operator
+          image: quay.io/aguclu/cli-manager-operator:latest
+          ports:
+            - containerPort: 60000
+              name: metrics
+          command:
+            - cli-manager-operator
+          args:
+            - "operator"
+            - -v=5
+          imagePullPolicy: Always
+          env:
+            - name: WATCH_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            - name: OPERATOR_NAME
+              value: "openshift-cli-manager-operator"
+            - name: IMAGE
+              value: quay.io/aguclu/cli-manager:latest
+      serviceAccountName: openshift-cli-manager-operator
