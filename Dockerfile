@@ -3,7 +3,7 @@ WORKDIR /go/src/github.com/openshift/cli-manager-operator
 COPY . .
 RUN make build --warn-undefined-variables
 
-FROM registry.ci.openshift.org/ocp/4.16:base-rhel9
+FROM registry.ci.openshift.org/ocp/4.16:base
 COPY --from=builder /go/src/github.com/openshift/cli-manager-operator/cli-manager-operator /usr/bin/
 COPY --from=builder /go/src/github.com/openshift/cli-manager-operator/manifests /manifests
 LABEL io.k8s.display-name="OpenShift CLI Manager Operator" \
