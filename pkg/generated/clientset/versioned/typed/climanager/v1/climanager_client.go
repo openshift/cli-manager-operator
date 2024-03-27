@@ -12,7 +12,7 @@ import (
 
 type ClimanagersV1Interface interface {
 	RESTClient() rest.Interface
-	CLIManagersGetter
+	CliManagersGetter
 }
 
 // ClimanagersV1Client is used to interact with features provided by the operator.openshift.io group.
@@ -20,8 +20,8 @@ type ClimanagersV1Client struct {
 	restClient rest.Interface
 }
 
-func (c *ClimanagersV1Client) CLIManagers(namespace string) CLIManagerInterface {
-	return newCLIManagers(c, namespace)
+func (c *ClimanagersV1Client) CliManagers(namespace string) CliManagerInterface {
+	return newCliManagers(c, namespace)
 }
 
 // NewForConfig creates a new ClimanagersV1Client for the given config.

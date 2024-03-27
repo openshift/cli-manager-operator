@@ -16,31 +16,31 @@ import (
 	testing "k8s.io/client-go/testing"
 )
 
-// FakeCLIManagers implements CLIManagerInterface
-type FakeCLIManagers struct {
+// FakeCliManagers implements CliManagerInterface
+type FakeCliManagers struct {
 	Fake *FakeClimanagersV1
 	ns   string
 }
 
 var climanagersResource = v1.SchemeGroupVersion.WithResource("climanagers")
 
-var climanagersKind = v1.SchemeGroupVersion.WithKind("CLIManager")
+var climanagersKind = v1.SchemeGroupVersion.WithKind("CliManager")
 
-// Get takes name of the cLIManager, and returns the corresponding cLIManager object, and an error if there is any.
-func (c *FakeCLIManagers) Get(ctx context.Context, name string, options metav1.GetOptions) (result *v1.CLIManager, err error) {
+// Get takes name of the cliManager, and returns the corresponding cliManager object, and an error if there is any.
+func (c *FakeCliManagers) Get(ctx context.Context, name string, options metav1.GetOptions) (result *v1.CliManager, err error) {
 	obj, err := c.Fake.
-		Invokes(testing.NewGetAction(climanagersResource, c.ns, name), &v1.CLIManager{})
+		Invokes(testing.NewGetAction(climanagersResource, c.ns, name), &v1.CliManager{})
 
 	if obj == nil {
 		return nil, err
 	}
-	return obj.(*v1.CLIManager), err
+	return obj.(*v1.CliManager), err
 }
 
-// List takes label and field selectors, and returns the list of CLIManagers that match those selectors.
-func (c *FakeCLIManagers) List(ctx context.Context, opts metav1.ListOptions) (result *v1.CLIManagerList, err error) {
+// List takes label and field selectors, and returns the list of CliManagers that match those selectors.
+func (c *FakeCliManagers) List(ctx context.Context, opts metav1.ListOptions) (result *v1.CliManagerList, err error) {
 	obj, err := c.Fake.
-		Invokes(testing.NewListAction(climanagersResource, climanagersKind, c.ns, opts), &v1.CLIManagerList{})
+		Invokes(testing.NewListAction(climanagersResource, climanagersKind, c.ns, opts), &v1.CliManagerList{})
 
 	if obj == nil {
 		return nil, err
@@ -50,8 +50,8 @@ func (c *FakeCLIManagers) List(ctx context.Context, opts metav1.ListOptions) (re
 	if label == nil {
 		label = labels.Everything()
 	}
-	list := &v1.CLIManagerList{ListMeta: obj.(*v1.CLIManagerList).ListMeta}
-	for _, item := range obj.(*v1.CLIManagerList).Items {
+	list := &v1.CliManagerList{ListMeta: obj.(*v1.CliManagerList).ListMeta}
+	for _, item := range obj.(*v1.CliManagerList).Items {
 		if label.Matches(labels.Set(item.Labels)) {
 			list.Items = append(list.Items, item)
 		}
@@ -59,115 +59,115 @@ func (c *FakeCLIManagers) List(ctx context.Context, opts metav1.ListOptions) (re
 	return list, err
 }
 
-// Watch returns a watch.Interface that watches the requested cLIManagers.
-func (c *FakeCLIManagers) Watch(ctx context.Context, opts metav1.ListOptions) (watch.Interface, error) {
+// Watch returns a watch.Interface that watches the requested cliManagers.
+func (c *FakeCliManagers) Watch(ctx context.Context, opts metav1.ListOptions) (watch.Interface, error) {
 	return c.Fake.
 		InvokesWatch(testing.NewWatchAction(climanagersResource, c.ns, opts))
 
 }
 
-// Create takes the representation of a cLIManager and creates it.  Returns the server's representation of the cLIManager, and an error, if there is any.
-func (c *FakeCLIManagers) Create(ctx context.Context, cLIManager *v1.CLIManager, opts metav1.CreateOptions) (result *v1.CLIManager, err error) {
+// Create takes the representation of a cliManager and creates it.  Returns the server's representation of the cliManager, and an error, if there is any.
+func (c *FakeCliManagers) Create(ctx context.Context, cliManager *v1.CliManager, opts metav1.CreateOptions) (result *v1.CliManager, err error) {
 	obj, err := c.Fake.
-		Invokes(testing.NewCreateAction(climanagersResource, c.ns, cLIManager), &v1.CLIManager{})
+		Invokes(testing.NewCreateAction(climanagersResource, c.ns, cliManager), &v1.CliManager{})
 
 	if obj == nil {
 		return nil, err
 	}
-	return obj.(*v1.CLIManager), err
+	return obj.(*v1.CliManager), err
 }
 
-// Update takes the representation of a cLIManager and updates it. Returns the server's representation of the cLIManager, and an error, if there is any.
-func (c *FakeCLIManagers) Update(ctx context.Context, cLIManager *v1.CLIManager, opts metav1.UpdateOptions) (result *v1.CLIManager, err error) {
+// Update takes the representation of a cliManager and updates it. Returns the server's representation of the cliManager, and an error, if there is any.
+func (c *FakeCliManagers) Update(ctx context.Context, cliManager *v1.CliManager, opts metav1.UpdateOptions) (result *v1.CliManager, err error) {
 	obj, err := c.Fake.
-		Invokes(testing.NewUpdateAction(climanagersResource, c.ns, cLIManager), &v1.CLIManager{})
+		Invokes(testing.NewUpdateAction(climanagersResource, c.ns, cliManager), &v1.CliManager{})
 
 	if obj == nil {
 		return nil, err
 	}
-	return obj.(*v1.CLIManager), err
+	return obj.(*v1.CliManager), err
 }
 
 // UpdateStatus was generated because the type contains a Status member.
 // Add a +genclient:noStatus comment above the type to avoid generating UpdateStatus().
-func (c *FakeCLIManagers) UpdateStatus(ctx context.Context, cLIManager *v1.CLIManager, opts metav1.UpdateOptions) (*v1.CLIManager, error) {
+func (c *FakeCliManagers) UpdateStatus(ctx context.Context, cliManager *v1.CliManager, opts metav1.UpdateOptions) (*v1.CliManager, error) {
 	obj, err := c.Fake.
-		Invokes(testing.NewUpdateSubresourceAction(climanagersResource, "status", c.ns, cLIManager), &v1.CLIManager{})
+		Invokes(testing.NewUpdateSubresourceAction(climanagersResource, "status", c.ns, cliManager), &v1.CliManager{})
 
 	if obj == nil {
 		return nil, err
 	}
-	return obj.(*v1.CLIManager), err
+	return obj.(*v1.CliManager), err
 }
 
-// Delete takes name of the cLIManager and deletes it. Returns an error if one occurs.
-func (c *FakeCLIManagers) Delete(ctx context.Context, name string, opts metav1.DeleteOptions) error {
+// Delete takes name of the cliManager and deletes it. Returns an error if one occurs.
+func (c *FakeCliManagers) Delete(ctx context.Context, name string, opts metav1.DeleteOptions) error {
 	_, err := c.Fake.
-		Invokes(testing.NewDeleteActionWithOptions(climanagersResource, c.ns, name, opts), &v1.CLIManager{})
+		Invokes(testing.NewDeleteActionWithOptions(climanagersResource, c.ns, name, opts), &v1.CliManager{})
 
 	return err
 }
 
 // DeleteCollection deletes a collection of objects.
-func (c *FakeCLIManagers) DeleteCollection(ctx context.Context, opts metav1.DeleteOptions, listOpts metav1.ListOptions) error {
+func (c *FakeCliManagers) DeleteCollection(ctx context.Context, opts metav1.DeleteOptions, listOpts metav1.ListOptions) error {
 	action := testing.NewDeleteCollectionAction(climanagersResource, c.ns, listOpts)
 
-	_, err := c.Fake.Invokes(action, &v1.CLIManagerList{})
+	_, err := c.Fake.Invokes(action, &v1.CliManagerList{})
 	return err
 }
 
-// Patch applies the patch and returns the patched cLIManager.
-func (c *FakeCLIManagers) Patch(ctx context.Context, name string, pt types.PatchType, data []byte, opts metav1.PatchOptions, subresources ...string) (result *v1.CLIManager, err error) {
+// Patch applies the patch and returns the patched cliManager.
+func (c *FakeCliManagers) Patch(ctx context.Context, name string, pt types.PatchType, data []byte, opts metav1.PatchOptions, subresources ...string) (result *v1.CliManager, err error) {
 	obj, err := c.Fake.
-		Invokes(testing.NewPatchSubresourceAction(climanagersResource, c.ns, name, pt, data, subresources...), &v1.CLIManager{})
+		Invokes(testing.NewPatchSubresourceAction(climanagersResource, c.ns, name, pt, data, subresources...), &v1.CliManager{})
 
 	if obj == nil {
 		return nil, err
 	}
-	return obj.(*v1.CLIManager), err
+	return obj.(*v1.CliManager), err
 }
 
-// Apply takes the given apply declarative configuration, applies it and returns the applied cLIManager.
-func (c *FakeCLIManagers) Apply(ctx context.Context, cLIManager *climanagerv1.CLIManagerApplyConfiguration, opts metav1.ApplyOptions) (result *v1.CLIManager, err error) {
-	if cLIManager == nil {
-		return nil, fmt.Errorf("cLIManager provided to Apply must not be nil")
+// Apply takes the given apply declarative configuration, applies it and returns the applied cliManager.
+func (c *FakeCliManagers) Apply(ctx context.Context, cliManager *climanagerv1.CliManagerApplyConfiguration, opts metav1.ApplyOptions) (result *v1.CliManager, err error) {
+	if cliManager == nil {
+		return nil, fmt.Errorf("cliManager provided to Apply must not be nil")
 	}
-	data, err := json.Marshal(cLIManager)
+	data, err := json.Marshal(cliManager)
 	if err != nil {
 		return nil, err
 	}
-	name := cLIManager.Name
+	name := cliManager.Name
 	if name == nil {
-		return nil, fmt.Errorf("cLIManager.Name must be provided to Apply")
+		return nil, fmt.Errorf("cliManager.Name must be provided to Apply")
 	}
 	obj, err := c.Fake.
-		Invokes(testing.NewPatchSubresourceAction(climanagersResource, c.ns, *name, types.ApplyPatchType, data), &v1.CLIManager{})
+		Invokes(testing.NewPatchSubresourceAction(climanagersResource, c.ns, *name, types.ApplyPatchType, data), &v1.CliManager{})
 
 	if obj == nil {
 		return nil, err
 	}
-	return obj.(*v1.CLIManager), err
+	return obj.(*v1.CliManager), err
 }
 
 // ApplyStatus was generated because the type contains a Status member.
 // Add a +genclient:noStatus comment above the type to avoid generating ApplyStatus().
-func (c *FakeCLIManagers) ApplyStatus(ctx context.Context, cLIManager *climanagerv1.CLIManagerApplyConfiguration, opts metav1.ApplyOptions) (result *v1.CLIManager, err error) {
-	if cLIManager == nil {
-		return nil, fmt.Errorf("cLIManager provided to Apply must not be nil")
+func (c *FakeCliManagers) ApplyStatus(ctx context.Context, cliManager *climanagerv1.CliManagerApplyConfiguration, opts metav1.ApplyOptions) (result *v1.CliManager, err error) {
+	if cliManager == nil {
+		return nil, fmt.Errorf("cliManager provided to Apply must not be nil")
 	}
-	data, err := json.Marshal(cLIManager)
+	data, err := json.Marshal(cliManager)
 	if err != nil {
 		return nil, err
 	}
-	name := cLIManager.Name
+	name := cliManager.Name
 	if name == nil {
-		return nil, fmt.Errorf("cLIManager.Name must be provided to Apply")
+		return nil, fmt.Errorf("cliManager.Name must be provided to Apply")
 	}
 	obj, err := c.Fake.
-		Invokes(testing.NewPatchSubresourceAction(climanagersResource, c.ns, *name, types.ApplyPatchType, data, "status"), &v1.CLIManager{})
+		Invokes(testing.NewPatchSubresourceAction(climanagersResource, c.ns, *name, types.ApplyPatchType, data, "status"), &v1.CliManager{})
 
 	if obj == nil {
 		return nil, err
 	}
-	return obj.(*v1.CLIManager), err
+	return obj.(*v1.CliManager), err
 }

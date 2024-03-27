@@ -14,43 +14,43 @@ import (
 	rest "k8s.io/client-go/rest"
 )
 
-// CLIManagersGetter has a method to return a CLIManagerInterface.
+// CliManagersGetter has a method to return a CliManagerInterface.
 // A group's client should implement this interface.
-type CLIManagersGetter interface {
-	CLIManagers(namespace string) CLIManagerInterface
+type CliManagersGetter interface {
+	CliManagers(namespace string) CliManagerInterface
 }
 
-// CLIManagerInterface has methods to work with CLIManager resources.
-type CLIManagerInterface interface {
-	Create(ctx context.Context, cLIManager *v1.CLIManager, opts metav1.CreateOptions) (*v1.CLIManager, error)
-	Update(ctx context.Context, cLIManager *v1.CLIManager, opts metav1.UpdateOptions) (*v1.CLIManager, error)
-	UpdateStatus(ctx context.Context, cLIManager *v1.CLIManager, opts metav1.UpdateOptions) (*v1.CLIManager, error)
+// CliManagerInterface has methods to work with CliManager resources.
+type CliManagerInterface interface {
+	Create(ctx context.Context, cliManager *v1.CliManager, opts metav1.CreateOptions) (*v1.CliManager, error)
+	Update(ctx context.Context, cliManager *v1.CliManager, opts metav1.UpdateOptions) (*v1.CliManager, error)
+	UpdateStatus(ctx context.Context, cliManager *v1.CliManager, opts metav1.UpdateOptions) (*v1.CliManager, error)
 	Delete(ctx context.Context, name string, opts metav1.DeleteOptions) error
 	DeleteCollection(ctx context.Context, opts metav1.DeleteOptions, listOpts metav1.ListOptions) error
-	Get(ctx context.Context, name string, opts metav1.GetOptions) (*v1.CLIManager, error)
-	List(ctx context.Context, opts metav1.ListOptions) (*v1.CLIManagerList, error)
+	Get(ctx context.Context, name string, opts metav1.GetOptions) (*v1.CliManager, error)
+	List(ctx context.Context, opts metav1.ListOptions) (*v1.CliManagerList, error)
 	Watch(ctx context.Context, opts metav1.ListOptions) (watch.Interface, error)
-	Patch(ctx context.Context, name string, pt types.PatchType, data []byte, opts metav1.PatchOptions, subresources ...string) (result *v1.CLIManager, err error)
-	CLIManagerExpansion
+	Patch(ctx context.Context, name string, pt types.PatchType, data []byte, opts metav1.PatchOptions, subresources ...string) (result *v1.CliManager, err error)
+	CliManagerExpansion
 }
 
-// cLIManagers implements CLIManagerInterface
-type cLIManagers struct {
+// cliManagers implements CliManagerInterface
+type cliManagers struct {
 	client rest.Interface
 	ns     string
 }
 
-// newCLIManagers returns a CLIManagers
-func newCLIManagers(c *ClimanagersV1Client, namespace string) *cLIManagers {
-	return &cLIManagers{
+// newCliManagers returns a CliManagers
+func newCliManagers(c *ClimanagersV1Client, namespace string) *cliManagers {
+	return &cliManagers{
 		client: c.RESTClient(),
 		ns:     namespace,
 	}
 }
 
-// Get takes name of the cLIManager, and returns the corresponding cLIManager object, and an error if there is any.
-func (c *cLIManagers) Get(ctx context.Context, name string, options metav1.GetOptions) (result *v1.CLIManager, err error) {
-	result = &v1.CLIManager{}
+// Get takes name of the cliManager, and returns the corresponding cliManager object, and an error if there is any.
+func (c *cliManagers) Get(ctx context.Context, name string, options metav1.GetOptions) (result *v1.CliManager, err error) {
+	result = &v1.CliManager{}
 	err = c.client.Get().
 		Namespace(c.ns).
 		Resource("climanagers").
@@ -61,13 +61,13 @@ func (c *cLIManagers) Get(ctx context.Context, name string, options metav1.GetOp
 	return
 }
 
-// List takes label and field selectors, and returns the list of CLIManagers that match those selectors.
-func (c *cLIManagers) List(ctx context.Context, opts metav1.ListOptions) (result *v1.CLIManagerList, err error) {
+// List takes label and field selectors, and returns the list of CliManagers that match those selectors.
+func (c *cliManagers) List(ctx context.Context, opts metav1.ListOptions) (result *v1.CliManagerList, err error) {
 	var timeout time.Duration
 	if opts.TimeoutSeconds != nil {
 		timeout = time.Duration(*opts.TimeoutSeconds) * time.Second
 	}
-	result = &v1.CLIManagerList{}
+	result = &v1.CliManagerList{}
 	err = c.client.Get().
 		Namespace(c.ns).
 		Resource("climanagers").
@@ -78,8 +78,8 @@ func (c *cLIManagers) List(ctx context.Context, opts metav1.ListOptions) (result
 	return
 }
 
-// Watch returns a watch.Interface that watches the requested cLIManagers.
-func (c *cLIManagers) Watch(ctx context.Context, opts metav1.ListOptions) (watch.Interface, error) {
+// Watch returns a watch.Interface that watches the requested cliManagers.
+func (c *cliManagers) Watch(ctx context.Context, opts metav1.ListOptions) (watch.Interface, error) {
 	var timeout time.Duration
 	if opts.TimeoutSeconds != nil {
 		timeout = time.Duration(*opts.TimeoutSeconds) * time.Second
@@ -93,28 +93,28 @@ func (c *cLIManagers) Watch(ctx context.Context, opts metav1.ListOptions) (watch
 		Watch(ctx)
 }
 
-// Create takes the representation of a cLIManager and creates it.  Returns the server's representation of the cLIManager, and an error, if there is any.
-func (c *cLIManagers) Create(ctx context.Context, cLIManager *v1.CLIManager, opts metav1.CreateOptions) (result *v1.CLIManager, err error) {
-	result = &v1.CLIManager{}
+// Create takes the representation of a cliManager and creates it.  Returns the server's representation of the cliManager, and an error, if there is any.
+func (c *cliManagers) Create(ctx context.Context, cliManager *v1.CliManager, opts metav1.CreateOptions) (result *v1.CliManager, err error) {
+	result = &v1.CliManager{}
 	err = c.client.Post().
 		Namespace(c.ns).
 		Resource("climanagers").
 		VersionedParams(&opts, scheme.ParameterCodec).
-		Body(cLIManager).
+		Body(cliManager).
 		Do(ctx).
 		Into(result)
 	return
 }
 
-// Update takes the representation of a cLIManager and updates it. Returns the server's representation of the cLIManager, and an error, if there is any.
-func (c *cLIManagers) Update(ctx context.Context, cLIManager *v1.CLIManager, opts metav1.UpdateOptions) (result *v1.CLIManager, err error) {
-	result = &v1.CLIManager{}
+// Update takes the representation of a cliManager and updates it. Returns the server's representation of the cliManager, and an error, if there is any.
+func (c *cliManagers) Update(ctx context.Context, cliManager *v1.CliManager, opts metav1.UpdateOptions) (result *v1.CliManager, err error) {
+	result = &v1.CliManager{}
 	err = c.client.Put().
 		Namespace(c.ns).
 		Resource("climanagers").
-		Name(cLIManager.Name).
+		Name(cliManager.Name).
 		VersionedParams(&opts, scheme.ParameterCodec).
-		Body(cLIManager).
+		Body(cliManager).
 		Do(ctx).
 		Into(result)
 	return
@@ -122,22 +122,22 @@ func (c *cLIManagers) Update(ctx context.Context, cLIManager *v1.CLIManager, opt
 
 // UpdateStatus was generated because the type contains a Status member.
 // Add a +genclient:noStatus comment above the type to avoid generating UpdateStatus().
-func (c *cLIManagers) UpdateStatus(ctx context.Context, cLIManager *v1.CLIManager, opts metav1.UpdateOptions) (result *v1.CLIManager, err error) {
-	result = &v1.CLIManager{}
+func (c *cliManagers) UpdateStatus(ctx context.Context, cliManager *v1.CliManager, opts metav1.UpdateOptions) (result *v1.CliManager, err error) {
+	result = &v1.CliManager{}
 	err = c.client.Put().
 		Namespace(c.ns).
 		Resource("climanagers").
-		Name(cLIManager.Name).
+		Name(cliManager.Name).
 		SubResource("status").
 		VersionedParams(&opts, scheme.ParameterCodec).
-		Body(cLIManager).
+		Body(cliManager).
 		Do(ctx).
 		Into(result)
 	return
 }
 
-// Delete takes name of the cLIManager and deletes it. Returns an error if one occurs.
-func (c *cLIManagers) Delete(ctx context.Context, name string, opts metav1.DeleteOptions) error {
+// Delete takes name of the cliManager and deletes it. Returns an error if one occurs.
+func (c *cliManagers) Delete(ctx context.Context, name string, opts metav1.DeleteOptions) error {
 	return c.client.Delete().
 		Namespace(c.ns).
 		Resource("climanagers").
@@ -148,7 +148,7 @@ func (c *cLIManagers) Delete(ctx context.Context, name string, opts metav1.Delet
 }
 
 // DeleteCollection deletes a collection of objects.
-func (c *cLIManagers) DeleteCollection(ctx context.Context, opts metav1.DeleteOptions, listOpts metav1.ListOptions) error {
+func (c *cliManagers) DeleteCollection(ctx context.Context, opts metav1.DeleteOptions, listOpts metav1.ListOptions) error {
 	var timeout time.Duration
 	if listOpts.TimeoutSeconds != nil {
 		timeout = time.Duration(*listOpts.TimeoutSeconds) * time.Second
@@ -163,9 +163,9 @@ func (c *cLIManagers) DeleteCollection(ctx context.Context, opts metav1.DeleteOp
 		Error()
 }
 
-// Patch applies the patch and returns the patched cLIManager.
-func (c *cLIManagers) Patch(ctx context.Context, name string, pt types.PatchType, data []byte, opts metav1.PatchOptions, subresources ...string) (result *v1.CLIManager, err error) {
-	result = &v1.CLIManager{}
+// Patch applies the patch and returns the patched cliManager.
+func (c *cliManagers) Patch(ctx context.Context, name string, pt types.PatchType, data []byte, opts metav1.PatchOptions, subresources ...string) (result *v1.CliManager, err error) {
+	result = &v1.CliManager{}
 	err = c.client.Patch(pt).
 		Namespace(c.ns).
 		Resource("climanagers").

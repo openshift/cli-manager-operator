@@ -2,4 +2,4 @@
 
 package v1
 
-type CLIManagerExpansion interface{}
+type CliManagerExpansion interface{}

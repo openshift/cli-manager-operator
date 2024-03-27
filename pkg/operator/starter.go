@@ -33,7 +33,7 @@ func RunOperator(ctx context.Context, cc *controllercmd.ControllerContext) error
 	operatorConfigInformers := operatorclientinformers.NewSharedInformerFactory(operatorConfigClient, 10*time.Minute)
 	cliManagerClient := &operatorclient.CLIManagerClient{
 		Ctx:            ctx,
-		SharedInformer: operatorConfigInformers.Climanagers().V1().CLIManagers().Informer(),
+		SharedInformer: operatorConfigInformers.Climanagers().V1().CliManagers().Informer(),
 		OperatorClient: operatorConfigClient.ClimanagersV1(),
 	}
 
@@ -47,7 +47,7 @@ func RunOperator(ctx context.Context, cc *controllercmd.ControllerContext) error
 		os.Getenv("RELATED_IMAGE_OPERAND_IMAGE"),
 		operatorConfigClient.ClimanagersV1(),
 		routeClient,
-		operatorConfigInformers.Climanagers().V1().CLIManagers(),
+		operatorConfigInformers.Climanagers().V1().CliManagers(),
 		cliManagerClient,
 		kubeClient,
 		cc.EventRecorder,

@@ -12,37 +12,37 @@ import (
 // +kubebuilder:storageversion
 // +kubebuilder:subresource:status
 
-// CLIManager is the Schema for the CLIManager API
-type CLIManager struct {
+// CliManager is the Schema for the CliManager API
+type CliManager struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
 
 	// spec holds user settable values for configuration
 	// +kubebuilder:validation:Required
 	// +required
-	Spec CLIManagerSpec `json:"spec"`
+	Spec CliManagerSpec `json:"spec"`
 	// status holds observed values from the cluster. They may not be overridden.
 	// +kubebuilder:validation:Optional
 	// +optional
-	Status CLIManagerStatus `json:"status"`
+	Status CliManagerStatus `json:"status"`
 }
 
-// CLIManagerSpec defines the desired state of CLIManager
-type CLIManagerSpec struct {
+// CliManagerSpec defines the desired state of CliManager
+type CliManagerSpec struct {
 	operatorv1.OperatorSpec `json:",inline"`
 }
 
-// CLIManagerStatus defines the observed state of CLIManager
-type CLIManagerStatus struct {
+// CliManagerStatus defines the observed state of CliManager
+type CliManagerStatus struct {
 	operatorv1.OperatorStatus `json:",inline"`
 }
 
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
 //+kubebuilder:object:root=true
 
-// CLIManagerList contains a list of CLIManager
-type CLIManagerList struct {
+// CliManagerList contains a list of CliManager
+type CliManagerList struct {
 	metav1.TypeMeta `json:",inline"`
 	metav1.ListMeta `json:"metadata,omitempty"`
-	Items           []CLIManager `json:"items"`
+	Items           []CliManager `json:"items"`
 }

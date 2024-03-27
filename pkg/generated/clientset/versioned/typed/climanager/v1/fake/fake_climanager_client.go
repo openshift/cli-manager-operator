@@ -12,8 +12,8 @@ type FakeClimanagersV1 struct {
 	*testing.Fake
 }
 
-func (c *FakeClimanagersV1) CLIManagers(namespace string) v1.CLIManagerInterface {
-	return &FakeCLIManagers{c, namespace}
+func (c *FakeClimanagersV1) CliManagers(namespace string) v1.CliManagerInterface {
+	return &FakeCliManagers{c, namespace}
 }
 
 // RESTClient returns a RESTClient that is used to communicate

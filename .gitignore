@@ -1,4 +1,4 @@
-openshift-cli-manager-operator
+cli-manager-operator
 
 # Binaries for programs and plugins
 *.exe

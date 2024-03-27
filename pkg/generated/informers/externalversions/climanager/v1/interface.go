@@ -8,8 +8,8 @@ import (
 
 // Interface provides access to all the informers in this group version.
 type Interface interface {
-	// CLIManagers returns a CLIManagerInformer.
-	CLIManagers() CLIManagerInformer
+	// CliManagers returns a CliManagerInformer.
+	CliManagers() CliManagerInformer
 }
 
 type version struct {
@@ -23,7 +23,7 @@ func New(f internalinterfaces.SharedInformerFactory, namespace string, tweakList
 	return &version{factory: f, namespace: namespace, tweakListOptions: tweakListOptions}
 }
 
-// CLIManagers returns a CLIManagerInformer.
-func (v *version) CLIManagers() CLIManagerInformer {
-	return &cLIManagerInformer{factory: v.factory, namespace: v.namespace, tweakListOptions: v.tweakListOptions}
+// CliManagers returns a CliManagerInformer.
+func (v *version) CliManagers() CliManagerInformer {
+	return &cliManagerInformer{factory: v.factory, namespace: v.namespace, tweakListOptions: v.tweakListOptions}
 }

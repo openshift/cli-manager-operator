@@ -15,12 +15,12 @@ spec:
     spec:
       containers:
         - name: openshift-cli-manager-operator
-          image: quay.io/openshift/origin-cli-manager-operator:latest
+          image: quay.io/aguclu/cli-manager-operator:latest
           ports:
             - containerPort: 60000
               name: metrics
           command:
-            - openshift-cli-manager-operator
+            - cli-manager-operator
           args:
             - "operator"
           imagePullPolicy: Always
@@ -32,5 +32,5 @@ spec:
             - name: OPERATOR_NAME
               value: "openshift-cli-manager-operator"
             - name: IMAGE
-              value: quay.io/openshift/origin-cli-manager:4.16
+              value: quay.io/aguclu/cli-manager:latest
       serviceAccountName: openshift-cli-manager-operator

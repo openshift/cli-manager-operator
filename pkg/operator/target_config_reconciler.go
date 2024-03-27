@@ -51,7 +51,7 @@ func NewTargetConfigReconciler(
 	targetImage string,
 	operatorConfigClient operatorconfigclientv1.ClimanagersV1Interface,
 	routeCLient routev1client.RouteV1Interface,
-	operatorClientInformer operatorclientinformers.CLIManagerInformer,
+	operatorClientInformer operatorclientinformers.CliManagerInformer,
 	cliManagerClient *operatorclient.CLIManagerClient,
 	kubeClient kubernetes.Interface,
 	eventRecorder events.Recorder,
@@ -73,7 +73,7 @@ func NewTargetConfigReconciler(
 }
 
 func (c *TargetConfigReconciler) sync() error {
-	cliManager, err := c.operatorClient.CLIManagers(operatorclient.OperatorNamespace).Get(c.ctx, operatorclient.OperatorConfigName, metav1.GetOptions{})
+	cliManager, err := c.operatorClient.CliManagers(operatorclient.OperatorNamespace).Get(c.ctx, operatorclient.OperatorConfigName, metav1.GetOptions{})
 	if err != nil {
 		klog.ErrorS(err, "unable to get operator configuration", "namespace", operatorclient.OperatorNamespace, "cli-manager", operatorclient.OperatorConfigName)
 		return err
@@ -121,7 +121,7 @@ func (c *TargetConfigReconciler) sync() error {
 	return err
 }
 
-func (c *TargetConfigReconciler) manageClusterRole(cliManager *climanagerv1.CLIManager) (*rbacv1.ClusterRole, bool, error) {
+func (c *TargetConfigReconciler) manageClusterRole(cliManager *climanagerv1.CliManager) (*rbacv1.ClusterRole, bool, error) {
 	required := resourceread.ReadClusterRoleV1OrDie(bindata.MustAsset("assets/cli-manager/clusterrole.yaml"))
 	ownerReference := metav1.OwnerReference{
 		APIVersion: "operator.openshift.io/v1",
@@ -137,7 +137,7 @@ func (c *TargetConfigReconciler) manageClusterRole(cliManager *climanagerv1.CLIM
 	return resourceapply.ApplyClusterRole(c.ctx, c.kubeClient.RbacV1(), c.eventRecorder, required)
 }
 
-func (c *TargetConfigReconciler) manageClusterRoleBinding(cliManager *climanagerv1.CLIManager) (*rbacv1.ClusterRoleBinding, bool, error) {
+func (c *TargetConfigReconciler) manageClusterRoleBinding(cliManager *climanagerv1.CliManager) (*rbacv1.ClusterRoleBinding, bool, error) {
 	required := resourceread.ReadClusterRoleBindingV1OrDie(bindata.MustAsset("assets/cli-manager/clusterrolebinding.yaml"))
 	ownerReference := metav1.OwnerReference{
 		APIVersion: "operator.openshift.io/v1",
@@ -153,7 +153,7 @@ func (c *TargetConfigReconciler) manageClusterRoleBinding(cliManager *climanager
 	return resourceapply.ApplyClusterRoleBinding(c.ctx, c.kubeClient.RbacV1(), c.eventRecorder, required)
 }
 
-func (c *TargetConfigReconciler) manageRoute(cliManager *climanagerv1.CLIManager) (*routev1.Route, bool, error) {
+func (c *TargetConfigReconciler) manageRoute(cliManager *climanagerv1.CliManager) (*routev1.Route, bool, error) {
 	required := resourceread.ReadRouteV1OrDie(bindata.MustAsset("assets/cli-manager/route.yaml"))
 	required.Namespace = cliManager.Namespace
 	ownerReference := metav1.OwnerReference{
@@ -170,7 +170,7 @@ func (c *TargetConfigReconciler) manageRoute(cliManager *climanagerv1.CLIManager
 	return applyRoute(c.ctx, c.routeCLient, c.eventRecorder, required)
 }
 
-func (c *TargetConfigReconciler) manageService(cliManager *climanagerv1.CLIManager) (*v1.Service, bool, error) {
+func (c *TargetConfigReconciler) manageService(cliManager *climanagerv1.CliManager) (*v1.Service, bool, error) {
 	required := resourceread.ReadServiceV1OrDie(bindata.MustAsset("assets/cli-manager/service.yaml"))
 	required.Namespace = cliManager.Namespace
 	ownerReference := metav1.OwnerReference{
@@ -187,7 +187,7 @@ func (c *TargetConfigReconciler) manageService(cliManager *climanagerv1.CLIManag
 	return resourceapply.ApplyService(c.ctx, c.kubeClient.CoreV1(), c.eventRecorder, required)
 }
 
-func (c *TargetConfigReconciler) manageServiceAccount(cliManager *climanagerv1.CLIManager) (*v1.ServiceAccount, bool, error) {
+func (c *TargetConfigReconciler) manageServiceAccount(cliManager *climanagerv1.CliManager) (*v1.ServiceAccount, bool, error) {
 	required := resourceread.ReadServiceAccountV1OrDie(bindata.MustAsset("assets/cli-manager/serviceaccount.yaml"))
 	required.Namespace = cliManager.Namespace
 	ownerReference := metav1.OwnerReference{
@@ -204,7 +204,7 @@ func (c *TargetConfigReconciler) manageServiceAccount(cliManager *climanagerv1.C
 	return resourceapply.ApplyServiceAccount(c.ctx, c.kubeClient.CoreV1(), c.eventRecorder, required)
 }
 
-func (c *TargetConfigReconciler) manageDeployments(cliManager *climanagerv1.CLIManager) (*appsv1.Deployment, bool, error) {
+func (c *TargetConfigReconciler) manageDeployments(cliManager *climanagerv1.CliManager) (*appsv1.Deployment, bool, error) {
 	required := resourceread.ReadDeploymentV1OrDie(bindata.MustAsset("assets/cli-manager/deployment.yaml"))
 	required.Name = operatorclient.OperandName
 	required.Namespace = cliManager.Namespace

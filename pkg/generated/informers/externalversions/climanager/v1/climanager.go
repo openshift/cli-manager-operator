@@ -16,59 +16,59 @@ import (
 	cache "k8s.io/client-go/tools/cache"
 )
 
-// CLIManagerInformer provides access to a shared informer and lister for
-// CLIManagers.
-type CLIManagerInformer interface {
+// CliManagerInformer provides access to a shared informer and lister for
+// CliManagers.
+type CliManagerInformer interface {
 	Informer() cache.SharedIndexInformer
-	Lister() v1.CLIManagerLister
+	Lister() v1.CliManagerLister
 }
 
-type cLIManagerInformer struct {
+type cliManagerInformer struct {
 	factory          internalinterfaces.SharedInformerFactory
 	tweakListOptions internalinterfaces.TweakListOptionsFunc
 	namespace        string
 }
 
-// NewCLIManagerInformer constructs a new informer for CLIManager type.
+// NewCliManagerInformer constructs a new informer for CliManager type.
 // Always prefer using an informer factory to get a shared informer instead of getting an independent
 // one. This reduces memory footprint and number of connections to the server.
-func NewCLIManagerInformer(client versioned.Interface, namespace string, resyncPeriod time.Duration, indexers cache.Indexers) cache.SharedIndexInformer {
-	return NewFilteredCLIManagerInformer(client, namespace, resyncPeriod, indexers, nil)
+func NewCliManagerInformer(client versioned.Interface, namespace string, resyncPeriod time.Duration, indexers cache.Indexers) cache.SharedIndexInformer {
+	return NewFilteredCliManagerInformer(client, namespace, resyncPeriod, indexers, nil)
 }
 
-// NewFilteredCLIManagerInformer constructs a new informer for CLIManager type.
+// NewFilteredCliManagerInformer constructs a new informer for CliManager type.
 // Always prefer using an informer factory to get a shared informer instead of getting an independent
 // one. This reduces memory footprint and number of connections to the server.
-func NewFilteredCLIManagerInformer(client versioned.Interface, namespace string, resyncPeriod time.Duration, indexers cache.Indexers, tweakListOptions internalinterfaces.TweakListOptionsFunc) cache.SharedIndexInformer {
+func NewFilteredCliManagerInformer(client versioned.Interface, namespace string, resyncPeriod time.Duration, indexers cache.Indexers, tweakListOptions internalinterfaces.TweakListOptionsFunc) cache.SharedIndexInformer {
 	return cache.NewSharedIndexInformer(
 		&cache.ListWatch{
 			ListFunc: func(options metav1.ListOptions) (runtime.Object, error) {
 				if tweakListOptions != nil {
 					tweakListOptions(&options)
 				}
-				return client.ClimanagersV1().CLIManagers(namespace).List(context.TODO(), options)
+				return client.ClimanagersV1().CliManagers(namespace).List(context.TODO(), options)
 			},
 			WatchFunc: func(options metav1.ListOptions) (watch.Interface, error) {
 				if tweakListOptions != nil {
 					tweakListOptions(&options)
 				}
-				return client.ClimanagersV1().CLIManagers(namespace).Watch(context.TODO(), options)
+				return client.ClimanagersV1().CliManagers(namespace).Watch(context.TODO(), options)
 			},
 		},
-		&climanagerv1.CLIManager{},
+		&climanagerv1.CliManager{},
 		resyncPeriod,
 		indexers,
 	)
 }
 
-func (f *cLIManagerInformer) defaultInformer(client versioned.Interface, resyncPeriod time.Duration) cache.SharedIndexInformer {
-	return NewFilteredCLIManagerInformer(client, f.namespace, resyncPeriod, cache.Indexers{cache.NamespaceIndex: cache.MetaNamespaceIndexFunc}, f.tweakListOptions)
+func (f *cliManagerInformer) defaultInformer(client versioned.Interface, resyncPeriod time.Duration) cache.SharedIndexInformer {
+	return NewFilteredCliManagerInformer(client, f.namespace, resyncPeriod, cache.Indexers{cache.NamespaceIndex: cache.MetaNamespaceIndexFunc}, f.tweakListOptions)
 }
 
-func (f *cLIManagerInformer) Informer() cache.SharedIndexInformer {
-	return f.factory.InformerFor(&climanagerv1.CLIManager{}, f.defaultInformer)
+func (f *cliManagerInformer) Informer() cache.SharedIndexInformer {
+	return f.factory.InformerFor(&climanagerv1.CliManager{}, f.defaultInformer)
 }
 
-func (f *cLIManagerInformer) Lister() v1.CLIManagerLister {
-	return v1.NewCLIManagerLister(f.Informer().GetIndexer())
+func (f *cliManagerInformer) Lister() v1.CliManagerLister {
+	return v1.NewCliManagerLister(f.Informer().GetIndexer())
 }

@@ -2,10 +2,10 @@
 
 package v1
 
-// CLIManagerListerExpansion allows custom methods to be added to
-// CLIManagerLister.
-type CLIManagerListerExpansion interface{}
+// CliManagerListerExpansion allows custom methods to be added to
+// CliManagerLister.
+type CliManagerListerExpansion interface{}
 
-// CLIManagerNamespaceListerExpansion allows custom methods to be added to
-// CLIManagerNamespaceLister.
-type CLIManagerNamespaceListerExpansion interface{}
+// CliManagerNamespaceListerExpansion allows custom methods to be added to
+// CliManagerNamespaceLister.
+type CliManagerNamespaceListerExpansion interface{}
