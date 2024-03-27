@@ -13,7 +13,7 @@ import (
 
 const OperatorNamespace = "openshift-cli-manager-operator"
 const OperatorConfigName = "cluster"
-const OperandName = "cli-manager"
+const OperandName = "openshift-cli-manager"
 
 type CLIManagerClient struct {
 	Ctx            context.Context

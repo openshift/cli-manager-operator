@@ -64,4 +64,4 @@ spec:
               mountPath: "/var/run/plugins"
             - name: krew-git
               mountPath: "/var/run/git"
-      serviceAccountName: "cli-manager"
+      serviceAccountName: "openshift-cli-manager"

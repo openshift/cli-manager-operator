@@ -75,49 +75,51 @@ func NewTargetConfigReconciler(
 func (c *TargetConfigReconciler) sync() error {
 	cliManager, err := c.operatorClient.CliManagers(operatorclient.OperatorNamespace).Get(c.ctx, operatorclient.OperatorConfigName, metav1.GetOptions{})
 	if err != nil {
-		klog.ErrorS(err, "unable to get operator configuration", "namespace", operatorclient.OperatorNamespace, "cli-manager", operatorclient.OperatorConfigName)
+		klog.ErrorS(err, "unable to get operator configuration", "namespace", operatorclient.OperatorNamespace, "openshift-cli-manager", operatorclient.OperatorConfigName)
 		return err
 	}
 
 	_, _, err = c.manageClusterRole(cliManager)
 	if err != nil {
+		klog.Errorf("unable to manage cluster role err: %v", err)
 		return err
 	}
 
 	_, _, err = c.manageClusterRoleBinding(cliManager)
 	if err != nil {
+		klog.Errorf("unable to manage cluster role binding err: %v", err)
 		return err
 	}
 
 	deployment, _, err := c.manageDeployments(cliManager)
 	if err != nil {
+		klog.Errorf("unable to manage deployment err: %v", err)
 		return err
 	}
 
 	_, _, err = c.manageRoute(cliManager)
 	if err != nil {
+		klog.Errorf("unable to manage route err: %v", err)
 		return err
 	}
 
 	_, _, err = c.manageService(cliManager)
 	if err != nil {
+		klog.Errorf("unable to manage service err: %v", err)
 		return err
 	}
 
 	_, _, err = c.manageServiceAccount(cliManager)
 	if err != nil {
+		klog.Errorf("unable to manage service account err: %v", err)
 		return err
 	}
 
-	_, _, err = v1helpers.UpdateStatus(c.ctx, c.cliManagerClient,
-		v1helpers.UpdateConditionFn(operatorv1.OperatorCondition{
-			Type:   "TargetConfigControllerDegraded",
-			Status: operatorv1.ConditionFalse,
-		}),
-		func(status *operatorv1.OperatorStatus) error {
-			resourcemerge.SetDeploymentGeneration(&status.Generations, deployment)
-			return nil
-		})
+	_, _, err = v1helpers.UpdateStatus(c.ctx, c.cliManagerClient, func(status *operatorv1.OperatorStatus) error {
+		resourcemerge.SetDeploymentGeneration(&status.Generations, deployment)
+		return nil
+	})
+
 	return err
 }
 
@@ -192,7 +194,7 @@ func (c *TargetConfigReconciler) manageServiceAccount(cliManager *climanagerv1.C
 	required.Namespace = cliManager.Namespace
 	ownerReference := metav1.OwnerReference{
 		APIVersion: "operator.openshift.io/v1",
-		Kind:       "CLIManager",
+		Kind:       "CliManager",
 		Name:       cliManager.Name,
 		UID:        cliManager.UID,
 	}
@@ -218,14 +220,18 @@ func (c *TargetConfigReconciler) manageDeployments(cliManager *climanagerv1.CliM
 		ownerReference,
 	}
 	controller.EnsureOwnerRef(required, ownerReference)
-	images := map[string]string{
-		"${IMAGE}": c.targetImage,
-	}
-	for i := range required.Spec.Template.Spec.Containers {
-		for pat, img := range images {
-			if required.Spec.Template.Spec.Containers[i].Image == pat {
-				required.Spec.Template.Spec.Containers[i].Image = img
-				break
+
+	if c.targetImage != "" {
+		images := map[string]string{
+			"${IMAGE}": c.targetImage,
+		}
+
+		for i := range required.Spec.Template.Spec.Containers {
+			for pat, img := range images {
+				if required.Spec.Template.Spec.Containers[i].Image == pat {
+					required.Spec.Template.Spec.Containers[i].Image = img
+					break
+				}
 			}
 		}
 	}

@@ -44,7 +44,6 @@ rules:
     resources:
       - services
       - serviceaccounts
-      - configmaps
       - events
       - pods
     verbs:
@@ -55,3 +54,12 @@ rules:
       - routes
     verbs:
       - "*"
+  - apiGroups:
+      - config.openshift.io
+    resources:
+      - infrastructures
+      - apiservers
+    verbs:
+      - get
+      - watch
+      - list

@@ -23,6 +23,7 @@ spec:
             - cli-manager-operator
           args:
             - "operator"
+            - -v=5
           imagePullPolicy: Always
           env:
             - name: WATCH_NAMESPACE

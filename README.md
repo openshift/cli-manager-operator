@@ -1,13 +1,13 @@
-# OpenShift CLI Manager Operator
+# CLI Manager Operator
 
-Run the OpenShift CLI Manager in your OpenShift cluster to distribute CLIs.
+Run the CLI Manager in your OpenShift cluster to distribute CLIs.
 
 ## Deploy the operator
 
 ### Quick Development
 
 1. Build and push the operator image to a registry:
-2. Ensure the `image` spec in `deploy/05_deployment.yaml` refers to the operator image you pushed
+2. Ensure the `image` spec in `deploy/07_deployment.yaml` refers to the operator image you pushed
 3. Run `oc create -f deploy/.`
 
 ### OperatorHub install with custom index image
@@ -62,4 +62,4 @@ This process refers to building the operator in a way that it can be installed l
    $ oc create ns openshift-cli-manager-operator
    ```
 
-1. open the console Operators -> OperatorHub, search for `OpenShift CLI Manager operator` and install the operator
+1. open the console Operators -> OperatorHub, search for `CLI Manager operator` and install the operator
