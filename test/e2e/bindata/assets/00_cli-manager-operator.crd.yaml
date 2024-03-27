@@ -13,7 +13,7 @@ spec:
       storage: true
       "schema":
         "openAPIV3Schema":
-          description: CLIManager is the Schema for the CLIManager API
+          description: CliManager is the Schema for the CliManager API
           type: object
           required:
             - spec
@@ -152,7 +152,7 @@ spec:
                   description: version is the level this availability applies to
                   type: string
   names:
-    kind: CLIManager
-    listKind: CLIManagerList
+    kind: CliManager
+    listKind: CliManagerList
     plural: climanagers
     singular: climanager

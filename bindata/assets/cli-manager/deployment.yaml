@@ -42,8 +42,6 @@ spec:
               cpu: "100m"
               memory: "500Mi"
           command: ["cli-manager", "start"]
-          args:
-            - --v=4
           ports:
             - containerPort: 9449
               protocol: TCP
