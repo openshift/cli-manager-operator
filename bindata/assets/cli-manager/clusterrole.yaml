@@ -3,12 +3,30 @@ kind: ClusterRole
 metadata:
   name: openshift-cli-manager
 rules:
-  - apiGroups: ["config.openshift.io"]
-    resources: ["plugins"]
-    verbs: ["get", "list", "watch"]
-  - apiGroups: ["coordination.k8s.io"]
-    resources: ["leases"]
-    verbs:  ["*"]
-  - apiGroups: [ "route.openshift.io" ]
-    resources: [ "routes" ]
-    verbs: [ "get", "list"]
+  - apiGroups:
+      - "config.openshift.io"
+    resources:
+      - plugins
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - "coordination.k8s.io"
+    resources:
+      - leases
+    verbs:
+      - "*"
+  - apiGroups:
+      - "route.openshift.io"
+    resources:
+      - routes
+    verbs:
+      - get
+      - list
+  - apiGroups:
+      - ""
+    resources:
+      - secrets
+    verbs:
+      - get
