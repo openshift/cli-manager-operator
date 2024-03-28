@@ -23,7 +23,6 @@ spec:
             - cli-manager-operator
           args:
             - "operator"
-            - -v=5
           imagePullPolicy: Always
           env:
             - name: WATCH_NAMESPACE
@@ -32,6 +31,6 @@ spec:
                   fieldPath: metadata.namespace
             - name: OPERATOR_NAME
               value: "openshift-cli-manager-operator"
-            - name: IMAGE
+            - name: RELATED_IMAGE_OPERAND_IMAGE
               value: quay.io/aguclu/cli-manager:latest
       serviceAccountName: openshift-cli-manager-operator
