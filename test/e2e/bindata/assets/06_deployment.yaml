@@ -28,9 +28,10 @@ spec:
             - containerPort: 60000
               name: metrics
           command:
-            - openshift-cli-manager-operator
+            - cli-manager-operator
           args:
             - "operator"
+            - "--serve-artifacts-in-http"
           imagePullPolicy: Always
           env:
             - name: WATCH_NAMESPACE

@@ -20,6 +20,8 @@ const (
 	workQueueKey = "key"
 )
 
+var ServeArtifactAsHttp bool
+
 func RunOperator(ctx context.Context, cc *controllercmd.ControllerContext) error {
 	kubeClient, err := kubernetes.NewForConfig(cc.ProtoKubeConfig)
 	if err != nil {
@@ -50,11 +52,9 @@ func RunOperator(ctx context.Context, cc *controllercmd.ControllerContext) error
 		operatorConfigInformers.Climanagers().V1().CliManagers(),
 		cliManagerClient,
 		kubeClient,
+		ServeArtifactAsHttp,
 		cc.EventRecorder,
 	)
-	if err != nil {
-		return err
-	}
 
 	logLevelController := loglevel.NewClusterOperatorLoggingController(cliManagerClient, cc.EventRecorder)
 

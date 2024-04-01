@@ -4,11 +4,8 @@ package fake
 
 import (
 	"context"
-	json "encoding/json"
-	"fmt"
 
 	v1 "github.com/openshift/cli-manager-operator/pkg/apis/climanager/v1"
-	climanagerv1 "github.com/openshift/cli-manager-operator/pkg/generated/applyconfiguration/climanager/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	labels "k8s.io/apimachinery/pkg/labels"
 	types "k8s.io/apimachinery/pkg/types"
@@ -120,51 +117,6 @@ func (c *FakeCliManagers) DeleteCollection(ctx context.Context, opts metav1.Dele
 func (c *FakeCliManagers) Patch(ctx context.Context, name string, pt types.PatchType, data []byte, opts metav1.PatchOptions, subresources ...string) (result *v1.CliManager, err error) {
 	obj, err := c.Fake.
 		Invokes(testing.NewPatchSubresourceAction(climanagersResource, c.ns, name, pt, data, subresources...), &v1.CliManager{})
-
-	if obj == nil {
-		return nil, err
-	}
-	return obj.(*v1.CliManager), err
-}
-
-// Apply takes the given apply declarative configuration, applies it and returns the applied cliManager.
-func (c *FakeCliManagers) Apply(ctx context.Context, cliManager *climanagerv1.CliManagerApplyConfiguration, opts metav1.ApplyOptions) (result *v1.CliManager, err error) {
-	if cliManager == nil {
-		return nil, fmt.Errorf("cliManager provided to Apply must not be nil")
-	}
-	data, err := json.Marshal(cliManager)
-	if err != nil {
-		return nil, err
-	}
-	name := cliManager.Name
-	if name == nil {
-		return nil, fmt.Errorf("cliManager.Name must be provided to Apply")
-	}
-	obj, err := c.Fake.
-		Invokes(testing.NewPatchSubresourceAction(climanagersResource, c.ns, *name, types.ApplyPatchType, data), &v1.CliManager{})
-
-	if obj == nil {
-		return nil, err
-	}
-	return obj.(*v1.CliManager), err
-}
-
-// ApplyStatus was generated because the type contains a Status member.
-// Add a +genclient:noStatus comment above the type to avoid generating ApplyStatus().
-func (c *FakeCliManagers) ApplyStatus(ctx context.Context, cliManager *climanagerv1.CliManagerApplyConfiguration, opts metav1.ApplyOptions) (result *v1.CliManager, err error) {
-	if cliManager == nil {
-		return nil, fmt.Errorf("cliManager provided to Apply must not be nil")
-	}
-	data, err := json.Marshal(cliManager)
-	if err != nil {
-		return nil, err
-	}
-	name := cliManager.Name
-	if name == nil {
-		return nil, fmt.Errorf("cliManager.Name must be provided to Apply")
-	}
-	obj, err := c.Fake.
-		Invokes(testing.NewPatchSubresourceAction(climanagersResource, c.ns, *name, types.ApplyPatchType, data, "status"), &v1.CliManager{})
 
 	if obj == nil {
 		return nil, err

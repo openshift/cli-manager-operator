@@ -44,6 +44,8 @@ type TargetConfigReconciler struct {
 	kubeClient       kubernetes.Interface
 	eventRecorder    events.Recorder
 	queue            workqueue.RateLimitingInterface
+
+	insecureHTTP bool
 }
 
 func NewTargetConfigReconciler(
@@ -54,6 +56,7 @@ func NewTargetConfigReconciler(
 	operatorClientInformer operatorclientinformers.CliManagerInformer,
 	cliManagerClient *operatorclient.CLIManagerClient,
 	kubeClient kubernetes.Interface,
+	insecureHTTP bool,
 	eventRecorder events.Recorder,
 ) *TargetConfigReconciler {
 	c := &TargetConfigReconciler{
@@ -65,6 +68,7 @@ func NewTargetConfigReconciler(
 		eventRecorder:    eventRecorder,
 		queue:            workqueue.NewRateLimitingQueueWithConfig(workqueue.DefaultControllerRateLimiter(), workqueue.RateLimitingQueueConfig{Name: "TargetConfigReconciler"}),
 		targetImage:      targetImage,
+		insecureHTTP:     insecureHTTP,
 	}
 
 	operatorClientInformer.Informer().AddEventHandler(c.eventHandler())
@@ -167,6 +171,11 @@ func (c *TargetConfigReconciler) manageRoute(cliManager *climanagerv1.CliManager
 	required.OwnerReferences = []metav1.OwnerReference{
 		ownerReference,
 	}
+
+	if c.insecureHTTP {
+		required.Spec.TLS.InsecureEdgeTerminationPolicy = routev1.InsecureEdgeTerminationPolicyAllow
+	}
+
 	controller.EnsureOwnerRef(required, ownerReference)
 
 	return applyRoute(c.ctx, c.routeCLient, c.eventRecorder, required)
@@ -247,6 +256,10 @@ func (c *TargetConfigReconciler) manageDeployments(cliManager *climanagerv1.CliM
 		required.Spec.Template.Spec.Containers[0].Args = append(required.Spec.Template.Spec.Containers[0].Args, fmt.Sprintf("-v=%d", 8))
 	default:
 		required.Spec.Template.Spec.Containers[0].Args = append(required.Spec.Template.Spec.Containers[0].Args, fmt.Sprintf("-v=%d", 2))
+	}
+
+	if c.insecureHTTP {
+		required.Spec.Template.Spec.Containers[0].Args = append(required.Spec.Template.Spec.Containers[0].Args, fmt.Sprintf("--serve-artifacts-in-http"))
 	}
 
 	return resourceapply.ApplyDeployment(
