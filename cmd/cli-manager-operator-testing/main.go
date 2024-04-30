@@ -25,6 +25,6 @@ func NewCLIManagerOperatorCommand() *cobra.Command {
 		},
 	}
 
-	cmd.AddCommand(operator.NewOperator(false))
+	cmd.AddCommand(operator.NewOperator(true))
 	return cmd
 }

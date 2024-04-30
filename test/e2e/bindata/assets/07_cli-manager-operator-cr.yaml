@@ -1,5 +1,5 @@
 apiVersion: operator.openshift.io/v1
-kind: CLIManager
+kind: CliManager
 metadata:
   name: cluster
   namespace: openshift-cli-manager-operator

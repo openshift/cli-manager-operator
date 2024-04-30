@@ -1,7 +1,7 @@
 kind: ClusterRole
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
-  name: cli-manager-operator
+  name: openshift-cli-manager-operator
 rules:
   - apiGroups:
       - operator.openshift.io
@@ -44,8 +44,8 @@ rules:
     resources:
       - services
       - serviceaccounts
-      - configmaps
       - events
+      - pods
     verbs:
       - "*"
   - apiGroups:
@@ -54,3 +54,12 @@ rules:
       - routes
     verbs:
       - "*"
+  - apiGroups:
+      - config.openshift.io
+    resources:
+      - infrastructures
+      - apiservers
+    verbs:
+      - get
+      - watch
+      - list
