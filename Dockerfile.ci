@@ -4,7 +4,7 @@ COPY . .
 RUN make build --warn-undefined-variables
 
 FROM registry.ci.openshift.org/ocp/4.16:base-rhel9
-RUN dnf install -y git
+COPY --from=builder /usr/bin/git /usr/bin/git
 COPY --from=builder /go/src/github.com/openshift/cli-manager-operator/cli-manager-operator-testing /usr/bin/cli-manager-operator
 COPY --from=builder /go/src/github.com/openshift/cli-manager-operator/manifests /manifests
 
