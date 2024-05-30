@@ -4,6 +4,10 @@ COPY . .
 RUN make build --warn-undefined-variables
 
 FROM registry.redhat.io/rhel9-2-els/rhel:9.2-1222
+ENV OPERAND_IMAGE=quay.io/redhat-user-workloads/clio-wrklds-pipeline-tenant/clio-wrklds-pipeline/cli-manager-operator@sha256:9fec14cdb694beba7afc34198ccfd54ccdeaefe634ccff466cdde04d7ddfbe6d
+ENV OPERAND_IMAGE_2=registry.redhat.io/clio-wrklds-pipeline-tenant/clio-wrklds-pipeline@sha256:9fec14cdb694beba7afc34198ccfd54ccdeaefe634ccff466cdde04d7ddfbe6d
+ENV OPERAND_IMAGE_3=registry.redhat.io/clio-wrklds-pipeline/clio-wrklds-pipeline@sha256:9fec14cdb694beba7afc34198ccfd54ccdeaefe634ccff466cdde04d7ddfbe6d
+ENV OPERAND_IMAGE_4=quay.io/redhat-services-prod/clio-wrklds-pipeline-cli-manager@sha256:9fec14cdb694beba7afc34198ccfd54ccdeaefe634ccff466cdde04d7ddfbe6d
 COPY --from=builder /go/src/github.com/openshift/cli-manager-operator/cli-manager-operator /usr/bin/
 COPY --from=builder /go/src/github.com/openshift/cli-manager-operator/manifests /manifests
 RUN mkdir /licenses
