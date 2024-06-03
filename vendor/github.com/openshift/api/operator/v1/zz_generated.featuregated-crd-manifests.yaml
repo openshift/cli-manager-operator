@@ -1,7 +1,6 @@
 authentications.operator.openshift.io:
   Annotations:
     include.release.openshift.io/self-managed-high-availability: "true"
-    include.release.openshift.io/single-node-developer: "true"
   ApprovedPRNumber: https://github.com/openshift/api/pull/475
   CRDName: authentications.operator.openshift.io
   Capability: ""
@@ -69,7 +68,8 @@ clustercsidrivers.operator.openshift.io:
   CRDName: clustercsidrivers.operator.openshift.io
   Capability: ""
   Category: ""
-  FeatureGates: []
+  FeatureGates:
+  - VSphereDriverConfiguration
   FilenameOperatorName: csi-driver
   FilenameOperatorOrdering: "01"
   FilenameRunLevel: "0000_90"
@@ -154,6 +154,7 @@ etcds.operator.openshift.io:
   Capability: ""
   Category: coreoperators
   FeatureGates:
+  - EtcdBackendQuota
   - HardwareSpeed
   FilenameOperatorName: etcd
   FilenameOperatorOrdering: "01"
@@ -319,9 +320,7 @@ machineconfigurations.operator.openshift.io:
   Version: v1
 
 networks.operator.openshift.io:
-  Annotations:
-    include.release.openshift.io/self-managed-high-availability: "true"
-    include.release.openshift.io/single-node-developer: "true"
+  Annotations: {}
   ApprovedPRNumber: https://github.com/openshift/api/pull/475
   CRDName: networks.operator.openshift.io
   Capability: ""
