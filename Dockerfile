@@ -5,7 +5,7 @@ COPY . .
 ARG OPERAND_IMAGE=quay.io/redhat-user-workloads/clio-wrklds-pipeline-tenant/clio-wrklds-pipeline/cli-manager-operator@sha256:958d000fa2a270bc09cce7150530fb78d69c74e42b0f35b22422e319fbcf871b
 ARG OPERAND_IMAGE_2=registry.redhat.io/clio-wrklds-pipeline-tenant/clio-wrklds-pipeline@sha256:958d000fa2a270bc09cce7150530fb78d69c74e42b0f35b22422e319fbcf871b
 ARG OPERAND_IMAGE_3=registry.redhat.io/clio-wrklds-pipeline/clio-wrklds-pipeline@sha256:958d000fa2a270bc09cce7150530fb78d69c74e42b0f35b22422e319fbcf871b
-ARG OPERAND_IMAGE_4=quay.io/redhat-services-prod/clio-wrklds-pipeline-cli-manager@sha256:958d000fa2a270bc09cce7150530fb78d69c74e42b0f35b22422e319fbcf871b
+ARG OPERAND_IMAGE_4=quay.io/redhat-services-prod/clio-wrklds-pipeline-cli-manager@sha256:b0ca932fef93c81f5415aec4a4118492cf04bb3b8780f648c1287824adb8b7e7
 ARG REPLACED_OPERAND_IMG=quay.io/openshift/origin-cli-manager:latest
 
 # Replace the operand image in deploy/07_deployment.yaml with the one specified by the OPERAND_IMAGE build argument.
