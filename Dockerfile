@@ -9,11 +9,8 @@ ARG OPERAND_IMAGE_4=quay.io/redhat-services-prod/clio-wrklds-pipeline-cli-manage
 ARG REPLACED_OPERAND_IMG=quay.io/openshift/origin-cli-manager:latest
 
 # Replace the operand image in deploy/07_deployment.yaml with the one specified by the OPERAND_IMAGE build argument.
-RUN find deploy/ && find deploy -type f -exec sed -i \
-    "s|${REPLACED_OPERAND_IMG}|${OPERAND_IMAGE_4}|g" {} \+; \
-    grep -rq "${REPLACED_OPERAND_IMG}" deploy/ && \
-    { echo "Failed to replace image references"; exit 1; } || echo "Image references replaced" && \
-    grep -r "${OPERAND_IMAGE_4}" deploy/
+RUN hack/replace-image.sh deploy $REPLACED_OPERAND_IMG $OPERAND_IMAGE_4
+RUN hack/replace-image.sh manifests $REPLACED_OPERAND_IMG $OPERAND_IMAGE_4
 RUN make build --warn-undefined-variables
 
 FROM registry.redhat.io/rhel9-2-els/rhel:9.2-1222
