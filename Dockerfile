@@ -2,18 +2,12 @@ FROM brew.registry.redhat.io/rh-osbs/openshift-golang-builder:rhel_9_1.22 as bui
 WORKDIR /go/src/github.com/openshift/cli-manager-operator
 COPY . .
 
-ARG OPERAND_IMAGE=quay.io/redhat-user-workloads/clio-wrklds-pipeline-tenant/clio-wrklds-pipeline/cli-manager-operator@sha256:958d000fa2a270bc09cce7150530fb78d69c74e42b0f35b22422e319fbcf871b
-ARG OPERAND_IMAGE_2=registry.redhat.io/clio-wrklds-pipeline-tenant/clio-wrklds-pipeline@sha256:958d000fa2a270bc09cce7150530fb78d69c74e42b0f35b22422e319fbcf871b
-ARG OPERAND_IMAGE_3=registry.redhat.io/clio-wrklds-pipeline/clio-wrklds-pipeline@sha256:958d000fa2a270bc09cce7150530fb78d69c74e42b0f35b22422e319fbcf871b
-ARG OPERAND_IMAGE_4=quay.io/redhat-services-prod/clio-wrklds-pipeline-cli-manager@sha256:c17bb233bd8c8b3830ae0d611ac0564c7c9820a1e146799d667e8a9e47a23b59
+ARG OPERAND_IMAGE=registry.redhat.io/cli-manager-operator/cli-manager-rhel9@sha256:c17bb233bd8c8b3830ae0d611ac0564c7c9820a1e146799d667e8a9e47a23b59
 ARG REPLACED_OPERAND_IMG=quay.io/openshift/origin-cli-manager:latest
 
 # Replace the operand image in deploy/07_deployment.yaml with the one specified by the OPERAND_IMAGE build argument.
-RUN find deploy/ && find deploy -type f -exec sed -i \
-    "s|${REPLACED_OPERAND_IMG}|${OPERAND_IMAGE_4}|g" {} \+; \
-    grep -rq "${REPLACED_OPERAND_IMG}" deploy/ && \
-    { echo "Failed to replace image references"; exit 1; } || echo "Image references replaced" && \
-    grep -r "${OPERAND_IMAGE_4}" deploy/
+RUN hack/replace-image.sh deploy $REPLACED_OPERAND_IMG $OPERAND_IMAGE
+RUN hack/replace-image.sh manifests $REPLACED_OPERAND_IMG $OPERAND_IMAGE
 RUN make build --warn-undefined-variables
 
 FROM registry.redhat.io/rhel9-2-els/rhel:9.2-1222
