@@ -19,8 +19,23 @@ metadata:
         }
       ]
     capabilities: Basic Install
-    createdAt: "2024-06-04T11:01:49Z"
+    createdAt: "2024-06-04"
     operators.operatorframework.io/builder: operator-sdk-v1.34.2
+    description: An operator to manage CLI Manager
+    repository: https://github.com/openshift/cli-manager-operator
+    support: Red Hat, Inc.
+    categories: Openshift Optional
+    operators.openshift.io/valid-subscription: '["OpenShift Container Platform", "OpenShift Platform Plus"]'
+    features.operators.openshift.io/disconnected: "true"
+    features.operators.openshift.io/fips-compliant: "true"
+    features.operators.openshift.io/proxy-aware: "false"
+    features.operators.openshift.io/tls-profiles: "false"
+    features.operators.openshift.io/token-auth-aws: "false"
+    features.operators.openshift.io/token-auth-azure: "false"
+    features.operators.openshift.io/token-auth-gcp: "false"
+    features.operators.openshift.io/cnf: "false"
+    features.operators.openshift.io/cni: "false"
+    features.operators.openshift.io/csi: "false"
   name: cli-manager-operator.v0.1
   namespace: openshift-cli-manager-operator
 spec:
@@ -29,11 +44,36 @@ spec:
     - kind: CliManager
       name: climanagers.operator.openshift.io
       version: v1
+      displayName: CLI Manager
     - kind: Plugin
       name: plugins.config.openshift.io
       version: v1alpha1
   description: An operator to manage CLI Manager
-  displayName: Cli Manager Operator
+  displayName: CLI Manager Operator
+  installModes:
+    - supported: true
+      type: OwnNamespace
+    - supported: true
+      type: SingleNamespace
+    - supported: false
+      type: MultiNamespace
+    - supported: false
+      type: AllNamespaces
+  keywords:
+    - cli-manager-operator
+  minKubeVersion: 1.30.0
+  links:
+    - name: Source Code
+      url: https://github.com/openshift/cli-manager
+    - name: Source Code
+      url: https://github.com/openshift/cli-manager-operator
+  maintainers:
+    - email: support@redhat.com
+      name: Red Hat
+  maturity: alpha
+  provider:
+    name: Red Hat, Inc.
+  version: 0.1
   install:
     spec:
       clusterPermissions:
@@ -135,26 +175,4 @@ spec:
                 resources: {}
               serviceAccountName: openshift-cli-manager-operator
     strategy: deployment
-  installModes:
-  - supported: true
-    type: OwnNamespace
-  - supported: true
-    type: SingleNamespace
-  - supported: false
-    type: MultiNamespace
-  - supported: false
-    type: AllNamespaces
-  keywords:
-  - cli-manager-operator
-  links:
-    - name: Source Code
-      url: https://github.com/openshift/cli-manager
-    - name: Source Code
-      url: https://github.com/openshift/cli-manager-operator
-  maintainers:
-  - email: support@redhat.com
-    name: Red Hat
-  maturity: alpha
-  provider:
-    name: Red Hat, Inc.
-  version: 0.1
+
