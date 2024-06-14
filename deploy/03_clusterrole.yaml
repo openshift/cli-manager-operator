@@ -9,13 +9,25 @@ rules:
       - climanagers
       - climanagers/status
     verbs:
-      - "*"
+      - create
+      - delete
+      - get
+      - list
+      - patch
+      - update
+      - watch
   - apiGroups:
       - config.openshift.io
     resources:
       - plugins
     verbs:
-      - "*"
+      - create
+      - delete
+      - get
+      - list
+      - patch
+      - update
+      - watch
   - apiGroups:
       - coordination.k8s.io
     resources:
@@ -38,7 +50,13 @@ rules:
     resources:
       - deployments
     verbs:
-      - "*"
+      - create
+      - delete
+      - get
+      - list
+      - patch
+      - update
+      - watch
   - apiGroups:
       - ""
     resources:
@@ -47,13 +65,25 @@ rules:
       - events
       - pods
     verbs:
-      - "*"
+      - create
+      - delete
+      - get
+      - list
+      - patch
+      - update
+      - watch
   - apiGroups:
       - route.openshift.io
     resources:
       - routes
     verbs:
-      - "*"
+      - create
+      - delete
+      - get
+      - list
+      - patch
+      - update
+      - watch
   - apiGroups:
       - config.openshift.io
     resources:
