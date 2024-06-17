@@ -22,8 +22,8 @@ LABEL operators.operatorframework.io.metrics.builder=operator-sdk-v1.34.2
 LABEL operators.operatorframework.io.metrics.mediatype.v1=metrics+v1
 LABEL operators.operatorframework.io.metrics.project_layout=go.kubebuilder.io/v4
 
-COPY --from=builder manifests /manifests/
-COPY --from=builder metadata /metadata/
+COPY --from=builder /go/src/github.com/openshift/cli-manager-operator/manifests /manifests
+COPY --from=builder /go/src/github.com/openshift/cli-manager-operator/metadata /metadata
 
 LABEL io.k8s.display-name="CLI Manager Operator" \
       io.k8s.description="This is a component of OpenShift and manages the CLI Manager" \
