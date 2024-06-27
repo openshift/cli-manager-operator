@@ -11,6 +11,7 @@ rules:
     verbs:
       - create
       - delete
+      - deletecollection
       - get
       - list
       - patch
@@ -23,6 +24,7 @@ rules:
     verbs:
       - create
       - delete
+      - deletecollection
       - get
       - list
       - patch
@@ -38,13 +40,22 @@ rules:
       - list
       - create
       - update
+      - delete
+      - patch
   - apiGroups:
       - rbac.authorization.k8s.io
     resources:
       - clusterroles
       - clusterrolebindings
     verbs:
-      - '*'
+      - create
+      - delete
+      - deletecollection
+      - get
+      - list
+      - patch
+      - update
+      - watch
   - apiGroups:
       - apps
     resources:
@@ -53,6 +64,7 @@ rules:
     verbs:
       - create
       - delete
+      - deletecollection
       - get
       - list
       - patch
@@ -65,9 +77,11 @@ rules:
       - serviceaccounts
       - events
       - pods
+      - secrets
     verbs:
       - create
       - delete
+      - deletecollection
       - get
       - list
       - patch
