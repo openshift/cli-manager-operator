@@ -73,7 +73,7 @@ spec:
   maturity: alpha
   provider:
     name: Red Hat, Inc.
-  version: 0.1
+  version: 0.1.0
   install:
     spec:
       clusterPermissions:
