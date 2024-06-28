@@ -10,7 +10,7 @@ RUN hack/replace-image.sh deploy $REPLACED_OPERAND_IMG $OPERAND_IMAGE
 RUN hack/replace-image.sh manifests $REPLACED_OPERAND_IMG $OPERAND_IMAGE
 RUN make build --warn-undefined-variables
 
-FROM registry.redhat.io/rhel9-2-els/rhel:9.2-1260.1718293448
+FROM registry.redhat.io/rhel9-4-els/rhel:9.4-847.1719484506
 COPY --from=builder /go/src/github.com/openshift/cli-manager-operator/cli-manager-operator /usr/bin/
 COPY --from=builder /go/src/github.com/openshift/cli-manager-operator/manifests /manifests
 RUN mkdir /licenses
