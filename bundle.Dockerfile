@@ -31,6 +31,15 @@ LABEL operators.operatorframework.io.metrics.project_layout=go.kubebuilder.io/v4
 COPY --from=builder /go/src/github.com/openshift/cli-manager-operator/manifests /manifests
 COPY --from=builder /go/src/github.com/openshift/cli-manager-operator/metadata /metadata
 
+LABEL com.redhat.component="CLI Manager Operator"
+LABEL description="The CLI Manager Operator serves plugins in images as Krew compatible binaries"
+LABEL distribution-scope="public"
+LABEL name="cli-manager-operator-bundle"
+LABEL release="0.1"
+LABEL version="0.1"
+LABEL url="https://github.com/openshift/cli-manager-operator"
+LABEL vendor="Red Hat, Inc."
+
 LABEL io.k8s.display-name="CLI Manager Operator" \
       io.k8s.description="This is a component of OpenShift and manages the CLI Manager" \
       io.openshift.tags="openshift,cli-manager-operator" \
