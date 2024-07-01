@@ -88,52 +88,96 @@ spec:
             - climanagers
             - climanagers/status
           verbs:
-            - '*'
+          - create
+          - delete
+          - deletecollection
+          - get
+          - list
+          - patch
+          - update
+          - watch
         - apiGroups:
             - config.openshift.io
           resources:
             - plugins
           verbs:
-            - '*'
+          - create
+          - delete
+          - deletecollection
+          - get
+          - list
+          - patch
+          - update
+          - watch
         - apiGroups:
             - coordination.k8s.io
           resources:
             - leases
           verbs:
-            - get
-            - watch
-            - list
-            - create
-            - update
+          - get
+          - watch
+          - list
+          - create
+          - update
+          - delete
+          - patch
         - apiGroups:
             - rbac.authorization.k8s.io
           resources:
             - clusterroles
             - clusterrolebindings
           verbs:
-            - '*'
+          - create
+          - delete
+          - deletecollection
+          - get
+          - list
+          - patch
+          - update
+          - watch
         - apiGroups:
             - apps
           resources:
             - deployments
             - replicasets
           verbs:
-            - '*'
+          - create
+          - delete
+          - deletecollection
+          - get
+          - list
+          - patch
+          - update
+          - watch
         - apiGroups:
             - ""
           resources:
-            - services
-            - serviceaccounts
-            - events
-            - pods
+          - services
+          - serviceaccounts
+          - events
+          - pods
+          - secrets
           verbs:
-            - '*'
+          - create
+          - delete
+          - deletecollection
+          - get
+          - list
+          - patch
+          - update
+          - watch
         - apiGroups:
             - route.openshift.io
           resources:
             - routes
           verbs:
-            - '*'
+          - create
+          - delete
+          - get
+          - list
+          - patch
+          - update
+          - watch
         - apiGroups:
             - config.openshift.io
           resources:
