@@ -47,7 +47,7 @@ LABEL summary="This is a component of OpenShift and manages the CLI Manager"
 
 LABEL io.k8s.display-name="CLI Manager Operator" \
       io.k8s.description="This is a component of OpenShift and manages the CLI Manager" \
-      io.openshift.tags="openshift,cli-manager-operator" \
+      io.openshift.tags="openshift,cli-manager-operator,cli-manager" \
       com.redhat.delivery.appregistry=true \
       maintainer="AOS workloads team, <aos-workloads-staff@redhat.com>"
 USER 1001
