@@ -16,7 +16,10 @@ ARG REPLACED_OPERATOR_IMG=quay.io/openshift/origin-cli-manager-operator:latest
 RUN hack/replace-image.sh deploy $REPLACED_OPERATOR_IMG $OPERATOR_IMAGE
 RUN hack/replace-image.sh manifests $REPLACED_OPERATOR_IMG $OPERATOR_IMAGE
 
-FROM scratch
+RUN mkdir licenses
+COPY LICENSE licenses/.
+
+FROM registry.redhat.io/rhel9-4-els/rhel:9.4
 
 LABEL operators.operatorframework.io.bundle.mediatype.v1=registry+v1
 LABEL operators.operatorframework.io.bundle.manifests.v1=manifests/
@@ -30,6 +33,7 @@ LABEL operators.operatorframework.io.metrics.project_layout=go.kubebuilder.io/v4
 
 COPY --from=builder /go/src/github.com/openshift/cli-manager-operator/manifests /manifests
 COPY --from=builder /go/src/github.com/openshift/cli-manager-operator/metadata /metadata
+COPY --from=builder /go/src/github.com/openshift/cli-manager-operator/licenses /licenses
 
 LABEL com.redhat.component="CLI Manager Operator"
 LABEL description="The CLI Manager Operator serves plugins in images as Krew compatible binaries"
@@ -39,9 +43,12 @@ LABEL release="0.1"
 LABEL version="0.1"
 LABEL url="https://github.com/openshift/cli-manager-operator"
 LABEL vendor="Red Hat, Inc."
+LABEL summary="This is a component of OpenShift and manages the CLI Manager"
 
 LABEL io.k8s.display-name="CLI Manager Operator" \
       io.k8s.description="This is a component of OpenShift and manages the CLI Manager" \
       io.openshift.tags="openshift,cli-manager-operator" \
       com.redhat.delivery.appregistry=true \
       maintainer="AOS workloads team, <aos-workloads-staff@redhat.com>"
+USER 1001
+

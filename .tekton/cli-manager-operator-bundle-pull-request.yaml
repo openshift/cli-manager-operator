@@ -95,6 +95,9 @@ spec:
       name: skip-checks
       type: string
     - default: "true"
+      description: Skip optional checks, set false if you want to run optional checks
+      name: skip-optional
+    - default: "true"
       description: Execute the build with network isolation
       name: hermetic
       type: string
@@ -150,6 +153,8 @@ spec:
         value: $(params.rebuild)
       - name: skip-checks
         value: $(params.skip-checks)
+      - name: skip-optional
+        value: $(params.skip-optional)
       taskRef:
         params:
         - name: name
