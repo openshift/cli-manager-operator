@@ -36,7 +36,7 @@ COPY --from=builder /go/src/github.com/openshift/cli-manager-operator/metadata /
 COPY --from=builder /go/src/github.com/openshift/cli-manager-operator/licenses /licenses
 
 LABEL com.redhat.component="CLI Manager Operator"
-LABEL description="The CLI Manager Operator serves plugins in images as Krew compatible binaries"
+LABEL description="The CLI Manager Operator delivers plugins as Krew compatible binaries"
 LABEL distribution-scope="public"
 LABEL name="cli-manager-operator-bundle"
 LABEL release="0.1"
