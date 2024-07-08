@@ -36,7 +36,7 @@ metadata:
     features.operators.openshift.io/cnf: "false"
     features.operators.openshift.io/cni: "false"
     features.operators.openshift.io/csi: "false"
-  name: cli-manager-operator.v0.1
+  name: cli-manager-operator.v0.0.1
   namespace: openshift-cli-manager-operator
 spec:
   customresourcedefinitions:
@@ -77,7 +77,7 @@ spec:
       mediatype: image/png
   provider:
     name: Red Hat, Inc.
-  version: "0.1"
+  version: 0.0.1
   install:
     spec:
       clusterPermissions:
