@@ -78,6 +78,11 @@ spec:
   provider:
     name: Red Hat, Inc.
   version: 0.0.1
+  relatedImages:
+    - name: cli-manager
+      image: quay.io/openshift/origin-cli-manager:latest
+    - name: cli-manager-operator
+      image: quay.io/openshift/origin-cli-manager-operator:latest
   install:
     spec:
       clusterPermissions:
