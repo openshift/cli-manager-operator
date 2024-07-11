@@ -21,7 +21,12 @@ metadata:
     capabilities: Basic Install
     createdAt: "2024-06-04"
     operators.operatorframework.io/builder: operator-sdk-v1.34.2
-    description: An operator to manage CLI Manager
+    description: |
+      The CLI Manager is a comprehensive tool designed to simplify the management of 
+      OpenShift CLI plugins within the OpenShift environment. 
+      Modeled after the popular krew plugin manager, it offers seamless integration, 
+      easy installation, and efficient handling of a wide array of plugins, 
+      enhancing your OpenShift command-line experience.
     repository: https://github.com/openshift/cli-manager-operator
     support: Red Hat, Inc.
     categories: Openshift Optional
@@ -49,8 +54,13 @@ spec:
         name: plugins.config.openshift.io
         version: v1alpha1
         displayName: CLI Plugin
-  description: An operator to manage CLI Manager
-  displayName: CLI Manager Operator
+  description: |
+    The CLI Manager is a comprehensive tool designed to simplify the management of 
+    OpenShift CLI plugins within the OpenShift environment. 
+    Modeled after the popular krew plugin manager, it offers seamless integration, 
+    easy installation, and efficient handling of a wide array of plugins, 
+    enhancing your OpenShift command-line experience.
+  displayName: CLI Manager
   installModes:
     - supported: true
       type: OwnNamespace
@@ -62,6 +72,7 @@ spec:
       type: AllNamespaces
   keywords:
     - cli-manager-operator
+    - cli-manager
   minKubeVersion: 1.30.0
   links:
     - name: Source Code
