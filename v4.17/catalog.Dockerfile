@@ -9,7 +9,7 @@ CMD ["serve", "/configs", "--cache-dir=/tmp/cache"]
 
 ADD licenses/ /licenses/
 # Copy declarative config root into image at /configs and pre-populate serve cache
-ADD catalog /configs
+ADD catalog/ /configs
 RUN ["/bin/opm", "serve", "/configs", "--cache-dir=/tmp/cache", "--cache-only"]
 
 # Set DC-specific label for the location of the DC root directory
