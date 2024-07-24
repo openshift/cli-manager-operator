@@ -7,7 +7,7 @@ metadata:
     build.appstudio.redhat.com/target_branch: '{{target_branch}}'
     pipelinesascode.tekton.dev/max-keep-runs: "3"
     pipelinesascode.tekton.dev/on-cel-expression: event == "push" && target_branch
-      == "main"
+      == "fbc"
   creationTimestamp: null
   labels:
     appstudio.openshift.io/application: cli-manager-operator-fbc-4-17
@@ -24,7 +24,9 @@ spec:
   - name: output-image
     value: quay.io/redhat-user-workloads/clio-wrklds-pipeline-tenant/cli-manager-operator-fbc-4-17/cli-manager-operator-fbc-4-17:{{revision}}
   - name: dockerfile
-    value: v4.17/catalog.Dockerfile
+    value: catalog.Dockerfile
+  - name: path-context
+    value: v4.17
   pipelineSpec:
     finally:
     - name: show-sbom
