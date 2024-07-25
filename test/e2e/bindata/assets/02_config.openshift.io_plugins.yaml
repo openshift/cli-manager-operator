@@ -59,6 +59,7 @@ spec:
                           Bin specifies the path to the plugin executable.
                           The path is relative to the root of the installation folder.
                           The binary will be linked after all FileOperations are executed.
+                          If not specified, the first From item in the Files is set.
                         type: string
                       files:
                         description: Files is a list of file locations within the image
@@ -74,9 +75,12 @@ spec:
                                 Directories and wildcards are not currently supported.
                               type: string
                             to:
-                              description: To is the relative path within the root of
+                              description: |-
+                                To is the relative path within the root of
                                 the installation folder to place the file.
+                                Default is set to "." where points the default Krew directory.
                               type: string
+                              default: "."
                           required:
                             - from
                             - to
@@ -94,7 +98,6 @@ spec:
                           darwin/amd64, windows/amd64).
                         type: string
                     required:
-                      - bin
                       - files
                       - image
                       - platform
