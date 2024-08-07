@@ -13,6 +13,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	utilruntime "k8s.io/apimachinery/pkg/util/runtime"
 	"k8s.io/apimachinery/pkg/util/wait"
+	"k8s.io/client-go/dynamic"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/cache"
 	"k8s.io/client-go/util/workqueue"
@@ -39,6 +40,7 @@ type TargetConfigReconciler struct {
 	ctx              context.Context
 	targetImage      string
 	operatorClient   operatorconfigclientv1.ClimanagersV1Interface
+	dynamicClient    dynamic.Interface
 	routeCLient      routev1client.RouteV1Interface
 	cliManagerClient *operatorclient.CLIManagerClient
 	kubeClient       kubernetes.Interface
@@ -55,6 +57,7 @@ func NewTargetConfigReconciler(
 	routeCLient routev1client.RouteV1Interface,
 	operatorClientInformer operatorclientinformers.CliManagerInformer,
 	cliManagerClient *operatorclient.CLIManagerClient,
+	dynamicClient dynamic.Interface,
 	kubeClient kubernetes.Interface,
 	insecureHTTP bool,
 	eventRecorder events.Recorder,
@@ -64,6 +67,7 @@ func NewTargetConfigReconciler(
 		operatorClient:   operatorConfigClient,
 		routeCLient:      routeCLient,
 		cliManagerClient: cliManagerClient,
+		dynamicClient:    dynamicClient,
 		kubeClient:       kubeClient,
 		eventRecorder:    eventRecorder,
 		queue:            workqueue.NewRateLimitingQueueWithConfig(workqueue.DefaultControllerRateLimiter(), workqueue.RateLimitingQueueConfig{Name: "TargetConfigReconciler"}),
@@ -95,6 +99,18 @@ func (c *TargetConfigReconciler) sync() error {
 		return err
 	}
 
+	_, _, err = c.manageRole(cliManager)
+	if err != nil {
+		klog.Errorf("unable to manage cluster role err: %v", err)
+		return err
+	}
+
+	_, _, err = c.manageRoleBinding(cliManager)
+	if err != nil {
+		klog.Errorf("unable to manage cluster role binding err: %v", err)
+		return err
+	}
+
 	deployment, _, err := c.manageDeployments(cliManager)
 	if err != nil {
 		klog.Errorf("unable to manage deployment err: %v", err)
@@ -119,12 +135,50 @@ func (c *TargetConfigReconciler) sync() error {
 		return err
 	}
 
+	_, err = c.manageServiceMonitor(cliManager)
+	if err != nil {
+		klog.Errorf("unable to manage service account err: %v", err)
+		return err
+	}
+
 	_, _, err = v1helpers.UpdateStatus(c.ctx, c.cliManagerClient, func(status *operatorv1.OperatorStatus) error {
 		resourcemerge.SetDeploymentGeneration(&status.Generations, deployment)
 		return nil
 	})
 
 	return err
+}
+
+func (c *TargetConfigReconciler) manageRole(cliManager *climanagerv1.CliManager) (*rbacv1.Role, bool, error) {
+	required := resourceread.ReadRoleV1OrDie(bindata.MustAsset("assets/cli-manager/role.yaml"))
+	ownerReference := metav1.OwnerReference{
+		APIVersion: "operator.openshift.io/v1",
+		Kind:       "CliManager",
+		Name:       cliManager.Name,
+		UID:        cliManager.UID,
+	}
+	required.OwnerReferences = []metav1.OwnerReference{
+		ownerReference,
+	}
+	controller.EnsureOwnerRef(required, ownerReference)
+
+	return resourceapply.ApplyRole(c.ctx, c.kubeClient.RbacV1(), c.eventRecorder, required)
+}
+
+func (c *TargetConfigReconciler) manageRoleBinding(cliManager *climanagerv1.CliManager) (*rbacv1.RoleBinding, bool, error) {
+	required := resourceread.ReadRoleBindingV1OrDie(bindata.MustAsset("assets/cli-manager/rolebinding.yaml"))
+	ownerReference := metav1.OwnerReference{
+		APIVersion: "operator.openshift.io/v1",
+		Kind:       "CliManager",
+		Name:       cliManager.Name,
+		UID:        cliManager.UID,
+	}
+	required.OwnerReferences = []metav1.OwnerReference{
+		ownerReference,
+	}
+	controller.EnsureOwnerRef(required, ownerReference)
+
+	return resourceapply.ApplyRoleBinding(c.ctx, c.kubeClient.RbacV1(), c.eventRecorder, required)
 }
 
 func (c *TargetConfigReconciler) manageClusterRole(cliManager *climanagerv1.CliManager) (*rbacv1.ClusterRole, bool, error) {
@@ -213,6 +267,12 @@ func (c *TargetConfigReconciler) manageServiceAccount(cliManager *climanagerv1.C
 	controller.EnsureOwnerRef(required, ownerReference)
 
 	return resourceapply.ApplyServiceAccount(c.ctx, c.kubeClient.CoreV1(), c.eventRecorder, required)
+}
+
+func (c *TargetConfigReconciler) manageServiceMonitor(cliManager *climanagerv1.CliManager) (bool, error) {
+	required := resourceread.ReadUnstructuredOrDie(bindata.MustAsset("assets/cli-manager/servicemonitor.yaml"))
+	_, changed, err := resourceapply.ApplyKnownUnstructured(c.ctx, c.dynamicClient, c.eventRecorder, required)
+	return changed, err
 }
 
 func (c *TargetConfigReconciler) manageDeployments(cliManager *climanagerv1.CliManager) (*appsv1.Deployment, bool, error) {

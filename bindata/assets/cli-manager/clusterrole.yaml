@@ -12,12 +12,24 @@ rules:
       - list
       - watch
   - apiGroups:
+      - "config.openshift.io"
+    resources:
+      - plugins/status
+    verbs:
+      - create
+      - update
+      - patch
+      - get
+      - list
+      - watch
+  - apiGroups:
       - "coordination.k8s.io"
     resources:
       - leases
     verbs:
       - create
       - delete
+      - deletecollection
       - get
       - list
       - patch

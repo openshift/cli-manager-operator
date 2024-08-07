@@ -21,6 +21,7 @@ rules:
       - config.openshift.io
     resources:
       - plugins
+      - plugins/status
     verbs:
       - create
       - delete
@@ -37,6 +38,7 @@ rules:
     verbs:
       - get
       - watch
+      - deletecollection
       - list
       - create
       - update
@@ -47,6 +49,8 @@ rules:
     resources:
       - clusterroles
       - clusterrolebindings
+      - roles
+      - rolebindings
     verbs:
       - create
       - delete
@@ -75,6 +79,7 @@ rules:
     resources:
       - services
       - serviceaccounts
+      - endpoints
       - events
       - pods
       - secrets
@@ -108,3 +113,15 @@ rules:
       - get
       - watch
       - list
+  - apiGroups:
+      - monitoring.coreos.com
+    resources:
+      - servicemonitors
+    verbs:
+      - get
+      - watch
+      - list
+      - create
+      - update
+      - patch
+      - delete
