@@ -45,6 +45,8 @@ spec:
           ports:
             - containerPort: 9449
               protocol: TCP
+            - containerPort: 8443
+              protocol: TCP
           volumeMounts:
             - mountPath: "/etc/secrets"
               name: certs-dir
