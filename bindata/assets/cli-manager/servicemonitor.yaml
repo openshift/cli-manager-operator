@@ -6,11 +6,19 @@ metadata:
 spec:
   endpoints:
     - bearerTokenFile: /var/run/secrets/kubernetes.io/serviceaccount/token
-      interval: 60s
+      interval: 30s
       path: /metrics
-      port: cli-manager-port
-      scheme: http
+      port: cli-manager-metrics-port
+      scheme: https
+      tlsConfig:
+        caFile: /etc/prometheus/configmaps/serving-certs-ca-bundle/service-ca.crt
+        certFile: /etc/prometheus/secrets/metrics-client-certs/tls.crt
+        keyFile: /etc/prometheus/secrets/metrics-client-certs/tls.key
+        serverName: metrics.openshift-cli-manager-operator.svc
   jobLabel: component
   selector:
+    namespaceSelector:
+      matchNames:
+        - openshift-cli-manager-operator
     matchLabels:
       app: openshift-cli-manager
