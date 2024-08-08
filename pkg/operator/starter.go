@@ -3,6 +3,7 @@ package operator
 import (
 	"context"
 	routev1client "github.com/openshift/client-go/route/clientset/versioned/typed/route/v1"
+	"k8s.io/client-go/dynamic"
 	"k8s.io/client-go/kubernetes"
 	"os"
 	"time"
@@ -24,6 +25,11 @@ var ServeArtifactAsHttp bool
 
 func RunOperator(ctx context.Context, cc *controllercmd.ControllerContext) error {
 	kubeClient, err := kubernetes.NewForConfig(cc.ProtoKubeConfig)
+	if err != nil {
+		return err
+	}
+
+	dynamicClient, err := dynamic.NewForConfig(cc.ProtoKubeConfig)
 	if err != nil {
 		return err
 	}
@@ -51,6 +57,7 @@ func RunOperator(ctx context.Context, cc *controllercmd.ControllerContext) error
 		routeClient,
 		operatorConfigInformers.Climanagers().V1().CliManagers(),
 		cliManagerClient,
+		dynamicClient,
 		kubeClient,
 		ServeArtifactAsHttp,
 		cc.EventRecorder,

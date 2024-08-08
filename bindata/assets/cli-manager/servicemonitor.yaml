@@ -1,0 +1,16 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: openshift-cli-manager
+  namespace: openshift-cli-manager-operator
+spec:
+  endpoints:
+    - bearerTokenFile: /var/run/secrets/kubernetes.io/serviceaccount/token
+      interval: 60s
+      path: /metrics
+      port: cli-manager-port
+      scheme: http
+  jobLabel: component
+  selector:
+    matchLabels:
+      app: openshift-cli-manager

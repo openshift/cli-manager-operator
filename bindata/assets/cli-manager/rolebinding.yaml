@@ -1,0 +1,13 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: openshift-cli-manager
+  namespace: openshift-cli-manager-operator
+subjects:
+  - kind: ServiceAccount
+    name: openshift-cli-manager
+    namespace: openshift-cli-manager-operator
+roleRef:
+  kind: Role
+  name:  openshift-cli-manager
+  apiGroup: rbac.authorization.k8s.io
