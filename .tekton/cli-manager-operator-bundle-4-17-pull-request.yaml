@@ -8,13 +8,13 @@ metadata:
     build.appstudio.redhat.com/target_branch: '{{target_branch}}'
     pipelinesascode.tekton.dev/max-keep-runs: "3"
     pipelinesascode.tekton.dev/on-cel-expression: |
-      event == "pull_request" && target_branch == "main" && (".tekton/cli-manager-operator-bundle-pull-request.yaml".pathChanged() || "metadata/***".pathChanged() || "manifests/***".pathChanged() || "bundle.Dockerfile".pathChanged() )
+      event == "pull_request" && target_branch == "release-4.17" && (".tekton/cli-manager-operator-bundle-4-17-pull-request.yaml".pathChanged() || "metadata/***".pathChanged() || "manifests/***".pathChanged() || "bundle.Dockerfile".pathChanged() )
   creationTimestamp: null
   labels:
-    appstudio.openshift.io/application: cli-manager-operator
-    appstudio.openshift.io/component: cli-manager-operator-bundle
+    appstudio.openshift.io/application: cli-manager-operator-4-17
+    appstudio.openshift.io/component: cli-manager-operator-bundle-4-17
     pipelines.appstudio.openshift.io/type: build
-  name: cli-manager-operator-bundle-on-pull-request
+  name: cli-manager-operator-bundle-4-17-on-pull-request
   namespace: clio-wrklds-pipeline-tenant
 spec:
   params:
