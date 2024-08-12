@@ -8,7 +8,6 @@ metadata:
     pipelinesascode.tekton.dev/max-keep-runs: "3"
     pipelinesascode.tekton.dev/on-cel-expression: |
       event == "push" && target_branch == "release-4.17" && (".tekton/cli-manager-operator-4-17-push.yaml".pathChanged() || "bindata/***".pathChanged() || "deploy/***".pathChanged() || "***/*.go".pathChanged() || "Dockerfile".pathChanged() || "***/go.*".pathChanged() )
-  creationTimestamp: null
   labels:
     appstudio.openshift.io/application: cli-manager-operator-4-17
     appstudio.openshift.io/component: cli-manager-operator-4-17
