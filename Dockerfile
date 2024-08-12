@@ -7,6 +7,11 @@ FROM registry.redhat.io/rhel9-4-els/rhel:9.4-847.1719484506
 COPY --from=builder /go/src/github.com/openshift/cli-manager-operator/cli-manager-operator /usr/bin/
 RUN mkdir /licenses
 COPY --from=builder /go/src/github.com/openshift/cli-manager-operator/LICENSE /licenses/.
+
+LABEL com.redhat.component="CLI Manager"
+LABEL description="The CLI Manager is a comprehensive tool designed to simplify the management of OpenShift CLI plugins within the OpenShift environment. Modeled after the popular krew plugin manager, it offers seamless integration, easy installation, and efficient handling of a wide array of plugins, enhancing your OpenShift command-line experience."
+LABEL name="cli-manager-operator"
+LABEL summary="The CLI Manager is a comprehensive tool designed to simplify the management of OpenShift CLI plugins within the OpenShift environment. Modeled after the popular krew plugin manager, it offers seamless integration, easy installation, and efficient handling of a wide array of plugins, enhancing your OpenShift command-line experience."
 LABEL io.k8s.display-name="CLI Manager Operator" \
       io.k8s.description="This is an operator to manage CLI Manager" \
       io.openshift.tags="openshift,cli-manager-operator" \
