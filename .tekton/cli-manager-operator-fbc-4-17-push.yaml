@@ -6,8 +6,8 @@ metadata:
     build.appstudio.redhat.com/commit_sha: '{{revision}}'
     build.appstudio.redhat.com/target_branch: '{{target_branch}}'
     pipelinesascode.tekton.dev/max-keep-runs: "3"
-    pipelinesascode.tekton.dev/on-cel-expression: event == "push" && target_branch
-      == "fbc-4-17" && ( "v4.17/***".pathChanged() || ".tekton/cli-manager-operator-fbc-4-17-push.yaml".pathChanged()
+    pipelinesascode.tekton.dev/on-cel-expression: |
+      event == "push" && target_branch == "fbc-4-17" && ( "v4.17/***".pathChanged() || ".tekton/cli-manager-operator-fbc-4-17-push.yaml".pathChanged())
   labels:
     appstudio.openshift.io/application: cli-manager-operator-fbc-4-17
     appstudio.openshift.io/component: cli-manager-operator-fbc-4-17
