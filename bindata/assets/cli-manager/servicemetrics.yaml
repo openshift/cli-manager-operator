@@ -8,15 +8,14 @@ metadata:
     exclude.release.openshift.io/internal-openshift-hosted: "true"
   labels:
     app: openshift-cli-manager
-  name: openshift-cli-manager
+  name: openshift-cli-manager-metrics
   namespace: openshift-cli-manager-operator
 spec:
+  clusterIP: None
   ports:
-    - name: cli-manager-port
-      port: 9449
+    - port: 60000
       protocol: TCP
-      targetPort: 9449
+      targetPort: 60000
+      name: cli-manager-metrics-port
   selector:
     app: openshift-cli-manager
-  sessionAffinity: None
-  type: ClusterIP
