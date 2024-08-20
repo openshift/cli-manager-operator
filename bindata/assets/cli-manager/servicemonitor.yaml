@@ -17,8 +17,5 @@ spec:
         serverName: metrics.openshift-cli-manager-operator.svc
   jobLabel: component
   selector:
-    namespaceSelector:
-      matchNames:
-        - openshift-cli-manager-operator
     matchLabels:
       app: openshift-cli-manager
