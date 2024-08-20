@@ -129,6 +129,12 @@ func (c *TargetConfigReconciler) sync() error {
 		return err
 	}
 
+	_, _, err = c.manageServiceMetrics(cliManager)
+	if err != nil {
+		klog.Errorf("unable to manage service metrics err: %v", err)
+		return err
+	}
+
 	_, _, err = c.manageServiceAccount(cliManager)
 	if err != nil {
 		klog.Errorf("unable to manage service account err: %v", err)
@@ -237,6 +243,23 @@ func (c *TargetConfigReconciler) manageRoute(cliManager *climanagerv1.CliManager
 
 func (c *TargetConfigReconciler) manageService(cliManager *climanagerv1.CliManager) (*v1.Service, bool, error) {
 	required := resourceread.ReadServiceV1OrDie(bindata.MustAsset("assets/cli-manager/service.yaml"))
+	required.Namespace = cliManager.Namespace
+	ownerReference := metav1.OwnerReference{
+		APIVersion: "operator.openshift.io/v1",
+		Kind:       "CliManager",
+		Name:       cliManager.Name,
+		UID:        cliManager.UID,
+	}
+	required.OwnerReferences = []metav1.OwnerReference{
+		ownerReference,
+	}
+	controller.EnsureOwnerRef(required, ownerReference)
+
+	return resourceapply.ApplyService(c.ctx, c.kubeClient.CoreV1(), c.eventRecorder, required)
+}
+
+func (c *TargetConfigReconciler) manageServiceMetrics(cliManager *climanagerv1.CliManager) (*v1.Service, bool, error) {
+	required := resourceread.ReadServiceV1OrDie(bindata.MustAsset("assets/cli-manager/servicemetrics.yaml"))
 	required.Namespace = cliManager.Namespace
 	ownerReference := metav1.OwnerReference{
 		APIVersion: "operator.openshift.io/v1",

@@ -45,7 +45,7 @@ spec:
           ports:
             - containerPort: 9449
               protocol: TCP
-            - containerPort: 8443
+            - containerPort: 60000
               protocol: TCP
           volumeMounts:
             - mountPath: "/etc/secrets"
