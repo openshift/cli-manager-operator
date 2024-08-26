@@ -116,6 +116,7 @@ spec:
             - config.openshift.io
           resources:
             - plugins
+            - plugins/status
           verbs:
           - create
           - delete
@@ -132,6 +133,7 @@ spec:
           verbs:
           - get
           - watch
+          - deletecollection
           - list
           - create
           - update
@@ -142,6 +144,8 @@ spec:
           resources:
             - clusterroles
             - clusterrolebindings
+            - roles
+            - rolebindings
           verbs:
           - create
           - delete
@@ -170,6 +174,7 @@ spec:
           resources:
           - services
           - serviceaccounts
+          - endpoint
           - events
           - pods
           - secrets
@@ -203,6 +208,18 @@ spec:
             - get
             - watch
             - list
+        - apiGroups:
+            - monitoring.coreos.com
+          resources:
+            - servicemonitors
+          verbs:
+            - get
+            - watch
+            - list
+            - create
+            - update
+            - patch
+            - delete
         serviceAccountName: openshift-cli-manager-operator
       deployments:
         - name: openshift-cli-manager-operator
