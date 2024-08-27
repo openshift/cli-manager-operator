@@ -174,7 +174,7 @@ spec:
           resources:
           - services
           - serviceaccounts
-          - endpoint
+          - endpoints
           - events
           - pods
           - secrets
