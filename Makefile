@@ -1,6 +1,15 @@
 all: build
 .PHONY: all
 
+SOURCE_GIT_TAG ?=$(shell git describe --long --tags --abbrev=7 --match 'v[0-9]*' || echo 'v0.1.0-$(SOURCE_GIT_COMMIT)')
+SOURCE_GIT_COMMIT ?=$(shell git rev-parse --short "HEAD^{commit}" 2>/dev/null)
+
+# OS_GIT_VERSION is populated by ART
+# If building out of the ART pipeline, fallback to SOURCE_GIT_TAG
+ifndef OS_GIT_VERSION
+	OS_GIT_VERSION = $(SOURCE_GIT_TAG)
+endif
+
 # Include the library makefile
 include $(addprefix ./vendor/github.com/openshift/build-machinery-go/make/, \
 	golang.mk \
