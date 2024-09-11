@@ -64,7 +64,7 @@ spec:
   installModes:
     - supported: true
       type: OwnNamespace
-    - supported: false
+    - supported: true
       type: SingleNamespace
     - supported: false
       type: MultiNamespace
@@ -234,6 +234,10 @@ spec:
                 labels:
                   name: openshift-cli-manager-operator
               spec:
+                securityContext:
+                  runAsNonRoot: true
+                  seccompProfile:
+                    type: RuntimeDefault
                 containers:
                   - args:
                       - operator
@@ -249,6 +253,14 @@ spec:
                       - name: RELATED_IMAGE_OPERAND_IMAGE
                         value: quay.io/openshift/origin-cli-manager:latest
                     image: quay.io/openshift/origin-cli-manager-operator:latest
+                    volumeMounts:
+                      - name: tmp
+                        mountPath: "/tmp"
+                    securityContext:
+                      allowPrivilegeEscalation: false
+                      readOnlyRootFilesystem: true
+                      capabilities:
+                        drop: [ "ALL" ]
                     imagePullPolicy: Always
                     name: openshift-cli-manager-operator
                     ports:
@@ -256,5 +268,8 @@ spec:
                         name: metrics
                     resources: {}
                 serviceAccountName: openshift-cli-manager-operator
+                volumes:
+                  - name: tmp
+                    emptyDir: {}
     strategy: deployment
 
