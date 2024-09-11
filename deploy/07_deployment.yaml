@@ -13,9 +13,21 @@ spec:
       labels:
         name: openshift-cli-manager-operator
     spec:
+      securityContext:
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
       containers:
         - name: openshift-cli-manager-operator
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: [ "ALL" ]
           image: quay.io/openshift/origin-cli-manager-operator:latest
+          volumeMounts:
+            - name: tmp
+              mountPath: "/tmp"
           ports:
             - containerPort: 60000
               name: metrics
@@ -34,3 +46,6 @@ spec:
             - name: RELATED_IMAGE_OPERAND_IMAGE
               value: quay.io/openshift/origin-cli-manager:latest
       serviceAccountName: openshift-cli-manager-operator
+      volumes:
+        - name: tmp
+          emptyDir: {}
