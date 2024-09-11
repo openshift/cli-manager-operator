@@ -13,10 +13,15 @@ spec:
       labels:
         name: openshift-cli-manager-operator
     spec:
+      securityContext:
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
       containers:
         - name: openshift-cli-manager-operator
           securityContext:
             allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
             capabilities:
               drop: [ "ALL" ]
           resources:
@@ -24,6 +29,9 @@ spec:
               memory: 50Mi
               cpu: 10m
           image: # set in e2e
+          volumeMounts:
+            - name: tmp
+              mountPath: "/tmp"
           ports:
             - containerPort: 60000
               name: metrics
@@ -43,3 +51,6 @@ spec:
             - name: RELATED_IMAGE_OPERAND_IMAGE
               value: # set in e2e
       serviceAccountName: openshift-cli-manager-operator
+      volumes:
+        - name: tmp
+          emptyDir: {}

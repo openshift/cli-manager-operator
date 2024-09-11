@@ -29,11 +29,14 @@ spec:
           emptyDir: {}
         - name: krew-git
           emptyDir: {}
+        - name: tmp
+          emptyDir: {}
       restartPolicy: "Always"
       containers:
         - name: "cli-manager"
           securityContext:
             allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
             capabilities:
               drop: ["ALL"]
           image: ${IMAGE}
@@ -54,5 +57,7 @@ spec:
               mountPath: "/var/run/plugins"
             - name: krew-git
               mountPath: "/var/run/git"
+            - name: tmp
+              mountPath: "/tmp"
       serviceAccountName: "openshift-cli-manager"
       terminationGracePeriodSeconds: 10
