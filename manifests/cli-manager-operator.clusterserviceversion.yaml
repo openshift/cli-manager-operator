@@ -43,6 +43,11 @@ metadata:
     features.operators.openshift.io/csi: "false"
   name: cli-manager-operator.v0.1.0
   namespace: openshift-cli-manager-operator
+  labels:
+    operatorframework.io/arch.amd64: supported
+    operatorframework.io/arch.arm64: supported
+    operatorframework.io/arch.ppc64le: supported
+    operatorframework.io/arch.s390x: supported
 spec:
   customresourcedefinitions:
     owned:
