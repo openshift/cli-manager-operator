@@ -153,7 +153,7 @@ spec:
             - name: name
               value: git-clone-oci-ta
             - name: bundle
-              value: quay.io/konflux-ci/tekton-catalog/task-git-clone-oci-ta:0.1@sha256:8e1e861d9564caea3f9ce8d1c62789f5622b5a7051209decc9ecf10b6f54aa71
+              value: quay.io/konflux-ci/tekton-catalog/task-git-clone-oci-ta:0.1@sha256:d1e63ec00bed1c9f0f571fa76b4da570be49a7c255c610544a461495230ba1b1
             - name: kind
               value: task
           resolver: bundles
@@ -195,7 +195,7 @@ spec:
             - name: name
               value: buildah-remote-oci-ta
             - name: bundle
-              value: quay.io/konflux-ci/tekton-catalog/task-buildah-remote-oci-ta:0.2@sha256:8e8cd24b52a74a75f2cefe67a1047d2c683f84aeb1211862843330bf4653edd3
+              value: quay.io/konflux-ci/tekton-catalog/task-buildah-remote-oci-ta:0.2@sha256:a01ac7eef5b4e889b5619fe397c115e16a70eafe1d39315b5654a781f2e294e1
             - name: kind
               value: task
           resolver: bundles
@@ -266,7 +266,7 @@ spec:
             - name: name
               value: apply-tags
             - name: bundle
-              value: quay.io/konflux-ci/tekton-catalog/task-apply-tags:0.1@sha256:e6beb161ed59d7be26317da03e172137b31b26648d3e139558e9a457bc56caff
+              value: quay.io/konflux-ci/tekton-catalog/task-apply-tags:0.1@sha256:f485e250fb060060892b633c495a3d7e38de1ec105ae1be48608b0401530ab2c
             - name: kind
               value: task
           resolver: bundles
@@ -310,7 +310,7 @@ spec:
             - name: name
               value: fbc-validation
             - name: bundle
-              value: quay.io/konflux-ci/tekton-catalog/task-fbc-validation:0.1@sha256:1518a7b6e46e5f11c302c07ea1236002370dda9a3f989467a931afd243d357b7
+              value: quay.io/konflux-ci/tekton-catalog/task-fbc-validation:0.1@sha256:6e5c397128a4714b3e6508dfb9d77d07f674a71f448b5544f7faacbdee232953
             - name: kind
               value: task
           resolver: bundles
