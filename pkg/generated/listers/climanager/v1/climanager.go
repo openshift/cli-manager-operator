@@ -3,10 +3,11 @@
 package v1
 
 import (
-	v1 "github.com/openshift/cli-manager-operator/pkg/apis/climanager/v1"
-	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/labels"
+	"k8s.io/client-go/listers"
 	"k8s.io/client-go/tools/cache"
+
+	v1 "github.com/openshift/cli-manager-operator/pkg/apis/climanager/v1"
 )
 
 // CliManagerLister helps list CliManagers.
@@ -22,25 +23,17 @@ type CliManagerLister interface {
 
 // cliManagerLister implements the CliManagerLister interface.
 type cliManagerLister struct {
-	indexer cache.Indexer
+	listers.ResourceIndexer[*v1.CliManager]
 }
 
 // NewCliManagerLister returns a new CliManagerLister.
 func NewCliManagerLister(indexer cache.Indexer) CliManagerLister {
-	return &cliManagerLister{indexer: indexer}
-}
-
-// List lists all CliManagers in the indexer.
-func (s *cliManagerLister) List(selector labels.Selector) (ret []*v1.CliManager, err error) {
-	err = cache.ListAll(s.indexer, selector, func(m interface{}) {
-		ret = append(ret, m.(*v1.CliManager))
-	})
-	return ret, err
+	return &cliManagerLister{listers.New[*v1.CliManager](indexer, v1.Resource("climanager"))}
 }
 
 // CliManagers returns an object that can list and get CliManagers.
 func (s *cliManagerLister) CliManagers(namespace string) CliManagerNamespaceLister {
-	return cliManagerNamespaceLister{indexer: s.indexer, namespace: namespace}
+	return cliManagerNamespaceLister{listers.NewNamespaced[*v1.CliManager](s.ResourceIndexer, namespace)}
 }
 
 // CliManagerNamespaceLister helps list and get CliManagers.
@@ -58,26 +51,5 @@ type CliManagerNamespaceLister interface {
 // cliManagerNamespaceLister implements the CliManagerNamespaceLister
 // interface.
 type cliManagerNamespaceLister struct {
-	indexer   cache.Indexer
-	namespace string
-}
-
-// List lists all CliManagers in the indexer for a given namespace.
-func (s cliManagerNamespaceLister) List(selector labels.Selector) (ret []*v1.CliManager, err error) {
-	err = cache.ListAllByNamespace(s.indexer, s.namespace, selector, func(m interface{}) {
-		ret = append(ret, m.(*v1.CliManager))
-	})
-	return ret, err
-}
-
-// Get retrieves the CliManager from the indexer for a given namespace and name.
-func (s cliManagerNamespaceLister) Get(name string) (*v1.CliManager, error) {
-	obj, exists, err := s.indexer.GetByKey(s.namespace + "/" + name)
-	if err != nil {
-		return nil, err
-	}
-	if !exists {
-		return nil, errors.NewNotFound(v1.Resource("climanager"), name)
-	}
-	return obj.(*v1.CliManager), nil
+	listers.ResourceIndexer[*v1.CliManager]
 }
