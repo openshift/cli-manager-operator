@@ -55,7 +55,7 @@ generate: update-codegen-crds generate-clients
 .PHONY: generate
 
 generate-clients:
-	bash ./vendor/k8s.io/code-generator/kube_codegen.sh	"applyconfiguration,client,deepcopy,informer,lister" github.com/openshift/cli-manager-operator/pkg/generated github.com/openshift/cli-manager-operator/pkg/apis climanager:v1 --go-header-file=./hack/boilerplate.go.txt
+	GO=GO111MODULE=on GOFLAGS=-mod=readonly hack/update-codegen.sh
 .PHONY: generate-clients
 
 clean:
