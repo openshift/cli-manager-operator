@@ -71,6 +71,11 @@ spec:
                           The binary will be linked after all FileOperations are executed.
                           If not specified, plugin name is set.
                         type: string
+                      caBundle:
+                        description: |-
+                          CA bundle encoded in base64 that is used to access to given image registry.
+                          This should contain the PEM-encoded CA certificates.
+                        type: string
                       files:
                         description: Files is a list of file locations within the image that need to be extracted.
                         type: array
@@ -102,6 +107,9 @@ spec:
                         type: string
                       platform:
                         description: Platform for the given binary (i.e. linux/amd64, darwin/amd64, windows/amd64).
+                        type: string
+                      proxyURL:
+                        description: Proxy URL if the image registry can be accessible via proxy
                         type: string
                 shortDescription:
                   description: ShortDescription of the plugin.
