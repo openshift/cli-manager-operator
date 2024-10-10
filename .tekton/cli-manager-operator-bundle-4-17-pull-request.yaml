@@ -455,6 +455,9 @@ spec:
           - name: kind
             value: task
         resolver: bundles
+      workspaces:
+        - name: workspace
+          workspace: workspace
     - name: rpms-signature-scan
       params:
         - name: image-digest
