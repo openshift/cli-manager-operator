@@ -2,11 +2,12 @@ package operator
 
 import (
 	"context"
-	"github.com/openshift/cli-manager-operator/pkg/operator"
+
 	"github.com/spf13/cobra"
 
 	"github.com/openshift/library-go/pkg/controller/controllercmd"
 
+	"github.com/openshift/cli-manager-operator/pkg/operator"
 	"github.com/openshift/cli-manager-operator/pkg/version"
 )
 
