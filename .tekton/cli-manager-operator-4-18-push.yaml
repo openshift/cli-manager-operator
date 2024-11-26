@@ -4,17 +4,16 @@ metadata:
   annotations:
     build.appstudio.openshift.io/repo: https://github.com/openshift/cli-manager-operator?rev={{revision}}
     build.appstudio.redhat.com/commit_sha: '{{revision}}'
-    build.appstudio.redhat.com/pull_request_number: '{{pull_request_number}}'
     build.appstudio.redhat.com/target_branch: '{{target_branch}}'
     pipelinesascode.tekton.dev/max-keep-runs: "3"
     pipelinesascode.tekton.dev/on-cel-expression: |
-      event == "pull_request" && target_branch == "main" && (".tekton/cli-manager-operator-pull-request.yaml".pathChanged() || "bindata/***".pathChanged() || "deploy/***".pathChanged() || "***/*.go".pathChanged() || "Dockerfile".pathChanged() || "***/go.*".pathChanged() )
+      event == "push" && target_branch == "release-4.18" && (".tekton/cli-manager-operator-4-18-push.yaml".pathChanged() || "bindata/***".pathChanged() || "deploy/***".pathChanged() || "***/*.go".pathChanged() || "Dockerfile".pathChanged() || "***/go.*".pathChanged() )
   creationTimestamp: null
   labels:
-    appstudio.openshift.io/application: cli-manager-operator
-    appstudio.openshift.io/component: cli-manager-operator
+    appstudio.openshift.io/application: cli-manager-operator-4-18
+    appstudio.openshift.io/component: cli-manager-operator-4-18
     pipelines.appstudio.openshift.io/type: build
-  name: cli-manager-operator-on-pull-request
+  name: cli-manager-operator-4-18-on-push
   namespace: clio-wrklds-pipeline-tenant
 spec:
   params:
@@ -23,9 +22,7 @@ spec:
   - name: revision
     value: '{{revision}}'
   - name: output-image
-    value: quay.io/redhat-user-workloads/clio-wrklds-pipeline-tenant/cli-manager-operator/cli-manager-operator:on-pr-{{revision}}
-  - name: image-expires-after
-    value: 5d
+    value: quay.io/redhat-user-workloads/clio-wrklds-pipeline-tenant/cli-manager-operator-4-18/cli-manager-operator-4-18:{{revision}}
   - name: dockerfile
     value: Dockerfile
   pipelineSpec:
@@ -255,19 +252,19 @@ spec:
         - "true"
     - name: build-image-index
       params:
-      - name: IMAGE
-        value: $(params.output-image)
-      - name: COMMIT_SHA
-        value: $(tasks.clone-repository.results.commit)
-      - name: IMAGE_EXPIRES_AFTER
-        value: $(params.image-expires-after)
-      - name: ALWAYS_BUILD_INDEX
-        value: $(params.build-image-index)
-      - name: IMAGES
-        value:
+        - name: IMAGE
+          value: $(params.output-image)
+        - name: COMMIT_SHA
+          value: $(tasks.clone-repository.results.commit)
+        - name: IMAGE_EXPIRES_AFTER
+          value: $(params.image-expires-after)
+        - name: ALWAYS_BUILD_INDEX
+          value: $(params.build-image-index)
+        - name: IMAGES
+          value:
           - $(tasks.build-images.results.IMAGE_REF[*])
       runAfter:
-          - build-images
+      - build-images
       taskRef:
         params:
         - name: name
@@ -278,10 +275,10 @@ spec:
           value: task
         resolver: bundles
       when:
-        - input: $(tasks.init.results.build)
-          operator: in
-          values:
-          - "true"
+      - input: $(tasks.init.results.build)
+        operator: in
+        values:
+        - "true"
     - name: build-source-image
       params:
       - name: BINARY_IMAGE
@@ -452,14 +449,14 @@ spec:
       runAfter:
       - build-image-index
       taskRef:
-        params:
-        - name: name
-          value: push-dockerfile-oci-ta
-        - name: bundle
-          value: quay.io/konflux-ci/tekton-catalog/task-push-dockerfile-oci-ta:0.1@sha256:80d48a1b9d2707490309941ec9f79338533938f959ca9a207b481b0e8a5e7a93
-        - name: kind
-          value: task
-        resolver: bundles
+          params:
+          - name: name
+            value: push-dockerfile-oci-ta
+          - name: bundle
+            value: quay.io/konflux-ci/tekton-catalog/task-push-dockerfile-oci-ta:0.1@sha256:80d48a1b9d2707490309941ec9f79338533938f959ca9a207b481b0e8a5e7a93
+          - name: kind
+            value: task
+          resolver: bundles
     - name: rpms-signature-scan
       params:
         - name: image-url
