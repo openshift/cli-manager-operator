@@ -22,7 +22,7 @@ spec:
   - name: revision
     value: '{{revision}}'
   - name: output-image
-    value: quay.io/redhat-user-workloads/clio-wrklds-pipeline-tenant/cli-manager-operator-4-18/cli-manager-operator-bundle-4-18:{{revision}}
+    value: quay.io/redhat-user-workloads/clio-wrklds-pipeline-tenant/cli-manager-operator-bundle-4-18:{{revision}}
   - name: dockerfile
     value: bundle.Dockerfile
   pipelineSpec:
