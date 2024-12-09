@@ -41,6 +41,9 @@ metadata:
     features.operators.openshift.io/cnf: "false"
     features.operators.openshift.io/cni: "false"
     features.operators.openshift.io/csi: "false"
+    operatorframework.io/cluster-monitoring: "true"
+    operatorframework.io/suggested-namespace: "openshift-cli-manager-operator"
+    console.openshift.io/operator-monitoring-default: "true"
   name: cli-manager-operator.v0.1.0
   namespace: openshift-cli-manager-operator
   labels:
