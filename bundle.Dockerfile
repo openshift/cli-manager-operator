@@ -2,14 +2,14 @@ FROM brew.registry.redhat.io/rh-osbs/openshift-golang-builder:rhel_9_1.22 as bui
 WORKDIR /go/src/github.com/openshift/cli-manager-operator
 COPY . .
 
-ARG OPERAND_IMAGE=registry.redhat.io/cli-manager/cli-manager-rhel9@sha256:cbb22af1d271d20ccb53add881722fdf5e066e7c42fa262b73042835fd66bfd6
+ARG OPERAND_IMAGE=registry.stage.redhat.io/cli-manager/cli-manager-rhel9@sha256:cbb22af1d271d20ccb53add881722fdf5e066e7c42fa262b73042835fd66bfd6
 ARG REPLACED_OPERAND_IMG=quay.io/openshift/origin-cli-manager:latest
 
 # Replace the operand image in deploy/07_deployment.yaml with the one specified by the OPERAND_IMAGE build argument.
 RUN hack/replace-image.sh deploy $REPLACED_OPERAND_IMG $OPERAND_IMAGE
 RUN hack/replace-image.sh manifests $REPLACED_OPERAND_IMG $OPERAND_IMAGE
 
-ARG OPERATOR_IMAGE=registry.redhat.io/cli-manager/cli-manager-rhel9-operator@sha256:dba22c91adaa624db0d7d709ccbd95e226619927256c60f53619d4542f4a578c
+ARG OPERATOR_IMAGE=registry.stage.redhat.io/cli-manager/cli-manager-rhel9-operator@sha256:dba22c91adaa624db0d7d709ccbd95e226619927256c60f53619d4542f4a578c
 ARG REPLACED_OPERATOR_IMG=quay.io/openshift/origin-cli-manager-operator:latest
 
 # Replace the operand image in deploy/07_deployment.yaml with the one specified by the OPERATOR_IMAGE build argument.
