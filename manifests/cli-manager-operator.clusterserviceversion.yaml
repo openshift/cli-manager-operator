@@ -44,7 +44,7 @@ metadata:
     operatorframework.io/cluster-monitoring: "true"
     operatorframework.io/suggested-namespace: "openshift-cli-manager-operator"
     console.openshift.io/operator-monitoring-default: "true"
-  name: cli-manager-operator.v0.1.0
+  name: cli-manager-operator.v1.0.0
   namespace: openshift-cli-manager-operator
   labels:
     operatorframework.io/arch.amd64: supported
@@ -96,7 +96,7 @@ spec:
       mediatype: image/png
   provider:
     name: Red Hat, Inc.
-  version: 0.1.0
+  version: 1.0.0
   relatedImages:
     - name: cli-manager
       image: quay.io/openshift/origin-cli-manager:latest
