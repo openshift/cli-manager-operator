@@ -3,13 +3,12 @@
 package v1
 
 import (
+	climanagerv1 "github.com/openshift/cli-manager-operator/pkg/apis/climanager/v1"
+	"github.com/openshift/cli-manager-operator/pkg/generated/applyconfiguration/internal"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	types "k8s.io/apimachinery/pkg/types"
 	"k8s.io/apimachinery/pkg/util/managedfields"
 	v1 "k8s.io/client-go/applyconfigurations/meta/v1"
-
-	climanager "github.com/openshift/cli-manager-operator/pkg/apis/climanager/v1"
-	"github.com/openshift/cli-manager-operator/pkg/generated/applyconfiguration/internal"
 )
 
 // CliManagerApplyConfiguration represents a declarative configuration of the CliManager type for use
@@ -43,18 +42,18 @@ func CliManager(name, namespace string) *CliManagerApplyConfiguration {
 // Note that an extracted apply configuration will contain fewer fields than what the fieldManager previously
 // applied if another fieldManager has updated or force applied any of the previously applied fields.
 // Experimental!
-func ExtractCLIManager(cliManager *climanager.CliManager, fieldManager string) (*CliManagerApplyConfiguration, error) {
-	return extractCertificateSigningRequest(cliManager, fieldManager, "")
+func ExtractCLIManager(cliManager *climanagerv1.CliManager, fieldManager string) (*CliManagerApplyConfiguration, error) {
+	return extractCLIManager(cliManager, fieldManager, "")
 }
 
 // ExtractCLIManagerStatus is the same as ExtractCLIManager except
 // that it extracts the status subresource applied configuration.
 // Experimental!
-func ExtractCLIManagerStatus(cliManager *climanager.CliManager, fieldManager string) (*CliManagerApplyConfiguration, error) {
-	return extractCertificateSigningRequest(cliManager, fieldManager, "status")
+func ExtractCLIManagerStatus(cliManager *climanagerv1.CliManager, fieldManager string) (*CliManagerApplyConfiguration, error) {
+	return extractCLIManager(cliManager, fieldManager, "status")
 }
 
-func extractCertificateSigningRequest(cliManager *climanager.CliManager, fieldManager string, subresource string) (*CliManagerApplyConfiguration, error) {
+func extractCLIManager(cliManager *climanagerv1.CliManager, fieldManager string, subresource string) (*CliManagerApplyConfiguration, error) {
 	b := &CliManagerApplyConfiguration{}
 	err := managedfields.ExtractInto(cliManager, internal.Parser().Type("com.github.openshift.api.operator.v1.CliManager"), fieldManager, b, subresource)
 	if err != nil {

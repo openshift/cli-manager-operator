@@ -29,6 +29,7 @@ kube::codegen::gen_helpers \
 kube::codegen::gen_client \
     --output-dir "${SCRIPT_ROOT}/pkg/generated" \
     --output-pkg "github.com/openshift/cli-manager-operator/pkg/generated" \
+    --applyconfig-externals "github.com/openshift/api/operator/v1.OperatorSpec:github.com/openshift/client-go/operator/applyconfigurations/operator/v1,github.com/openshift/api/operator/v1.OperatorStatus:github.com/openshift/client-go/operator/applyconfigurations/operator/v1,github.com/openshift/api/operator/v1.OperatorCondition:github.com/openshift/client-go/operator/applyconfigurations/operator/v1,github.com/openshift/api/operator/v1.GenerationStatus:github.com/openshift/client-go/operator/applyconfigurations/operator/v1" \
     --boilerplate "${SCRIPT_ROOT}/hack/boilerplate.go.txt" \
     --with-applyconfig \
     --with-watch \

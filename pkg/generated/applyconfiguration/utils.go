@@ -3,13 +3,12 @@
 package applyconfiguration
 
 import (
-	runtime "k8s.io/apimachinery/pkg/runtime"
-	schema "k8s.io/apimachinery/pkg/runtime/schema"
-	testing "k8s.io/client-go/testing"
-
 	v1 "github.com/openshift/cli-manager-operator/pkg/apis/climanager/v1"
 	climanagerv1 "github.com/openshift/cli-manager-operator/pkg/generated/applyconfiguration/climanager/v1"
 	internal "github.com/openshift/cli-manager-operator/pkg/generated/applyconfiguration/internal"
+	runtime "k8s.io/apimachinery/pkg/runtime"
+	schema "k8s.io/apimachinery/pkg/runtime/schema"
+	testing "k8s.io/client-go/testing"
 )
 
 // ForKind returns an apply configuration type for the given GroupVersionKind, or nil if no
