@@ -3,16 +3,22 @@ package operatorclient
 import (
 	"context"
 	"fmt"
-	operatorv1 "github.com/openshift/api/operator/v1"
-	climanagerapplyconfiguration "github.com/openshift/cli-manager-operator/pkg/generated/applyconfiguration/climanager/v1"
-	operatorconfigclientv1 "github.com/openshift/cli-manager-operator/pkg/generated/clientset/versioned/typed/climanager/v1"
-	applyconfiguration "github.com/openshift/client-go/operator/applyconfigurations/operator/v1"
-	"github.com/openshift/library-go/pkg/operator/v1helpers"
+
 	"k8s.io/apimachinery/pkg/api/equality"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/client-go/tools/cache"
+	"k8s.io/utils/clock"
+
+	operatorv1 "github.com/openshift/api/operator/v1"
+	applyconfiguration "github.com/openshift/client-go/operator/applyconfigurations/operator/v1"
+	"github.com/openshift/library-go/pkg/apiserver/jsonpatch"
+	"github.com/openshift/library-go/pkg/operator/v1helpers"
+
+	climanagerapplyconfiguration "github.com/openshift/cli-manager-operator/pkg/generated/applyconfiguration/climanager/v1"
+	operatorconfigclientv1 "github.com/openshift/cli-manager-operator/pkg/generated/clientset/versioned/typed/climanager/v1"
 )
 
 const OperatorNamespace = "openshift-cli-manager-operator"
@@ -141,7 +147,7 @@ func (c *CLIManagerClient) ApplyOperatorStatus(ctx context.Context, fieldManager
 	switch {
 	case apierrors.IsNotFound(err):
 		// do nothing and proceed with the apply
-		v1helpers.SetApplyConditionsLastTransitionTime(&desired.Status.Conditions, nil)
+		v1helpers.SetApplyConditionsLastTransitionTime(clock.RealClock{}, &desired.Status.Conditions, nil)
 	case err != nil:
 		return fmt.Errorf("unable to get operator configuration: %w", err)
 	default:
@@ -154,9 +160,9 @@ func (c *CLIManagerClient) ApplyOperatorStatus(ctx context.Context, fieldManager
 		}
 
 		if original.Status != nil {
-			v1helpers.SetApplyConditionsLastTransitionTime(&desired.Status.Conditions, original.Status.Conditions)
+			v1helpers.SetApplyConditionsLastTransitionTime(clock.RealClock{}, &desired.Status.Conditions, original.Status.Conditions)
 		} else {
-			v1helpers.SetApplyConditionsLastTransitionTime(&desired.Status.Conditions, nil)
+			v1helpers.SetApplyConditionsLastTransitionTime(clock.RealClock{}, &desired.Status.Conditions, nil)
 		}
 	}
 
@@ -169,4 +175,13 @@ func (c *CLIManagerClient) ApplyOperatorStatus(ctx context.Context, fieldManager
 	}
 
 	return nil
+}
+
+func (c *CLIManagerClient) PatchOperatorStatus(ctx context.Context, jsonPatch *jsonpatch.PatchSet) (err error) {
+	jsonPatchBytes, err := jsonPatch.Marshal()
+	if err != nil {
+		return err
+	}
+	_, err = c.OperatorClient.CliManagers(OperatorNamespace).Patch(ctx, OperatorConfigName, types.JSONPatchType, jsonPatchBytes, metav1.PatchOptions{}, "/status")
+	return err
 }
