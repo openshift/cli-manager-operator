@@ -4,6 +4,7 @@ import (
 	"context"
 	"crypto/tls"
 	"fmt"
+	"k8s.io/utils/clock"
 	"net/http"
 	"os"
 	"os/exec"
@@ -60,7 +61,7 @@ func TestMain(m *testing.M) {
 	cliManagerClient := getCLIManagerClient()
 	routeClient := getRouteClient()
 
-	eventRecorder := events.NewKubeRecorder(kubeClient.CoreV1().Events("default"), "test-e2e", &corev1.ObjectReference{})
+	eventRecorder := events.NewKubeRecorder(kubeClient.CoreV1().Events("default"), "test-e2e", &corev1.ObjectReference{}, clock.RealClock{})
 
 	ctx, cancelFnc := context.WithCancel(context.TODO())
 	defer cancelFnc()
