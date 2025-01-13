@@ -3,65 +3,64 @@
 package v1
 
 import (
-	climanagerv1 "github.com/openshift/cli-manager-operator/pkg/apis/climanager/v1"
-	"github.com/openshift/cli-manager-operator/pkg/generated/applyconfiguration/internal"
+	apioperatorv1 "github.com/openshift/api/operator/v1"
+	internal "github.com/openshift/client-go/operator/applyconfigurations/internal"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	types "k8s.io/apimachinery/pkg/types"
-	"k8s.io/apimachinery/pkg/util/managedfields"
+	managedfields "k8s.io/apimachinery/pkg/util/managedfields"
 	v1 "k8s.io/client-go/applyconfigurations/meta/v1"
 )
 
-// CliManagerApplyConfiguration represents a declarative configuration of the CliManager type for use
+// OLMApplyConfiguration represents a declarative configuration of the OLM type for use
 // with apply.
-type CliManagerApplyConfiguration struct {
+type OLMApplyConfiguration struct {
 	v1.TypeMetaApplyConfiguration    `json:",inline"`
 	*v1.ObjectMetaApplyConfiguration `json:"metadata,omitempty"`
-	Spec                             *CliManagerSpecApplyConfiguration   `json:"spec,omitempty"`
-	Status                           *CliManagerStatusApplyConfiguration `json:"status,omitempty"`
+	Spec                             *OLMSpecApplyConfiguration   `json:"spec,omitempty"`
+	Status                           *OLMStatusApplyConfiguration `json:"status,omitempty"`
 }
 
-// CliManager constructs a declarative configuration of the CliManager type for use with
+// OLM constructs a declarative configuration of the OLM type for use with
 // apply.
-func CliManager(name, namespace string) *CliManagerApplyConfiguration {
-	b := &CliManagerApplyConfiguration{}
+func OLM(name string) *OLMApplyConfiguration {
+	b := &OLMApplyConfiguration{}
 	b.WithName(name)
-	b.WithNamespace(namespace)
-	b.WithKind("CliManager")
+	b.WithKind("OLM")
 	b.WithAPIVersion("operator.openshift.io/v1")
 	return b
 }
 
-// ExtractCLIManager extracts the applied configuration owned by fieldManager from
-// cliManager. If no managedFields are found in cliManager for fieldManager, a
-// CliManagerApplyConfiguration is returned with only the Name, Namespace (if applicable),
+// ExtractOLM extracts the applied configuration owned by fieldManager from
+// oLM. If no managedFields are found in oLM for fieldManager, a
+// OLMApplyConfiguration is returned with only the Name, Namespace (if applicable),
 // APIVersion and Kind populated. It is possible that no managed fields were found for because other
 // field managers have taken ownership of all the fields previously owned by fieldManager, or because
 // the fieldManager never owned fields any fields.
-// cliManager must be a unmodified CliManager API object that was retrieved from the Kubernetes API.
-// ExtractCLIManager provides a way to perform a extract/modify-in-place/apply workflow.
+// oLM must be a unmodified OLM API object that was retrieved from the Kubernetes API.
+// ExtractOLM provides a way to perform a extract/modify-in-place/apply workflow.
 // Note that an extracted apply configuration will contain fewer fields than what the fieldManager previously
 // applied if another fieldManager has updated or force applied any of the previously applied fields.
 // Experimental!
-func ExtractCLIManager(cliManager *climanagerv1.CliManager, fieldManager string) (*CliManagerApplyConfiguration, error) {
-	return extractCLIManager(cliManager, fieldManager, "")
+func ExtractOLM(oLM *apioperatorv1.OLM, fieldManager string) (*OLMApplyConfiguration, error) {
+	return extractOLM(oLM, fieldManager, "")
 }
 
-// ExtractCLIManagerStatus is the same as ExtractCLIManager except
+// ExtractOLMStatus is the same as ExtractOLM except
 // that it extracts the status subresource applied configuration.
 // Experimental!
-func ExtractCLIManagerStatus(cliManager *climanagerv1.CliManager, fieldManager string) (*CliManagerApplyConfiguration, error) {
-	return extractCLIManager(cliManager, fieldManager, "status")
+func ExtractOLMStatus(oLM *apioperatorv1.OLM, fieldManager string) (*OLMApplyConfiguration, error) {
+	return extractOLM(oLM, fieldManager, "status")
 }
 
-func extractCLIManager(cliManager *climanagerv1.CliManager, fieldManager string, subresource string) (*CliManagerApplyConfiguration, error) {
-	b := &CliManagerApplyConfiguration{}
-	err := managedfields.ExtractInto(cliManager, internal.Parser().Type("com.github.openshift.api.operator.v1.CliManager"), fieldManager, b, subresource)
+func extractOLM(oLM *apioperatorv1.OLM, fieldManager string, subresource string) (*OLMApplyConfiguration, error) {
+	b := &OLMApplyConfiguration{}
+	err := managedfields.ExtractInto(oLM, internal.Parser().Type("com.github.openshift.api.operator.v1.OLM"), fieldManager, b, subresource)
 	if err != nil {
 		return nil, err
 	}
-	b.WithName(cliManager.Name)
+	b.WithName(oLM.Name)
 
-	b.WithKind("CliManager")
+	b.WithKind("OLM")
 	b.WithAPIVersion("operator.openshift.io/v1")
 	return b, nil
 }
@@ -69,7 +68,7 @@ func extractCLIManager(cliManager *climanagerv1.CliManager, fieldManager string,
 // WithKind sets the Kind field in the declarative configuration to the given value
 // and returns the receiver, so that objects can be built by chaining "With" function invocations.
 // If called multiple times, the Kind field is set to the value of the last call.
-func (b *CliManagerApplyConfiguration) WithKind(value string) *CliManagerApplyConfiguration {
+func (b *OLMApplyConfiguration) WithKind(value string) *OLMApplyConfiguration {
 	b.Kind = &value
 	return b
 }
@@ -77,7 +76,7 @@ func (b *CliManagerApplyConfiguration) WithKind(value string) *CliManagerApplyCo
 // WithAPIVersion sets the APIVersion field in the declarative configuration to the given value
 // and returns the receiver, so that objects can be built by chaining "With" function invocations.
 // If called multiple times, the APIVersion field is set to the value of the last call.
-func (b *CliManagerApplyConfiguration) WithAPIVersion(value string) *CliManagerApplyConfiguration {
+func (b *OLMApplyConfiguration) WithAPIVersion(value string) *OLMApplyConfiguration {
 	b.APIVersion = &value
 	return b
 }
@@ -85,7 +84,7 @@ func (b *CliManagerApplyConfiguration) WithAPIVersion(value string) *CliManagerA
 // WithName sets the Name field in the declarative configuration to the given value
 // and returns the receiver, so that objects can be built by chaining "With" function invocations.
 // If called multiple times, the Name field is set to the value of the last call.
-func (b *CliManagerApplyConfiguration) WithName(value string) *CliManagerApplyConfiguration {
+func (b *OLMApplyConfiguration) WithName(value string) *OLMApplyConfiguration {
 	b.ensureObjectMetaApplyConfigurationExists()
 	b.Name = &value
 	return b
@@ -94,7 +93,7 @@ func (b *CliManagerApplyConfiguration) WithName(value string) *CliManagerApplyCo
 // WithGenerateName sets the GenerateName field in the declarative configuration to the given value
 // and returns the receiver, so that objects can be built by chaining "With" function invocations.
 // If called multiple times, the GenerateName field is set to the value of the last call.
-func (b *CliManagerApplyConfiguration) WithGenerateName(value string) *CliManagerApplyConfiguration {
+func (b *OLMApplyConfiguration) WithGenerateName(value string) *OLMApplyConfiguration {
 	b.ensureObjectMetaApplyConfigurationExists()
 	b.GenerateName = &value
 	return b
@@ -103,7 +102,7 @@ func (b *CliManagerApplyConfiguration) WithGenerateName(value string) *CliManage
 // WithNamespace sets the Namespace field in the declarative configuration to the given value
 // and returns the receiver, so that objects can be built by chaining "With" function invocations.
 // If called multiple times, the Namespace field is set to the value of the last call.
-func (b *CliManagerApplyConfiguration) WithNamespace(value string) *CliManagerApplyConfiguration {
+func (b *OLMApplyConfiguration) WithNamespace(value string) *OLMApplyConfiguration {
 	b.ensureObjectMetaApplyConfigurationExists()
 	b.Namespace = &value
 	return b
@@ -112,7 +111,7 @@ func (b *CliManagerApplyConfiguration) WithNamespace(value string) *CliManagerAp
 // WithUID sets the UID field in the declarative configuration to the given value
 // and returns the receiver, so that objects can be built by chaining "With" function invocations.
 // If called multiple times, the UID field is set to the value of the last call.
-func (b *CliManagerApplyConfiguration) WithUID(value types.UID) *CliManagerApplyConfiguration {
+func (b *OLMApplyConfiguration) WithUID(value types.UID) *OLMApplyConfiguration {
 	b.ensureObjectMetaApplyConfigurationExists()
 	b.UID = &value
 	return b
@@ -121,7 +120,7 @@ func (b *CliManagerApplyConfiguration) WithUID(value types.UID) *CliManagerApply
 // WithResourceVersion sets the ResourceVersion field in the declarative configuration to the given value
 // and returns the receiver, so that objects can be built by chaining "With" function invocations.
 // If called multiple times, the ResourceVersion field is set to the value of the last call.
-func (b *CliManagerApplyConfiguration) WithResourceVersion(value string) *CliManagerApplyConfiguration {
+func (b *OLMApplyConfiguration) WithResourceVersion(value string) *OLMApplyConfiguration {
 	b.ensureObjectMetaApplyConfigurationExists()
 	b.ResourceVersion = &value
 	return b
@@ -130,7 +129,7 @@ func (b *CliManagerApplyConfiguration) WithResourceVersion(value string) *CliMan
 // WithGeneration sets the Generation field in the declarative configuration to the given value
 // and returns the receiver, so that objects can be built by chaining "With" function invocations.
 // If called multiple times, the Generation field is set to the value of the last call.
-func (b *CliManagerApplyConfiguration) WithGeneration(value int64) *CliManagerApplyConfiguration {
+func (b *OLMApplyConfiguration) WithGeneration(value int64) *OLMApplyConfiguration {
 	b.ensureObjectMetaApplyConfigurationExists()
 	b.Generation = &value
 	return b
@@ -139,7 +138,7 @@ func (b *CliManagerApplyConfiguration) WithGeneration(value int64) *CliManagerAp
 // WithCreationTimestamp sets the CreationTimestamp field in the declarative configuration to the given value
 // and returns the receiver, so that objects can be built by chaining "With" function invocations.
 // If called multiple times, the CreationTimestamp field is set to the value of the last call.
-func (b *CliManagerApplyConfiguration) WithCreationTimestamp(value metav1.Time) *CliManagerApplyConfiguration {
+func (b *OLMApplyConfiguration) WithCreationTimestamp(value metav1.Time) *OLMApplyConfiguration {
 	b.ensureObjectMetaApplyConfigurationExists()
 	b.CreationTimestamp = &value
 	return b
@@ -148,7 +147,7 @@ func (b *CliManagerApplyConfiguration) WithCreationTimestamp(value metav1.Time) 
 // WithDeletionTimestamp sets the DeletionTimestamp field in the declarative configuration to the given value
 // and returns the receiver, so that objects can be built by chaining "With" function invocations.
 // If called multiple times, the DeletionTimestamp field is set to the value of the last call.
-func (b *CliManagerApplyConfiguration) WithDeletionTimestamp(value metav1.Time) *CliManagerApplyConfiguration {
+func (b *OLMApplyConfiguration) WithDeletionTimestamp(value metav1.Time) *OLMApplyConfiguration {
 	b.ensureObjectMetaApplyConfigurationExists()
 	b.DeletionTimestamp = &value
 	return b
@@ -157,7 +156,7 @@ func (b *CliManagerApplyConfiguration) WithDeletionTimestamp(value metav1.Time) 
 // WithDeletionGracePeriodSeconds sets the DeletionGracePeriodSeconds field in the declarative configuration to the given value
 // and returns the receiver, so that objects can be built by chaining "With" function invocations.
 // If called multiple times, the DeletionGracePeriodSeconds field is set to the value of the last call.
-func (b *CliManagerApplyConfiguration) WithDeletionGracePeriodSeconds(value int64) *CliManagerApplyConfiguration {
+func (b *OLMApplyConfiguration) WithDeletionGracePeriodSeconds(value int64) *OLMApplyConfiguration {
 	b.ensureObjectMetaApplyConfigurationExists()
 	b.DeletionGracePeriodSeconds = &value
 	return b
@@ -167,7 +166,7 @@ func (b *CliManagerApplyConfiguration) WithDeletionGracePeriodSeconds(value int6
 // and returns the receiver, so that objects can be build by chaining "With" function invocations.
 // If called multiple times, the entries provided by each call will be put on the Labels field,
 // overwriting an existing map entries in Labels field with the same key.
-func (b *CliManagerApplyConfiguration) WithLabels(entries map[string]string) *CliManagerApplyConfiguration {
+func (b *OLMApplyConfiguration) WithLabels(entries map[string]string) *OLMApplyConfiguration {
 	b.ensureObjectMetaApplyConfigurationExists()
 	if b.Labels == nil && len(entries) > 0 {
 		b.Labels = make(map[string]string, len(entries))
@@ -182,7 +181,7 @@ func (b *CliManagerApplyConfiguration) WithLabels(entries map[string]string) *Cl
 // and returns the receiver, so that objects can be build by chaining "With" function invocations.
 // If called multiple times, the entries provided by each call will be put on the Annotations field,
 // overwriting an existing map entries in Annotations field with the same key.
-func (b *CliManagerApplyConfiguration) WithAnnotations(entries map[string]string) *CliManagerApplyConfiguration {
+func (b *OLMApplyConfiguration) WithAnnotations(entries map[string]string) *OLMApplyConfiguration {
 	b.ensureObjectMetaApplyConfigurationExists()
 	if b.Annotations == nil && len(entries) > 0 {
 		b.Annotations = make(map[string]string, len(entries))
@@ -196,7 +195,7 @@ func (b *CliManagerApplyConfiguration) WithAnnotations(entries map[string]string
 // WithOwnerReferences adds the given value to the OwnerReferences field in the declarative configuration
 // and returns the receiver, so that objects can be build by chaining "With" function invocations.
 // If called multiple times, values provided by each call will be appended to the OwnerReferences field.
-func (b *CliManagerApplyConfiguration) WithOwnerReferences(values ...*v1.OwnerReferenceApplyConfiguration) *CliManagerApplyConfiguration {
+func (b *OLMApplyConfiguration) WithOwnerReferences(values ...*v1.OwnerReferenceApplyConfiguration) *OLMApplyConfiguration {
 	b.ensureObjectMetaApplyConfigurationExists()
 	for i := range values {
 		if values[i] == nil {
@@ -210,7 +209,7 @@ func (b *CliManagerApplyConfiguration) WithOwnerReferences(values ...*v1.OwnerRe
 // WithFinalizers adds the given value to the Finalizers field in the declarative configuration
 // and returns the receiver, so that objects can be build by chaining "With" function invocations.
 // If called multiple times, values provided by each call will be appended to the Finalizers field.
-func (b *CliManagerApplyConfiguration) WithFinalizers(values ...string) *CliManagerApplyConfiguration {
+func (b *OLMApplyConfiguration) WithFinalizers(values ...string) *OLMApplyConfiguration {
 	b.ensureObjectMetaApplyConfigurationExists()
 	for i := range values {
 		b.Finalizers = append(b.Finalizers, values[i])
@@ -218,7 +217,7 @@ func (b *CliManagerApplyConfiguration) WithFinalizers(values ...string) *CliMana
 	return b
 }
 
-func (b *CliManagerApplyConfiguration) ensureObjectMetaApplyConfigurationExists() {
+func (b *OLMApplyConfiguration) ensureObjectMetaApplyConfigurationExists() {
 	if b.ObjectMetaApplyConfiguration == nil {
 		b.ObjectMetaApplyConfiguration = &v1.ObjectMetaApplyConfiguration{}
 	}
@@ -227,7 +226,7 @@ func (b *CliManagerApplyConfiguration) ensureObjectMetaApplyConfigurationExists(
 // WithSpec sets the Spec field in the declarative configuration to the given value
 // and returns the receiver, so that objects can be built by chaining "With" function invocations.
 // If called multiple times, the Spec field is set to the value of the last call.
-func (b *CliManagerApplyConfiguration) WithSpec(value *CliManagerSpecApplyConfiguration) *CliManagerApplyConfiguration {
+func (b *OLMApplyConfiguration) WithSpec(value *OLMSpecApplyConfiguration) *OLMApplyConfiguration {
 	b.Spec = value
 	return b
 }
@@ -235,13 +234,13 @@ func (b *CliManagerApplyConfiguration) WithSpec(value *CliManagerSpecApplyConfig
 // WithStatus sets the Status field in the declarative configuration to the given value
 // and returns the receiver, so that objects can be built by chaining "With" function invocations.
 // If called multiple times, the Status field is set to the value of the last call.
-func (b *CliManagerApplyConfiguration) WithStatus(value *CliManagerStatusApplyConfiguration) *CliManagerApplyConfiguration {
+func (b *OLMApplyConfiguration) WithStatus(value *OLMStatusApplyConfiguration) *OLMApplyConfiguration {
 	b.Status = value
 	return b
 }
 
 // GetName retrieves the value of the Name field in the declarative configuration.
-func (b *CliManagerApplyConfiguration) GetName() *string {
+func (b *OLMApplyConfiguration) GetName() *string {
 	b.ensureObjectMetaApplyConfigurationExists()
 	return b.Name
 }

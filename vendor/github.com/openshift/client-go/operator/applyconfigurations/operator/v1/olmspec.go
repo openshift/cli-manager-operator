@@ -4,26 +4,25 @@ package v1
 
 import (
 	operatorv1 "github.com/openshift/api/operator/v1"
-	v1 "github.com/openshift/client-go/operator/applyconfigurations/operator/v1"
 	runtime "k8s.io/apimachinery/pkg/runtime"
 )
 
-// CliManagerSpecApplyConfiguration represents a declarative configuration of the CliManagerSpec type for use
+// OLMSpecApplyConfiguration represents a declarative configuration of the OLMSpec type for use
 // with apply.
-type CliManagerSpecApplyConfiguration struct {
-	v1.OperatorSpecApplyConfiguration `json:",inline"`
+type OLMSpecApplyConfiguration struct {
+	OperatorSpecApplyConfiguration `json:",inline"`
 }
 
-// CliManagerSpecApplyConfiguration constructs a declarative configuration of the CliManagerSpec type for use with
+// OLMSpecApplyConfiguration constructs a declarative configuration of the OLMSpec type for use with
 // apply.
-func CliManagerSpec() *CliManagerSpecApplyConfiguration {
-	return &CliManagerSpecApplyConfiguration{}
+func OLMSpec() *OLMSpecApplyConfiguration {
+	return &OLMSpecApplyConfiguration{}
 }
 
 // WithManagementState sets the ManagementState field in the declarative configuration to the given value
 // and returns the receiver, so that objects can be built by chaining "With" function invocations.
 // If called multiple times, the ManagementState field is set to the value of the last call.
-func (b *CliManagerSpecApplyConfiguration) WithManagementState(value operatorv1.ManagementState) *CliManagerSpecApplyConfiguration {
+func (b *OLMSpecApplyConfiguration) WithManagementState(value operatorv1.ManagementState) *OLMSpecApplyConfiguration {
 	b.ManagementState = &value
 	return b
 }
@@ -31,7 +30,7 @@ func (b *CliManagerSpecApplyConfiguration) WithManagementState(value operatorv1.
 // WithLogLevel sets the LogLevel field in the declarative configuration to the given value
 // and returns the receiver, so that objects can be built by chaining "With" function invocations.
 // If called multiple times, the LogLevel field is set to the value of the last call.
-func (b *CliManagerSpecApplyConfiguration) WithLogLevel(value operatorv1.LogLevel) *CliManagerSpecApplyConfiguration {
+func (b *OLMSpecApplyConfiguration) WithLogLevel(value operatorv1.LogLevel) *OLMSpecApplyConfiguration {
 	b.LogLevel = &value
 	return b
 }
@@ -39,7 +38,7 @@ func (b *CliManagerSpecApplyConfiguration) WithLogLevel(value operatorv1.LogLeve
 // WithOperatorLogLevel sets the OperatorLogLevel field in the declarative configuration to the given value
 // and returns the receiver, so that objects can be built by chaining "With" function invocations.
 // If called multiple times, the OperatorLogLevel field is set to the value of the last call.
-func (b *CliManagerSpecApplyConfiguration) WithOperatorLogLevel(value operatorv1.LogLevel) *CliManagerSpecApplyConfiguration {
+func (b *OLMSpecApplyConfiguration) WithOperatorLogLevel(value operatorv1.LogLevel) *OLMSpecApplyConfiguration {
 	b.OperatorLogLevel = &value
 	return b
 }
@@ -47,7 +46,7 @@ func (b *CliManagerSpecApplyConfiguration) WithOperatorLogLevel(value operatorv1
 // WithUnsupportedConfigOverrides sets the UnsupportedConfigOverrides field in the declarative configuration to the given value
 // and returns the receiver, so that objects can be built by chaining "With" function invocations.
 // If called multiple times, the UnsupportedConfigOverrides field is set to the value of the last call.
-func (b *CliManagerSpecApplyConfiguration) WithUnsupportedConfigOverrides(value runtime.RawExtension) *CliManagerSpecApplyConfiguration {
+func (b *OLMSpecApplyConfiguration) WithUnsupportedConfigOverrides(value runtime.RawExtension) *OLMSpecApplyConfiguration {
 	b.UnsupportedConfigOverrides = &value
 	return b
 }
@@ -55,7 +54,7 @@ func (b *CliManagerSpecApplyConfiguration) WithUnsupportedConfigOverrides(value 
 // WithObservedConfig sets the ObservedConfig field in the declarative configuration to the given value
 // and returns the receiver, so that objects can be built by chaining "With" function invocations.
 // If called multiple times, the ObservedConfig field is set to the value of the last call.
-func (b *CliManagerSpecApplyConfiguration) WithObservedConfig(value runtime.RawExtension) *CliManagerSpecApplyConfiguration {
+func (b *OLMSpecApplyConfiguration) WithObservedConfig(value runtime.RawExtension) *OLMSpecApplyConfiguration {
 	b.ObservedConfig = &value
 	return b
 }
