@@ -2,6 +2,7 @@ package operator
 
 import (
 	"context"
+	"k8s.io/utils/clock"
 
 	"github.com/spf13/cobra"
 
@@ -13,7 +14,7 @@ import (
 
 func NewOperator(supportHttp bool) *cobra.Command {
 	cmd := controllercmd.
-		NewControllerCommandConfig("openshift-cli-manager-operator", version.Get(), operator.RunOperator).
+		NewControllerCommandConfig("openshift-cli-manager-operator", version.Get(), operator.RunOperator, clock.RealClock{}).
 		NewCommandWithContext(context.TODO())
 	cmd.Use = "operator"
 	cmd.Short = "Start the Cluster CLI Manager Operator"

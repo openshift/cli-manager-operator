@@ -2,26 +2,22 @@
 
 package v1
 
-import (
-	v1 "github.com/openshift/client-go/operator/applyconfigurations/operator/v1"
-)
-
-// CliManagerStatusApplyConfiguration represents a declarative configuration of the CliManagerStatus type for use
+// OLMStatusApplyConfiguration represents a declarative configuration of the OLMStatus type for use
 // with apply.
-type CliManagerStatusApplyConfiguration struct {
-	v1.OperatorStatusApplyConfiguration `json:",inline"`
+type OLMStatusApplyConfiguration struct {
+	OperatorStatusApplyConfiguration `json:",inline"`
 }
 
-// CliManagerStatusApplyConfiguration constructs a declarative configuration of the CliManagerStatus type for use with
+// OLMStatusApplyConfiguration constructs a declarative configuration of the OLMStatus type for use with
 // apply.
-func CliManagerStatus() *CliManagerStatusApplyConfiguration {
-	return &CliManagerStatusApplyConfiguration{}
+func OLMStatus() *OLMStatusApplyConfiguration {
+	return &OLMStatusApplyConfiguration{}
 }
 
 // WithObservedGeneration sets the ObservedGeneration field in the declarative configuration to the given value
 // and returns the receiver, so that objects can be built by chaining "With" function invocations.
 // If called multiple times, the ObservedGeneration field is set to the value of the last call.
-func (b *CliManagerStatusApplyConfiguration) WithObservedGeneration(value int64) *CliManagerStatusApplyConfiguration {
+func (b *OLMStatusApplyConfiguration) WithObservedGeneration(value int64) *OLMStatusApplyConfiguration {
 	b.ObservedGeneration = &value
 	return b
 }
@@ -29,7 +25,7 @@ func (b *CliManagerStatusApplyConfiguration) WithObservedGeneration(value int64)
 // WithConditions adds the given value to the Conditions field in the declarative configuration
 // and returns the receiver, so that objects can be build by chaining "With" function invocations.
 // If called multiple times, values provided by each call will be appended to the Conditions field.
-func (b *CliManagerStatusApplyConfiguration) WithConditions(values ...*v1.OperatorConditionApplyConfiguration) *CliManagerStatusApplyConfiguration {
+func (b *OLMStatusApplyConfiguration) WithConditions(values ...*OperatorConditionApplyConfiguration) *OLMStatusApplyConfiguration {
 	for i := range values {
 		if values[i] == nil {
 			panic("nil value passed to WithConditions")
@@ -42,7 +38,7 @@ func (b *CliManagerStatusApplyConfiguration) WithConditions(values ...*v1.Operat
 // WithVersion sets the Version field in the declarative configuration to the given value
 // and returns the receiver, so that objects can be built by chaining "With" function invocations.
 // If called multiple times, the Version field is set to the value of the last call.
-func (b *CliManagerStatusApplyConfiguration) WithVersion(value string) *CliManagerStatusApplyConfiguration {
+func (b *OLMStatusApplyConfiguration) WithVersion(value string) *OLMStatusApplyConfiguration {
 	b.Version = &value
 	return b
 }
@@ -50,7 +46,7 @@ func (b *CliManagerStatusApplyConfiguration) WithVersion(value string) *CliManag
 // WithReadyReplicas sets the ReadyReplicas field in the declarative configuration to the given value
 // and returns the receiver, so that objects can be built by chaining "With" function invocations.
 // If called multiple times, the ReadyReplicas field is set to the value of the last call.
-func (b *CliManagerStatusApplyConfiguration) WithReadyReplicas(value int32) *CliManagerStatusApplyConfiguration {
+func (b *OLMStatusApplyConfiguration) WithReadyReplicas(value int32) *OLMStatusApplyConfiguration {
 	b.ReadyReplicas = &value
 	return b
 }
@@ -58,7 +54,7 @@ func (b *CliManagerStatusApplyConfiguration) WithReadyReplicas(value int32) *Cli
 // WithLatestAvailableRevision sets the LatestAvailableRevision field in the declarative configuration to the given value
 // and returns the receiver, so that objects can be built by chaining "With" function invocations.
 // If called multiple times, the LatestAvailableRevision field is set to the value of the last call.
-func (b *CliManagerStatusApplyConfiguration) WithLatestAvailableRevision(value int32) *CliManagerStatusApplyConfiguration {
+func (b *OLMStatusApplyConfiguration) WithLatestAvailableRevision(value int32) *OLMStatusApplyConfiguration {
 	b.LatestAvailableRevision = &value
 	return b
 }
@@ -66,7 +62,7 @@ func (b *CliManagerStatusApplyConfiguration) WithLatestAvailableRevision(value i
 // WithGenerations adds the given value to the Generations field in the declarative configuration
 // and returns the receiver, so that objects can be build by chaining "With" function invocations.
 // If called multiple times, values provided by each call will be appended to the Generations field.
-func (b *CliManagerStatusApplyConfiguration) WithGenerations(values ...*v1.GenerationStatusApplyConfiguration) *CliManagerStatusApplyConfiguration {
+func (b *OLMStatusApplyConfiguration) WithGenerations(values ...*GenerationStatusApplyConfiguration) *OLMStatusApplyConfiguration {
 	for i := range values {
 		if values[i] == nil {
 			panic("nil value passed to WithGenerations")

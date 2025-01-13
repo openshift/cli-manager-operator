@@ -2,19 +2,23 @@ package operatorclient
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 
 	"k8s.io/apimachinery/pkg/api/equality"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/client-go/tools/cache"
+	"k8s.io/utils/clock"
 
 	operatorv1 "github.com/openshift/api/operator/v1"
+	applyconfiguration "github.com/openshift/client-go/operator/applyconfigurations/operator/v1"
+	"github.com/openshift/library-go/pkg/apiserver/jsonpatch"
+	"github.com/openshift/library-go/pkg/operator/v1helpers"
+
 	climanagerapplyconfiguration "github.com/openshift/cli-manager-operator/pkg/generated/applyconfiguration/climanager/v1"
 	operatorconfigclientv1 "github.com/openshift/cli-manager-operator/pkg/generated/clientset/versioned/typed/climanager/v1"
-	applyconfiguration "github.com/openshift/client-go/operator/applyconfigurations/operator/v1"
 )
 
 const OperatorNamespace = "openshift-cli-manager-operator"
@@ -95,17 +99,8 @@ func (c *CLIManagerClient) ApplyOperatorSpec(ctx context.Context, fieldManager s
 		return fmt.Errorf("applyConfiguration must have a value")
 	}
 
-	jsonBytes, err := json.Marshal(desiredConfiguration)
-	if err != nil {
-		return fmt.Errorf("unable to serialize operator configuration: %w", err)
-	}
-	operatorSpec := &operatorv1.OperatorSpec{}
-	if err := json.Unmarshal(jsonBytes, operatorSpec); err != nil {
-		return fmt.Errorf("unable to deserialize operator configuration: %w", err)
-	}
-
 	desiredSpec := &climanagerapplyconfiguration.CliManagerSpecApplyConfiguration{
-		OperatorSpec: *operatorSpec,
+		OperatorSpecApplyConfiguration: *desiredConfiguration,
 	}
 	desired := climanagerapplyconfiguration.CliManager(OperatorConfigName, OperatorNamespace)
 	desired.WithSpec(desiredSpec)
@@ -142,17 +137,8 @@ func (c *CLIManagerClient) ApplyOperatorStatus(ctx context.Context, fieldManager
 		return fmt.Errorf("applyConfiguration must have a value")
 	}
 
-	jsonBytes, err := json.Marshal(desiredConfiguration)
-	if err != nil {
-		return fmt.Errorf("unable to serialize operator configuration: %w", err)
-	}
-	operatorStatus := &operatorv1.OperatorStatus{}
-	if err := json.Unmarshal(jsonBytes, operatorStatus); err != nil {
-		return fmt.Errorf("unable to deserialize operator configuration: %w", err)
-	}
-
 	desiredStatus := &climanagerapplyconfiguration.CliManagerStatusApplyConfiguration{
-		OperatorStatus: *operatorStatus,
+		OperatorStatusApplyConfiguration: *desiredConfiguration,
 	}
 	desired := climanagerapplyconfiguration.CliManager(OperatorConfigName, OperatorNamespace)
 	desired.WithStatus(desiredStatus)
@@ -161,6 +147,7 @@ func (c *CLIManagerClient) ApplyOperatorStatus(ctx context.Context, fieldManager
 	switch {
 	case apierrors.IsNotFound(err):
 		// do nothing and proceed with the apply
+		v1helpers.SetApplyConditionsLastTransitionTime(clock.RealClock{}, &desired.Status.Conditions, nil)
 	case err != nil:
 		return fmt.Errorf("unable to get operator configuration: %w", err)
 	default:
@@ -170,6 +157,12 @@ func (c *CLIManagerClient) ApplyOperatorStatus(ctx context.Context, fieldManager
 		}
 		if equality.Semantic.DeepEqual(original, desired) {
 			return nil
+		}
+
+		if original.Status != nil {
+			v1helpers.SetApplyConditionsLastTransitionTime(clock.RealClock{}, &desired.Status.Conditions, original.Status.Conditions)
+		} else {
+			v1helpers.SetApplyConditionsLastTransitionTime(clock.RealClock{}, &desired.Status.Conditions, nil)
 		}
 	}
 
@@ -182,4 +175,13 @@ func (c *CLIManagerClient) ApplyOperatorStatus(ctx context.Context, fieldManager
 	}
 
 	return nil
+}
+
+func (c *CLIManagerClient) PatchOperatorStatus(ctx context.Context, jsonPatch *jsonpatch.PatchSet) (err error) {
+	jsonPatchBytes, err := jsonPatch.Marshal()
+	if err != nil {
+		return err
+	}
+	_, err = c.OperatorClient.CliManagers(OperatorNamespace).Patch(ctx, OperatorConfigName, types.JSONPatchType, jsonPatchBytes, metav1.PatchOptions{}, "/status")
+	return err
 }

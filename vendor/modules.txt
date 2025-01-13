@@ -175,7 +175,7 @@ github.com/modern-go/reflect2
 # github.com/munnerz/goautoneg v0.0.0-20191010083416-a7dc8b61c822
 ## explicit
 github.com/munnerz/goautoneg
-# github.com/openshift/api v0.0.0-20241001152557-e415140e5d5f
+# github.com/openshift/api v0.0.0-20241210155609-29859d55727b
 ## explicit; go 1.22.0
 github.com/openshift/api
 github.com/openshift/api/apiserver
@@ -258,7 +258,7 @@ github.com/openshift/build-machinery-go/scripts
 # github.com/openshift/cli-manager v0.0.0-20241001045656-03d3e9e45cb8
 ## explicit; go 1.22.0
 github.com/openshift/cli-manager/api/v1alpha1
-# github.com/openshift/client-go v0.0.0-20241001162912-da6d55e4611f
+# github.com/openshift/client-go v0.0.0-20241107164952-923091dd2b1a
 ## explicit; go 1.22.0
 github.com/openshift/client-go/config/applyconfigurations/config/v1
 github.com/openshift/client-go/config/applyconfigurations/internal
@@ -270,8 +270,9 @@ github.com/openshift/client-go/route/applyconfigurations/internal
 github.com/openshift/client-go/route/applyconfigurations/route/v1
 github.com/openshift/client-go/route/clientset/versioned/scheme
 github.com/openshift/client-go/route/clientset/versioned/typed/route/v1
-# github.com/openshift/library-go v0.0.0-20241001171606-756adf2188fc
+# github.com/openshift/library-go v0.0.0-20241202102934-afe5dcf92a32
 ## explicit; go 1.22.0
+github.com/openshift/library-go/pkg/apiserver/jsonpatch
 github.com/openshift/library-go/pkg/authorization/hardcodedauthorizer
 github.com/openshift/library-go/pkg/config/client
 github.com/openshift/library-go/pkg/config/clusterstatus
