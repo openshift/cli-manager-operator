@@ -12,7 +12,7 @@ name: tech-preview
 entries:
   - name: cli-manager-operator.v0.1.0
 ---
-image: registry.redhat.io/cli-manager/cli-manager-operator-bundle@sha256:1f083f8a6235c4313c6cefa1d0c6ec62cab7b0fd7a58c4ce6f1c271165030112
+image: registry.redhat.io/cli-manager/cli-manager-operator-bundle@sha256:d4b283a7ef4a3f421dcb966ee242361f5a2dc3d114f61411f5f7d7789b6e4776
 name: cli-manager-operator.v0.1.0
 package: cli-manager
 properties:
@@ -51,6 +51,7 @@ properties:
         ]
       capabilities: Basic Install
       categories: Openshift Optional
+      console.openshift.io/operator-monitoring-default: "true"
       createdAt: "2024-06-04"
       description: "The CLI Manager is a comprehensive tool designed to simplify the
       management of \nOpenShift CLI plugins within the OpenShift environment. \nModeled
@@ -67,6 +68,8 @@ properties:
       features.operators.openshift.io/token-auth-aws: "false"
       features.operators.openshift.io/token-auth-azure: "false"
       features.operators.openshift.io/token-auth-gcp: "false"
+      operatorframework.io/cluster-monitoring: "true"
+      operatorframework.io/suggested-namespace: openshift-cli-manager-operator
       operators.openshift.io/valid-subscription: '["OpenShift Container Platform",
       "OpenShift Platform Plus"]'
       operators.operatorframework.io/builder: operator-sdk-v1.34.2
@@ -119,11 +122,10 @@ properties:
     provider:
       name: Red Hat, Inc.
 relatedImages:
-- image: registry.redhat.io/cli-manager/cli-manager-operator-bundle@sha256:1f083f8a6235c4313c6cefa1d0c6ec62cab7b0fd7a58c4ce6f1c271165030112
+- image: registry.redhat.io/cli-manager/cli-manager-operator-bundle@sha256:d4b283a7ef4a3f421dcb966ee242361f5a2dc3d114f61411f5f7d7789b6e4776
   name: ""
-- image: registry.redhat.io/cli-manager/cli-manager-rhel9-operator@sha256:538a16d28033f9931ea1a390b5a2f0ac063d8eec2a0f11014ddd08a73179805c
+- image: registry.redhat.io/cli-manager/cli-manager-rhel9-operator@sha256:bc4e2bbd2a02a03fc1f22b99087ac5f7506e3d81ed7e81e1fd4613b7ad08f44f
   name: cli-manager-operator
-- image: registry.redhat.io/cli-manager/cli-manager-rhel9@sha256:d0a52d2064e0c7878016a37749677a0fdc08d309c4171b5a793905de3434de4c
+- image: registry.redhat.io/cli-manager/cli-manager-rhel9@sha256:9c5a5a0ce00023e26e3a2884ef97399652c7da6c931571a4b673a9db0413b8e3
   name: cli-manager
 schema: olm.bundle
-
