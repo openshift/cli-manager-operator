@@ -23,6 +23,7 @@ const (
 
 var ServeArtifactAsHttp bool
 
+// RunOperator runs the operator
 func RunOperator(ctx context.Context, cc *controllercmd.ControllerContext) error {
 	kubeClient, err := kubernetes.NewForConfig(cc.ProtoKubeConfig)
 	if err != nil {
