@@ -3,7 +3,7 @@ WORKDIR /go/src/github.com/openshift/cli-manager-operator
 COPY . .
 
 # FIXME: update to registry.redhat.io, when this version is released to production
-ARG OPERAND_IMAGE=registry.stage.redhat.io/cli-manager/cli-manager-rhel9@sha256:038c49611cda19c2e0c3d5667acfc15b2ecf3834561e14dd3c29d8f0771b369c
+ARG OPERAND_IMAGE=registry.stage.redhat.io/cli-manager/cli-manager-rhel9@sha256:65a3bb77c3e667ece8dc7ada277157d4aeb0fbf5f46d3d5dfcfa74c4c9de4c3c
 ARG REPLACED_OPERAND_IMG=quay.io/openshift/origin-cli-manager:latest
 
 # Replace the operand image in deploy/07_deployment.yaml with the one specified by the OPERAND_IMAGE build argument.
