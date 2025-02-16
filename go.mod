@@ -3,7 +3,7 @@ module github.com/openshift/cli-manager-operator
 go 1.22.5
 
 require (
-	github.com/openshift/api v0.0.0-20241210155609-29859d55727b
+	github.com/openshift/api f5b09d13c01f
 	github.com/openshift/build-machinery-go v0.0.0-20240910153727-5725581bdf8f
 	github.com/openshift/cli-manager v0.0.0-20241001045656-03d3e9e45cb8
 	github.com/openshift/client-go v0.0.0-20241107164952-923091dd2b1a
