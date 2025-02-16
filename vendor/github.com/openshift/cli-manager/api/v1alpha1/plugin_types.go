@@ -49,6 +49,15 @@ type PluginPlatform struct {
 	// +required
 	Files []FileLocation `json:"files"`
 
+	// CA bundle encoded in base64 that is used to access to given image registry.
+	// This should contain the PEM-encoded CA certificates.
+	// +optional
+	CABundle string `json:"caBundle,omitempty"`
+
+	// Proxy URL if the image registry can be accessible via proxy
+	// +optional
+	ProxyURL string `json:"proxyURL,omitempty"`
+
 	// Bin specifies the path to the plugin executable.
 	// The path is relative to the root of the installation folder.
 	// The binary will be linked after all FileOperations are executed.
