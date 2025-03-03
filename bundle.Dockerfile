@@ -11,7 +11,7 @@ RUN hack/replace-image.sh deploy $REPLACED_OPERAND_IMG $OPERAND_IMAGE
 RUN hack/replace-image.sh manifests $REPLACED_OPERAND_IMG $OPERAND_IMAGE
 
 # FIXME: update to registry.redhat.io, when this version is released to production
-ARG OPERATOR_IMAGE=registry.stage.redhat.io/cli-manager/cli-manager-rhel9-operator@sha256:e4892323321e27ee96a2f113014bf95487c6e47c16138ae3df2e2b4c6fab1aaa
+ARG OPERATOR_IMAGE=registry.stage.redhat.io/cli-manager/cli-manager-rhel9-operator@sha256:e38483706bd73bbb530de6fc52cc2451032bc44ef3b4f8d02bd0bdbc1507ce55
 ARG REPLACED_OPERATOR_IMG=quay.io/openshift/origin-cli-manager-operator:latest
 
 # Replace the operand image in deploy/07_deployment.yaml with the one specified by the OPERATOR_IMAGE build argument.
