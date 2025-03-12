@@ -34,7 +34,6 @@ spec:
         - linux/x86_64
         - linux/arm64
         - linux/ppc64le
-        - linux/s390x
   pipelineSpec:
     description: |
       This pipeline is ideal for building and verifying [file-based catalogs](https://konflux-ci.dev/docs/advanced-how-tos/building-olm.adoc#building-the-file-based-catalog).

@@ -8,134 +8,12 @@ schema: olm.package
 ---
 schema: olm.channel
 package: cli-manager
-name: stable
-entries:
-  - name: cli-manager-operator.v1.0.0
-    replaces: cli-manager-operator.v0.1.0
----
-schema: olm.channel
-package: cli-manager
 name: tech-preview
 entries:
-  - name: cli-manager-operator.v0.1.0
+  - name: cli-manager-operator.v0.1.1
 ---
-image: registry.redhat.io/cli-manager/cli-manager-operator-bundle@sha256:1f083f8a6235c4313c6cefa1d0c6ec62cab7b0fd7a58c4ce6f1c271165030112
-name: cli-manager-operator.v0.1.0
-package: cli-manager
-properties:
-- type: olm.gvk
-  value:
-    group: config.openshift.io
-    kind: Plugin
-    version: v1alpha1
-- type: olm.gvk
-  value:
-    group: operator.openshift.io
-    kind: CliManager
-    version: v1
-- type: olm.package
-  value:
-    packageName: cli-manager
-    version: 0.1.0
-- type: olm.csv.metadata
-  value:
-    annotations:
-      alm-examples: |-
-        [
-          {
-            "apiVersion": "operator.openshift.io/v1",
-            "kind": "CliManager",
-            "metadata": {
-              "name": "cluster",
-              "namespace": "openshift-cli-manager-operator"
-            },
-            "spec": {
-              "logLevel": "Normal",
-              "managementState": "Managed",
-              "operatorLogLevel": "Normal"
-            }
-          }
-        ]
-      capabilities: Basic Install
-      categories: Openshift Optional
-      createdAt: "2024-06-04"
-      description: "The CLI Manager is a comprehensive tool designed to simplify the
-      management of \nOpenShift CLI plugins within the OpenShift environment. \nModeled
-      after the popular krew plugin manager, it offers seamless integration, \neasy
-      installation, and efficient handling of a wide array of plugins, \nenhancing
-      your OpenShift command-line experience.\n"
-      features.operators.openshift.io/cnf: "false"
-      features.operators.openshift.io/cni: "false"
-      features.operators.openshift.io/csi: "false"
-      features.operators.openshift.io/disconnected: "true"
-      features.operators.openshift.io/fips-compliant: "true"
-      features.operators.openshift.io/proxy-aware: "false"
-      features.operators.openshift.io/tls-profiles: "false"
-      features.operators.openshift.io/token-auth-aws: "false"
-      features.operators.openshift.io/token-auth-azure: "false"
-      features.operators.openshift.io/token-auth-gcp: "false"
-      operators.openshift.io/valid-subscription: '["OpenShift Container Platform",
-      "OpenShift Platform Plus"]'
-      operators.operatorframework.io/builder: operator-sdk-v1.34.2
-      repository: https://github.com/openshift/cli-manager-operator
-      support: Red Hat, Inc.
-    apiServiceDefinitions: {}
-    crdDescriptions:
-      owned:
-        - displayName: CLI Manager
-          kind: CliManager
-          name: climanagers.operator.openshift.io
-          version: v1
-        - displayName: CLI Plugin
-          kind: Plugin
-          name: plugins.config.openshift.io
-          version: v1alpha1
-    description: "The CLI Manager is a comprehensive tool designed to simplify the
-    management of \nOpenShift CLI plugins within the OpenShift environment. \nModeled
-    after the popular krew plugin manager, it offers seamless integration, \neasy
-    installation, and efficient handling of a wide array of plugins, \nenhancing
-    your OpenShift command-line experience.\n"
-    displayName: CLI Manager
-    installModes:
-      - supported: true
-        type: OwnNamespace
-      - supported: true
-        type: SingleNamespace
-      - supported: false
-        type: MultiNamespace
-      - supported: false
-        type: AllNamespaces
-    keywords:
-      - cli-manager-operator
-      - cli-manager
-    labels:
-      operatorframework.io/arch.amd64: supported
-      operatorframework.io/arch.arm64: supported
-      operatorframework.io/arch.ppc64le: supported
-      operatorframework.io/arch.s390x: supported
-    links:
-      - name: Source Code
-        url: https://github.com/openshift/cli-manager
-      - name: Source Code
-        url: https://github.com/openshift/cli-manager-operator
-    maintainers:
-      - email: support@redhat.com
-        name: Red Hat
-    maturity: alpha
-    minKubeVersion: 1.30.0
-    provider:
-      name: Red Hat, Inc.
-relatedImages:
-- image: registry.redhat.io/cli-manager/cli-manager-operator-bundle@sha256:1f083f8a6235c4313c6cefa1d0c6ec62cab7b0fd7a58c4ce6f1c271165030112
-  name: ""
-- image: registry.redhat.io/cli-manager/cli-manager-rhel9-operator@sha256:538a16d28033f9931ea1a390b5a2f0ac063d8eec2a0f11014ddd08a73179805c
-  name: cli-manager-operator
-- image: registry.redhat.io/cli-manager/cli-manager-rhel9@sha256:d0a52d2064e0c7878016a37749677a0fdc08d309c4171b5a793905de3434de4c
-  name: cli-manager
-schema: olm.bundle
----
-image: registry.redhat.io/cli-manager/cli-manager-operator-bundle@sha256:1f083f8a6235c4313c6cefa1d0c6ec62cab7b0fd7a58c4ce6f1c271165030112
-name: cli-manager-operator.v1.0.0
+image: registry.redhat.io/cli-manager/cli-manager-operator-bundle@sha256:74c88f1cfef4cc31b794fc5ed8dcc10d3b0e6869c228d808f1d98819e69554b6
+name: cli-manager-operator.v0.1.1
 package: cli-manager
 properties:
   - type: olm.gvk
@@ -151,7 +29,7 @@ properties:
   - type: olm.package
     value:
       packageName: cli-manager
-      version: 1.0.0
+      version: 0.1.1
   - type: olm.csv.metadata
     value:
       annotations:
@@ -173,12 +51,13 @@ properties:
           ]
         capabilities: Basic Install
         categories: Openshift Optional
-        createdAt: "2024-11-26"
+        console.openshift.io/operator-monitoring-default: "true"
+        createdAt: "2024-06-04"
         description: "The CLI Manager is a comprehensive tool designed to simplify the
-      management of \nOpenShift CLI plugins within the OpenShift environment. \nModeled
-      after the popular krew plugin manager, it offers seamless integration, \neasy
-      installation, and efficient handling of a wide array of plugins, \nenhancing
-      your OpenShift command-line experience.\n"
+        management of \nOpenShift CLI plugins within the OpenShift environment. \nModeled
+        after the popular krew plugin manager, it offers seamless integration, \neasy
+        installation, and efficient handling of a wide array of plugins, \nenhancing
+        your OpenShift command-line experience.\n"
         features.operators.openshift.io/cnf: "false"
         features.operators.openshift.io/cni: "false"
         features.operators.openshift.io/csi: "false"
@@ -189,8 +68,10 @@ properties:
         features.operators.openshift.io/token-auth-aws: "false"
         features.operators.openshift.io/token-auth-azure: "false"
         features.operators.openshift.io/token-auth-gcp: "false"
+        operatorframework.io/cluster-monitoring: "true"
+        operatorframework.io/suggested-namespace: openshift-cli-manager-operator
         operators.openshift.io/valid-subscription: '["OpenShift Container Platform",
-      "OpenShift Platform Plus"]'
+        "OpenShift Platform Plus"]'
         operators.operatorframework.io/builder: operator-sdk-v1.34.2
         repository: https://github.com/openshift/cli-manager-operator
         support: Red Hat, Inc.
@@ -206,10 +87,10 @@ properties:
             name: plugins.config.openshift.io
             version: v1alpha1
       description: "The CLI Manager is a comprehensive tool designed to simplify the
-    management of \nOpenShift CLI plugins within the OpenShift environment. \nModeled
-    after the popular krew plugin manager, it offers seamless integration, \neasy
-    installation, and efficient handling of a wide array of plugins, \nenhancing
-    your OpenShift command-line experience.\n"
+      management of \nOpenShift CLI plugins within the OpenShift environment. \nModeled
+      after the popular krew plugin manager, it offers seamless integration, \neasy
+      installation, and efficient handling of a wide array of plugins, \nenhancing
+      your OpenShift command-line experience.\n"
       displayName: CLI Manager
       installModes:
         - supported: true
@@ -227,7 +108,6 @@ properties:
         operatorframework.io/arch.amd64: supported
         operatorframework.io/arch.arm64: supported
         operatorframework.io/arch.ppc64le: supported
-        operatorframework.io/arch.s390x: supported
       links:
         - name: Source Code
           url: https://github.com/openshift/cli-manager
@@ -241,11 +121,10 @@ properties:
       provider:
         name: Red Hat, Inc.
 relatedImages:
-  - image: registry.redhat.io/cli-manager/cli-manager-operator-bundle@sha256:1f083f8a6235c4313c6cefa1d0c6ec62cab7b0fd7a58c4ce6f1c271165030112
+  - image: registry.redhat.io/cli-manager/cli-manager-operator-bundle@sha256:74c88f1cfef4cc31b794fc5ed8dcc10d3b0e6869c228d808f1d98819e69554b6
     name: ""
-  - image: registry.redhat.io/cli-manager/cli-manager-rhel9-operator@sha256:538a16d28033f9931ea1a390b5a2f0ac063d8eec2a0f11014ddd08a73179805c
+  - image: registry.redhat.io/cli-manager/cli-manager-rhel9-operator@sha256:be0fc230fef111cff36a8b846bbac9aaa98aae94ad9200416e841aa487121de4
     name: cli-manager-operator
-  - image: registry.redhat.io/cli-manager/cli-manager-rhel9@sha256:d0a52d2064e0c7878016a37749677a0fdc08d309c4171b5a793905de3434de4c
+  - image: registry.redhat.io/cli-manager/cli-manager-rhel9@sha256:a6b7857c1acd5173c770e6ba1d03947eb13804d2512f7f7cd6bb96e5e5cdaa17
     name: cli-manager
 schema: olm.bundle
-
