@@ -35,7 +35,7 @@ CODEGEN_GROUPS_VERSION :=climanager:v1
 # $2 - image ref
 # $3 - Dockerfile path
 # $4 - context directory for image build
-$(call build-image,ocp-cli-manager-operator,$(IMAGE_REGISTRY)/ocp/4.19:cli-manager-operator, ./Dockerfile,.)
+$(call build-image,ocp-cli-manager-operator,$(IMAGE_REGISTRY)/ocp/4.20:cli-manager-operator, ./Dockerfile,.)
 
 $(call verify-golang-versions,Dockerfile)
 
