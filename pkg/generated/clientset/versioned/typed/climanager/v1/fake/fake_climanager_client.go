@@ -13,7 +13,7 @@ type FakeClimanagersV1 struct {
 }
 
 func (c *FakeClimanagersV1) CliManagers(namespace string) v1.CliManagerInterface {
-	return &FakeCliManagers{c, namespace}
+	return newFakeCliManagers(c, namespace)
 }
 
 // RESTClient returns a RESTClient that is used to communicate

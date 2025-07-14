@@ -3,10 +3,10 @@
 package v1
 
 import (
-	v1 "github.com/openshift/cli-manager-operator/pkg/apis/climanager/v1"
-	"k8s.io/apimachinery/pkg/labels"
-	"k8s.io/client-go/listers"
-	"k8s.io/client-go/tools/cache"
+	climanagerv1 "github.com/openshift/cli-manager-operator/pkg/apis/climanager/v1"
+	labels "k8s.io/apimachinery/pkg/labels"
+	listers "k8s.io/client-go/listers"
+	cache "k8s.io/client-go/tools/cache"
 )
 
 // CliManagerLister helps list CliManagers.
@@ -14,7 +14,7 @@ import (
 type CliManagerLister interface {
 	// List lists all CliManagers in the indexer.
 	// Objects returned here must be treated as read-only.
-	List(selector labels.Selector) (ret []*v1.CliManager, err error)
+	List(selector labels.Selector) (ret []*climanagerv1.CliManager, err error)
 	// CliManagers returns an object that can list and get CliManagers.
 	CliManagers(namespace string) CliManagerNamespaceLister
 	CliManagerListerExpansion
@@ -22,17 +22,17 @@ type CliManagerLister interface {
 
 // cliManagerLister implements the CliManagerLister interface.
 type cliManagerLister struct {
-	listers.ResourceIndexer[*v1.CliManager]
+	listers.ResourceIndexer[*climanagerv1.CliManager]
 }
 
 // NewCliManagerLister returns a new CliManagerLister.
 func NewCliManagerLister(indexer cache.Indexer) CliManagerLister {
-	return &cliManagerLister{listers.New[*v1.CliManager](indexer, v1.Resource("climanager"))}
+	return &cliManagerLister{listers.New[*climanagerv1.CliManager](indexer, climanagerv1.Resource("climanager"))}
 }
 
 // CliManagers returns an object that can list and get CliManagers.
 func (s *cliManagerLister) CliManagers(namespace string) CliManagerNamespaceLister {
-	return cliManagerNamespaceLister{listers.NewNamespaced[*v1.CliManager](s.ResourceIndexer, namespace)}
+	return cliManagerNamespaceLister{listers.NewNamespaced[*climanagerv1.CliManager](s.ResourceIndexer, namespace)}
 }
 
 // CliManagerNamespaceLister helps list and get CliManagers.
@@ -40,15 +40,15 @@ func (s *cliManagerLister) CliManagers(namespace string) CliManagerNamespaceList
 type CliManagerNamespaceLister interface {
 	// List lists all CliManagers in the indexer for a given namespace.
 	// Objects returned here must be treated as read-only.
-	List(selector labels.Selector) (ret []*v1.CliManager, err error)
+	List(selector labels.Selector) (ret []*climanagerv1.CliManager, err error)
 	// Get retrieves the CliManager from the indexer for a given namespace and name.
 	// Objects returned here must be treated as read-only.
-	Get(name string) (*v1.CliManager, error)
+	Get(name string) (*climanagerv1.CliManager, error)
 	CliManagerNamespaceListerExpansion
 }
 
 // cliManagerNamespaceLister implements the CliManagerNamespaceLister
 // interface.
 type cliManagerNamespaceLister struct {
-	listers.ResourceIndexer[*v1.CliManager]
+	listers.ResourceIndexer[*climanagerv1.CliManager]
 }
