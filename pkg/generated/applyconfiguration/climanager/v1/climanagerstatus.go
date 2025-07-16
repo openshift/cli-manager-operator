@@ -3,13 +3,13 @@
 package v1
 
 import (
-	v1 "github.com/openshift/client-go/operator/applyconfigurations/operator/v1"
+	operatorv1 "github.com/openshift/client-go/operator/applyconfigurations/operator/v1"
 )
 
 // CliManagerStatusApplyConfiguration represents a declarative configuration of the CliManagerStatus type for use
 // with apply.
 type CliManagerStatusApplyConfiguration struct {
-	v1.OperatorStatusApplyConfiguration `json:",inline"`
+	operatorv1.OperatorStatusApplyConfiguration `json:",inline"`
 }
 
 // CliManagerStatusApplyConfiguration constructs a declarative configuration of the CliManagerStatus type for use with
@@ -22,19 +22,19 @@ func CliManagerStatus() *CliManagerStatusApplyConfiguration {
 // and returns the receiver, so that objects can be built by chaining "With" function invocations.
 // If called multiple times, the ObservedGeneration field is set to the value of the last call.
 func (b *CliManagerStatusApplyConfiguration) WithObservedGeneration(value int64) *CliManagerStatusApplyConfiguration {
-	b.ObservedGeneration = &value
+	b.OperatorStatusApplyConfiguration.ObservedGeneration = &value
 	return b
 }
 
 // WithConditions adds the given value to the Conditions field in the declarative configuration
 // and returns the receiver, so that objects can be build by chaining "With" function invocations.
 // If called multiple times, values provided by each call will be appended to the Conditions field.
-func (b *CliManagerStatusApplyConfiguration) WithConditions(values ...*v1.OperatorConditionApplyConfiguration) *CliManagerStatusApplyConfiguration {
+func (b *CliManagerStatusApplyConfiguration) WithConditions(values ...*operatorv1.OperatorConditionApplyConfiguration) *CliManagerStatusApplyConfiguration {
 	for i := range values {
 		if values[i] == nil {
 			panic("nil value passed to WithConditions")
 		}
-		b.Conditions = append(b.Conditions, *values[i])
+		b.OperatorStatusApplyConfiguration.Conditions = append(b.OperatorStatusApplyConfiguration.Conditions, *values[i])
 	}
 	return b
 }
@@ -43,7 +43,7 @@ func (b *CliManagerStatusApplyConfiguration) WithConditions(values ...*v1.Operat
 // and returns the receiver, so that objects can be built by chaining "With" function invocations.
 // If called multiple times, the Version field is set to the value of the last call.
 func (b *CliManagerStatusApplyConfiguration) WithVersion(value string) *CliManagerStatusApplyConfiguration {
-	b.Version = &value
+	b.OperatorStatusApplyConfiguration.Version = &value
 	return b
 }
 
@@ -51,7 +51,7 @@ func (b *CliManagerStatusApplyConfiguration) WithVersion(value string) *CliManag
 // and returns the receiver, so that objects can be built by chaining "With" function invocations.
 // If called multiple times, the ReadyReplicas field is set to the value of the last call.
 func (b *CliManagerStatusApplyConfiguration) WithReadyReplicas(value int32) *CliManagerStatusApplyConfiguration {
-	b.ReadyReplicas = &value
+	b.OperatorStatusApplyConfiguration.ReadyReplicas = &value
 	return b
 }
 
@@ -59,19 +59,19 @@ func (b *CliManagerStatusApplyConfiguration) WithReadyReplicas(value int32) *Cli
 // and returns the receiver, so that objects can be built by chaining "With" function invocations.
 // If called multiple times, the LatestAvailableRevision field is set to the value of the last call.
 func (b *CliManagerStatusApplyConfiguration) WithLatestAvailableRevision(value int32) *CliManagerStatusApplyConfiguration {
-	b.LatestAvailableRevision = &value
+	b.OperatorStatusApplyConfiguration.LatestAvailableRevision = &value
 	return b
 }
 
 // WithGenerations adds the given value to the Generations field in the declarative configuration
 // and returns the receiver, so that objects can be build by chaining "With" function invocations.
 // If called multiple times, values provided by each call will be appended to the Generations field.
-func (b *CliManagerStatusApplyConfiguration) WithGenerations(values ...*v1.GenerationStatusApplyConfiguration) *CliManagerStatusApplyConfiguration {
+func (b *CliManagerStatusApplyConfiguration) WithGenerations(values ...*operatorv1.GenerationStatusApplyConfiguration) *CliManagerStatusApplyConfiguration {
 	for i := range values {
 		if values[i] == nil {
 			panic("nil value passed to WithGenerations")
 		}
-		b.Generations = append(b.Generations, *values[i])
+		b.OperatorStatusApplyConfiguration.Generations = append(b.OperatorStatusApplyConfiguration.Generations, *values[i])
 	}
 	return b
 }

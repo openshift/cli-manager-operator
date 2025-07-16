@@ -5,19 +5,19 @@ package v1
 import (
 	climanagerv1 "github.com/openshift/cli-manager-operator/pkg/apis/climanager/v1"
 	"github.com/openshift/cli-manager-operator/pkg/generated/applyconfiguration/internal"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	apismetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	types "k8s.io/apimachinery/pkg/types"
 	"k8s.io/apimachinery/pkg/util/managedfields"
-	v1 "k8s.io/client-go/applyconfigurations/meta/v1"
+	metav1 "k8s.io/client-go/applyconfigurations/meta/v1"
 )
 
 // CliManagerApplyConfiguration represents a declarative configuration of the CliManager type for use
 // with apply.
 type CliManagerApplyConfiguration struct {
-	v1.TypeMetaApplyConfiguration    `json:",inline"`
-	*v1.ObjectMetaApplyConfiguration `json:"metadata,omitempty"`
-	Spec                             *CliManagerSpecApplyConfiguration   `json:"spec,omitempty"`
-	Status                           *CliManagerStatusApplyConfiguration `json:"status,omitempty"`
+	metav1.TypeMetaApplyConfiguration    `json:",inline"`
+	*metav1.ObjectMetaApplyConfiguration `json:"metadata,omitempty"`
+	Spec                                 *CliManagerSpecApplyConfiguration   `json:"spec,omitempty"`
+	Status                               *CliManagerStatusApplyConfiguration `json:"status,omitempty"`
 }
 
 // CliManager constructs a declarative configuration of the CliManager type for use with
@@ -28,6 +28,22 @@ func CliManager(name, namespace string) *CliManagerApplyConfiguration {
 	b.WithNamespace(namespace)
 	b.WithKind("CliManager")
 	b.WithAPIVersion("operator.openshift.io/v1")
+	return b
+}
+
+// WithKind sets the Kind field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the Kind field is set to the value of the last call.
+func (b *CliManagerApplyConfiguration) WithKind(value string) *CliManagerApplyConfiguration {
+	b.TypeMetaApplyConfiguration.Kind = &value
+	return b
+}
+
+// WithAPIVersion sets the APIVersion field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the APIVersion field is set to the value of the last call.
+func (b *CliManagerApplyConfiguration) WithAPIVersion(value string) *CliManagerApplyConfiguration {
+	b.TypeMetaApplyConfiguration.APIVersion = &value
 	return b
 }
 
@@ -66,28 +82,12 @@ func extractCLIManager(cliManager *climanagerv1.CliManager, fieldManager string,
 	return b, nil
 }
 
-// WithKind sets the Kind field in the declarative configuration to the given value
-// and returns the receiver, so that objects can be built by chaining "With" function invocations.
-// If called multiple times, the Kind field is set to the value of the last call.
-func (b *CliManagerApplyConfiguration) WithKind(value string) *CliManagerApplyConfiguration {
-	b.Kind = &value
-	return b
-}
-
-// WithAPIVersion sets the APIVersion field in the declarative configuration to the given value
-// and returns the receiver, so that objects can be built by chaining "With" function invocations.
-// If called multiple times, the APIVersion field is set to the value of the last call.
-func (b *CliManagerApplyConfiguration) WithAPIVersion(value string) *CliManagerApplyConfiguration {
-	b.APIVersion = &value
-	return b
-}
-
 // WithName sets the Name field in the declarative configuration to the given value
 // and returns the receiver, so that objects can be built by chaining "With" function invocations.
 // If called multiple times, the Name field is set to the value of the last call.
 func (b *CliManagerApplyConfiguration) WithName(value string) *CliManagerApplyConfiguration {
 	b.ensureObjectMetaApplyConfigurationExists()
-	b.Name = &value
+	b.ObjectMetaApplyConfiguration.Name = &value
 	return b
 }
 
@@ -96,7 +96,7 @@ func (b *CliManagerApplyConfiguration) WithName(value string) *CliManagerApplyCo
 // If called multiple times, the GenerateName field is set to the value of the last call.
 func (b *CliManagerApplyConfiguration) WithGenerateName(value string) *CliManagerApplyConfiguration {
 	b.ensureObjectMetaApplyConfigurationExists()
-	b.GenerateName = &value
+	b.ObjectMetaApplyConfiguration.GenerateName = &value
 	return b
 }
 
@@ -105,7 +105,7 @@ func (b *CliManagerApplyConfiguration) WithGenerateName(value string) *CliManage
 // If called multiple times, the Namespace field is set to the value of the last call.
 func (b *CliManagerApplyConfiguration) WithNamespace(value string) *CliManagerApplyConfiguration {
 	b.ensureObjectMetaApplyConfigurationExists()
-	b.Namespace = &value
+	b.ObjectMetaApplyConfiguration.Namespace = &value
 	return b
 }
 
@@ -114,7 +114,7 @@ func (b *CliManagerApplyConfiguration) WithNamespace(value string) *CliManagerAp
 // If called multiple times, the UID field is set to the value of the last call.
 func (b *CliManagerApplyConfiguration) WithUID(value types.UID) *CliManagerApplyConfiguration {
 	b.ensureObjectMetaApplyConfigurationExists()
-	b.UID = &value
+	b.ObjectMetaApplyConfiguration.UID = &value
 	return b
 }
 
@@ -123,7 +123,7 @@ func (b *CliManagerApplyConfiguration) WithUID(value types.UID) *CliManagerApply
 // If called multiple times, the ResourceVersion field is set to the value of the last call.
 func (b *CliManagerApplyConfiguration) WithResourceVersion(value string) *CliManagerApplyConfiguration {
 	b.ensureObjectMetaApplyConfigurationExists()
-	b.ResourceVersion = &value
+	b.ObjectMetaApplyConfiguration.ResourceVersion = &value
 	return b
 }
 
@@ -132,25 +132,25 @@ func (b *CliManagerApplyConfiguration) WithResourceVersion(value string) *CliMan
 // If called multiple times, the Generation field is set to the value of the last call.
 func (b *CliManagerApplyConfiguration) WithGeneration(value int64) *CliManagerApplyConfiguration {
 	b.ensureObjectMetaApplyConfigurationExists()
-	b.Generation = &value
+	b.ObjectMetaApplyConfiguration.Generation = &value
 	return b
 }
 
 // WithCreationTimestamp sets the CreationTimestamp field in the declarative configuration to the given value
 // and returns the receiver, so that objects can be built by chaining "With" function invocations.
 // If called multiple times, the CreationTimestamp field is set to the value of the last call.
-func (b *CliManagerApplyConfiguration) WithCreationTimestamp(value metav1.Time) *CliManagerApplyConfiguration {
+func (b *CliManagerApplyConfiguration) WithCreationTimestamp(value apismetav1.Time) *CliManagerApplyConfiguration {
 	b.ensureObjectMetaApplyConfigurationExists()
-	b.CreationTimestamp = &value
+	b.ObjectMetaApplyConfiguration.CreationTimestamp = &value
 	return b
 }
 
 // WithDeletionTimestamp sets the DeletionTimestamp field in the declarative configuration to the given value
 // and returns the receiver, so that objects can be built by chaining "With" function invocations.
 // If called multiple times, the DeletionTimestamp field is set to the value of the last call.
-func (b *CliManagerApplyConfiguration) WithDeletionTimestamp(value metav1.Time) *CliManagerApplyConfiguration {
+func (b *CliManagerApplyConfiguration) WithDeletionTimestamp(value apismetav1.Time) *CliManagerApplyConfiguration {
 	b.ensureObjectMetaApplyConfigurationExists()
-	b.DeletionTimestamp = &value
+	b.ObjectMetaApplyConfiguration.DeletionTimestamp = &value
 	return b
 }
 
@@ -159,7 +159,7 @@ func (b *CliManagerApplyConfiguration) WithDeletionTimestamp(value metav1.Time) 
 // If called multiple times, the DeletionGracePeriodSeconds field is set to the value of the last call.
 func (b *CliManagerApplyConfiguration) WithDeletionGracePeriodSeconds(value int64) *CliManagerApplyConfiguration {
 	b.ensureObjectMetaApplyConfigurationExists()
-	b.DeletionGracePeriodSeconds = &value
+	b.ObjectMetaApplyConfiguration.DeletionGracePeriodSeconds = &value
 	return b
 }
 
@@ -169,11 +169,11 @@ func (b *CliManagerApplyConfiguration) WithDeletionGracePeriodSeconds(value int6
 // overwriting an existing map entries in Labels field with the same key.
 func (b *CliManagerApplyConfiguration) WithLabels(entries map[string]string) *CliManagerApplyConfiguration {
 	b.ensureObjectMetaApplyConfigurationExists()
-	if b.Labels == nil && len(entries) > 0 {
-		b.Labels = make(map[string]string, len(entries))
+	if b.ObjectMetaApplyConfiguration.Labels == nil && len(entries) > 0 {
+		b.ObjectMetaApplyConfiguration.Labels = make(map[string]string, len(entries))
 	}
 	for k, v := range entries {
-		b.Labels[k] = v
+		b.ObjectMetaApplyConfiguration.Labels[k] = v
 	}
 	return b
 }
@@ -184,11 +184,11 @@ func (b *CliManagerApplyConfiguration) WithLabels(entries map[string]string) *Cl
 // overwriting an existing map entries in Annotations field with the same key.
 func (b *CliManagerApplyConfiguration) WithAnnotations(entries map[string]string) *CliManagerApplyConfiguration {
 	b.ensureObjectMetaApplyConfigurationExists()
-	if b.Annotations == nil && len(entries) > 0 {
-		b.Annotations = make(map[string]string, len(entries))
+	if b.ObjectMetaApplyConfiguration.Annotations == nil && len(entries) > 0 {
+		b.ObjectMetaApplyConfiguration.Annotations = make(map[string]string, len(entries))
 	}
 	for k, v := range entries {
-		b.Annotations[k] = v
+		b.ObjectMetaApplyConfiguration.Annotations[k] = v
 	}
 	return b
 }
@@ -196,13 +196,13 @@ func (b *CliManagerApplyConfiguration) WithAnnotations(entries map[string]string
 // WithOwnerReferences adds the given value to the OwnerReferences field in the declarative configuration
 // and returns the receiver, so that objects can be build by chaining "With" function invocations.
 // If called multiple times, values provided by each call will be appended to the OwnerReferences field.
-func (b *CliManagerApplyConfiguration) WithOwnerReferences(values ...*v1.OwnerReferenceApplyConfiguration) *CliManagerApplyConfiguration {
+func (b *CliManagerApplyConfiguration) WithOwnerReferences(values ...*metav1.OwnerReferenceApplyConfiguration) *CliManagerApplyConfiguration {
 	b.ensureObjectMetaApplyConfigurationExists()
 	for i := range values {
 		if values[i] == nil {
 			panic("nil value passed to WithOwnerReferences")
 		}
-		b.OwnerReferences = append(b.OwnerReferences, *values[i])
+		b.ObjectMetaApplyConfiguration.OwnerReferences = append(b.ObjectMetaApplyConfiguration.OwnerReferences, *values[i])
 	}
 	return b
 }
@@ -213,14 +213,14 @@ func (b *CliManagerApplyConfiguration) WithOwnerReferences(values ...*v1.OwnerRe
 func (b *CliManagerApplyConfiguration) WithFinalizers(values ...string) *CliManagerApplyConfiguration {
 	b.ensureObjectMetaApplyConfigurationExists()
 	for i := range values {
-		b.Finalizers = append(b.Finalizers, values[i])
+		b.ObjectMetaApplyConfiguration.Finalizers = append(b.ObjectMetaApplyConfiguration.Finalizers, values[i])
 	}
 	return b
 }
 
 func (b *CliManagerApplyConfiguration) ensureObjectMetaApplyConfigurationExists() {
 	if b.ObjectMetaApplyConfiguration == nil {
-		b.ObjectMetaApplyConfiguration = &v1.ObjectMetaApplyConfiguration{}
+		b.ObjectMetaApplyConfiguration = &metav1.ObjectMetaApplyConfiguration{}
 	}
 }
 
@@ -243,5 +243,5 @@ func (b *CliManagerApplyConfiguration) WithStatus(value *CliManagerStatusApplyCo
 // GetName retrieves the value of the Name field in the declarative configuration.
 func (b *CliManagerApplyConfiguration) GetName() *string {
 	b.ensureObjectMetaApplyConfigurationExists()
-	return b.Name
+	return b.ObjectMetaApplyConfiguration.Name
 }

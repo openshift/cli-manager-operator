@@ -3,13 +3,13 @@
 package v1
 
 import (
-	"context"
+	context "context"
 	time "time"
 
-	climanagerv1 "github.com/openshift/cli-manager-operator/pkg/apis/climanager/v1"
+	apisclimanagerv1 "github.com/openshift/cli-manager-operator/pkg/apis/climanager/v1"
 	versioned "github.com/openshift/cli-manager-operator/pkg/generated/clientset/versioned"
 	internalinterfaces "github.com/openshift/cli-manager-operator/pkg/generated/informers/externalversions/internalinterfaces"
-	v1 "github.com/openshift/cli-manager-operator/pkg/generated/listers/climanager/v1"
+	climanagerv1 "github.com/openshift/cli-manager-operator/pkg/generated/listers/climanager/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	runtime "k8s.io/apimachinery/pkg/runtime"
 	watch "k8s.io/apimachinery/pkg/watch"
@@ -20,7 +20,7 @@ import (
 // CliManagers.
 type CliManagerInformer interface {
 	Informer() cache.SharedIndexInformer
-	Lister() v1.CliManagerLister
+	Lister() climanagerv1.CliManagerLister
 }
 
 type cliManagerInformer struct {
@@ -46,16 +46,28 @@ func NewFilteredCliManagerInformer(client versioned.Interface, namespace string,
 				if tweakListOptions != nil {
 					tweakListOptions(&options)
 				}
-				return client.ClimanagersV1().CliManagers(namespace).List(context.TODO(), options)
+				return client.ClimanagersV1().CliManagers(namespace).List(context.Background(), options)
 			},
 			WatchFunc: func(options metav1.ListOptions) (watch.Interface, error) {
 				if tweakListOptions != nil {
 					tweakListOptions(&options)
 				}
-				return client.ClimanagersV1().CliManagers(namespace).Watch(context.TODO(), options)
+				return client.ClimanagersV1().CliManagers(namespace).Watch(context.Background(), options)
+			},
+			ListWithContextFunc: func(ctx context.Context, options metav1.ListOptions) (runtime.Object, error) {
+				if tweakListOptions != nil {
+					tweakListOptions(&options)
+				}
+				return client.ClimanagersV1().CliManagers(namespace).List(ctx, options)
+			},
+			WatchFuncWithContext: func(ctx context.Context, options metav1.ListOptions) (watch.Interface, error) {
+				if tweakListOptions != nil {
+					tweakListOptions(&options)
+				}
+				return client.ClimanagersV1().CliManagers(namespace).Watch(ctx, options)
 			},
 		},
-		&climanagerv1.CliManager{},
+		&apisclimanagerv1.CliManager{},
 		resyncPeriod,
 		indexers,
 	)
@@ -66,9 +78,9 @@ func (f *cliManagerInformer) defaultInformer(client versioned.Interface, resyncP
 }
 
 func (f *cliManagerInformer) Informer() cache.SharedIndexInformer {
-	return f.factory.InformerFor(&climanagerv1.CliManager{}, f.defaultInformer)
+	return f.factory.InformerFor(&apisclimanagerv1.CliManager{}, f.defaultInformer)
 }
 
-func (f *cliManagerInformer) Lister() v1.CliManagerLister {
-	return v1.NewCliManagerLister(f.Informer().GetIndexer())
+func (f *cliManagerInformer) Lister() climanagerv1.CliManagerLister {
+	return climanagerv1.NewCliManagerLister(f.Informer().GetIndexer())
 }

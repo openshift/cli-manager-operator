@@ -3,7 +3,7 @@
 package externalversions
 
 import (
-	"fmt"
+	fmt "fmt"
 
 	v1 "github.com/openshift/cli-manager-operator/pkg/apis/climanager/v1"
 	schema "k8s.io/apimachinery/pkg/runtime/schema"

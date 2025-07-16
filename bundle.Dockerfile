@@ -1,4 +1,4 @@
-FROM brew.registry.redhat.io/rh-osbs/openshift-golang-builder:rhel_9_1.23 as builder
+FROM brew.registry.redhat.io/rh-osbs/openshift-golang-builder:rhel_9_1.24 as builder
 WORKDIR /go/src/github.com/openshift/cli-manager-operator
 COPY . .
 
@@ -39,8 +39,8 @@ LABEL com.redhat.component="CLI Manager"
 LABEL description="The CLI Manager is a comprehensive tool designed to simplify the management of OpenShift CLI plugins within the OpenShift environment. Modeled after the popular krew plugin manager, it offers seamless integration, easy installation, and efficient handling of a wide array of plugins, enhancing your OpenShift command-line experience."
 LABEL distribution-scope="public"
 LABEL name="cli-manager-operator-bundle"
-LABEL release="1.0.0"
-LABEL version="1.0.0"
+LABEL release="1.1.0"
+LABEL version="1.1.0"
 LABEL url="https://github.com/openshift/cli-manager-operator"
 LABEL vendor="Red Hat, Inc."
 LABEL summary="The CLI Manager is a comprehensive tool designed to simplify the management of OpenShift CLI plugins within the OpenShift environment. Modeled after the popular krew plugin manager, it offers seamless integration, easy installation, and efficient handling of a wide array of plugins, enhancing your OpenShift command-line experience."
