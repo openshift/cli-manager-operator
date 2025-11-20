@@ -7,13 +7,13 @@ metadata:
     build.appstudio.redhat.com/target_branch: '{{target_branch}}'
     pipelinesascode.tekton.dev/max-keep-runs: "3"
     pipelinesascode.tekton.dev/on-cel-expression: |
-      event == "push" && target_branch == "fbc-4-20" && ( "v4.20/***".pathChanged() || ".tekton/cli-manager-operator-fbc-4-20-push.yaml".pathChanged())
+      event == "push" && target_branch == "fbc-4-21" && ( "v4.21/***".pathChanged() || ".tekton/cli-manager-operator-fbc-4-21-push.yaml".pathChanged())
   creationTimestamp:
   labels:
-    appstudio.openshift.io/application: cli-manager-operator-fbc-4-20
-    appstudio.openshift.io/component: cli-manager-operator-fbc-4-20
+    appstudio.openshift.io/application: cli-manager-operator-fbc-4-21
+    appstudio.openshift.io/component: cli-manager-operator-fbc-4-21
     pipelines.appstudio.openshift.io/type: build
-  name: cli-manager-operator-fbc-4-20-on-push
+  name: cli-manager-operator-fbc-4-21-on-push
   namespace: clio-wrklds-pipeline-tenant
 spec:
   params:
@@ -22,11 +22,11 @@ spec:
   - name: revision
     value: '{{revision}}'
   - name: output-image
-    value: quay.io/redhat-user-workloads/clio-wrklds-pipeline-tenant/cli-manager-operator-fbc-4-20:{{revision}}
+    value: quay.io/redhat-user-workloads/clio-wrklds-pipeline-tenant/cli-manager-operator-fbc-4-21:{{revision}}
   - name: dockerfile
     value: catalog.Dockerfile
   - name: path-context
-    value: v4.20
+    value: v4.21
   - name: build-platforms
     value:
     - linux/x86_64
@@ -400,7 +400,7 @@ spec:
     - name: netrc
       optional: true
   taskRunTemplate:
-    serviceAccountName: build-pipeline-cli-manager-operator-fbc-4-20
+    serviceAccountName: build-pipeline-cli-manager-operator-fbc-4-21
   workspaces:
   - name: git-auth
     secret:
