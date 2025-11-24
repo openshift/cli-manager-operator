@@ -8,7 +8,7 @@ metadata:
     pipelinesascode.tekton.dev/cancel-in-progress: "false"
     pipelinesascode.tekton.dev/max-keep-runs: "3"
     pipelinesascode.tekton.dev/on-cel-expression: |
-      event == "push" && target_branch == "main" && (".tekton/cli-manager-operator-push.yaml".pathChanged() || "bindata/***".pathChanged() || "deploy/***".pathChanged() || "***/*.go".pathChanged() || "pkg/***".pathChanged() || "Dockerfile".pathChanged() || "***/go.*".pathChanged() )
+      event == "push" && target_branch == "main" && (".tekton/cli-manager-operator-main-push.yaml".pathChanged() || "bindata/***".pathChanged() || "deploy/***".pathChanged() || "***/*.go".pathChanged() || "pkg/***".pathChanged() || "Dockerfile".pathChanged() || "***/go.*".pathChanged() )
   creationTimestamp:
   labels:
     appstudio.openshift.io/application: cli-manager-operator-main
