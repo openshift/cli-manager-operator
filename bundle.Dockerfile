@@ -48,7 +48,7 @@ LABEL summary="The CLI Manager is a comprehensive tool designed to simplify the 
 
 LABEL io.k8s.display-name="CLI Manager Operator Bundle" \
       io.k8s.description="This is a bundle image for CLI Manager" \
-      io.openshift.tags="openshift,cli-manager-operator,cli-manager" \
+      io.openshift.tags="openshift,cli-manager-operator,cli-manager,cli" \
       com.redhat.delivery.appregistry=true \
       maintainer="AOS workloads team, <aos-workloads-staff@redhat.com>"
 USER 1001
