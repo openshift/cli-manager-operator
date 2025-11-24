@@ -12,9 +12,11 @@ LABEL com.redhat.component="CLI Manager"
 LABEL description="The CLI Manager is a comprehensive tool designed to simplify the management of OpenShift CLI plugins within the OpenShift environment. Modeled after the popular krew plugin manager, it offers seamless integration, easy installation, and efficient handling of a wide array of plugins, enhancing your OpenShift command-line experience."
 LABEL name="cli-manager-operator"
 LABEL summary="The CLI Manager is a comprehensive tool designed to simplify the management of OpenShift CLI plugins within the OpenShift environment. Modeled after the popular krew plugin manager, it offers seamless integration, easy installation, and efficient handling of a wide array of plugins, enhancing your OpenShift command-line experience."
+LABEL cpe="cpe:/a:redhat:cli_manager_operator:0.2::el9"
 LABEL io.k8s.display-name="CLI Manager Operator" \
       io.k8s.description="This is an operator to manage CLI Manager" \
       io.openshift.tags="openshift,cli-manager-operator" \
       com.redhat.delivery.appregistry=true \
+      distribution-scope=public \
       maintainer="AOS workloads team, <aos-workloads-staff@redhat.com>"
 USER 1001
