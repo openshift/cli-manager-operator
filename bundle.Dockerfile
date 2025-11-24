@@ -2,14 +2,14 @@ FROM brew.registry.redhat.io/rh-osbs/openshift-golang-builder:rhel_9_1.24 as bui
 WORKDIR /go/src/github.com/openshift/cli-manager-operator
 COPY . .
 
-ARG OPERAND_IMAGE=registry.stage.redhat.io/cli-manager/cli-manager-rhel9@sha256:835497723e3c9d49000aa5c016dbb330c3fcdad276341eef0f0bf5a2138e9586
+ARG OPERAND_IMAGE=registry.redhat.io/cli-manager/cli-manager-rhel9@sha256:835497723e3c9d49000aa5c016dbb330c3fcdad276341eef0f0bf5a2138e9586
 ARG REPLACED_OPERAND_IMG=quay.io/openshift/origin-cli-manager:latest
 
 # Replace the operand image in deploy/07_deployment.yaml with the one specified by the OPERAND_IMAGE build argument.
 RUN hack/replace-image.sh deploy $REPLACED_OPERAND_IMG $OPERAND_IMAGE
 RUN hack/replace-image.sh manifests $REPLACED_OPERAND_IMG $OPERAND_IMAGE
 
-ARG OPERATOR_IMAGE=registry.stage.redhat.io/cli-manager/cli-manager-rhel9-operator@sha256:be814a8c3fb36867cac8b0509dabca4842b8f1ad8be2dfcda0077242d7360d38
+ARG OPERATOR_IMAGE=registry.redhat.io/cli-manager/cli-manager-rhel9-operator@sha256:be814a8c3fb36867cac8b0509dabca4842b8f1ad8be2dfcda0077242d7360d38
 ARG REPLACED_OPERATOR_IMG=quay.io/openshift/origin-cli-manager-operator:latest
 
 # Replace the operand image in deploy/07_deployment.yaml with the one specified by the OPERATOR_IMAGE build argument.
@@ -38,9 +38,10 @@ COPY --from=builder /go/src/github.com/openshift/cli-manager-operator/licenses /
 LABEL com.redhat.component="CLI Manager"
 LABEL description="The CLI Manager is a comprehensive tool designed to simplify the management of OpenShift CLI plugins within the OpenShift environment. Modeled after the popular krew plugin manager, it offers seamless integration, easy installation, and efficient handling of a wide array of plugins, enhancing your OpenShift command-line experience."
 LABEL distribution-scope="public"
+LABEL cpe="cpe:/a:redhat:cli_manager_operator:0.2::el9"
 LABEL name="cli-manager-operator-bundle"
-LABEL release="1.1.0"
-LABEL version="1.1.0"
+LABEL release="0.2.0"
+LABEL version="0.2.0"
 LABEL url="https://github.com/openshift/cli-manager-operator"
 LABEL vendor="Red Hat, Inc."
 LABEL summary="The CLI Manager is a comprehensive tool designed to simplify the management of OpenShift CLI plugins within the OpenShift environment. Modeled after the popular krew plugin manager, it offers seamless integration, easy installation, and efficient handling of a wide array of plugins, enhancing your OpenShift command-line experience."
