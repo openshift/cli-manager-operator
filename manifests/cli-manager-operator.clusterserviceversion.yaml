@@ -19,8 +19,9 @@ metadata:
         }
       ]
     capabilities: Basic Install
-    createdAt: "2024-06-04"
+    createdAt: "2025-11-24"
     operators.operatorframework.io/builder: operator-sdk-v1.34.2
+    skipRange: '>=0.1.1 <0.2.0'
     description: |
       The CLI Manager is a comprehensive tool designed to simplify the management of 
       OpenShift CLI plugins within the OpenShift environment. 
@@ -44,7 +45,7 @@ metadata:
     operatorframework.io/cluster-monitoring: "true"
     operatorframework.io/suggested-namespace: "openshift-cli-manager-operator"
     console.openshift.io/operator-monitoring-default: "true"
-  name: cli-manager-operator.v1.0.0
+  name: cli-manager-operator.v0.2.0
   namespace: openshift-cli-manager-operator
   labels:
     operatorframework.io/arch.amd64: supported
@@ -52,6 +53,7 @@ metadata:
     operatorframework.io/arch.ppc64le: supported
     operatorframework.io/arch.s390x: supported
 spec:
+  replaces: cli-manager-operator.v0.1.1
   customresourcedefinitions:
     owned:
       - kind: CliManager
@@ -96,7 +98,7 @@ spec:
       mediatype: image/png
   provider:
     name: Red Hat, Inc.
-  version: 1.0.0
+  version: 0.2.0
   relatedImages:
     - name: cli-manager
       image: quay.io/openshift/origin-cli-manager:latest
