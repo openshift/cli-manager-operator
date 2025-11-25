@@ -2,7 +2,7 @@
 apiVersion: operator.openshift.io/v1alpha1
 kind: ImageDigestMirrorSet
 metadata:
-  name: example-mirror-set
+  name: example-mirror-set2
 spec:
   imageDigestMirrors:
     - mirrors:
