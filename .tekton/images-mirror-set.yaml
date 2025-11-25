@@ -6,5 +6,11 @@ metadata:
 spec:
   imageDigestMirrors:
     - mirrors:
-        - quay.io/my-namespace/valid-repo
-      source: registry.redhat.io/unreleased-image/or-inaccessible-image
+        - quay.io/redhat-user-workloads/clio-wrklds-pipeline-tenant/cli-manager-operator-main/cli-manager-operator-bundle-main
+      source: registry.redhat.io/cli-manager/cli-manager-operator-bundle
+    - mirrors:
+        - quay.io/redhat-user-workloads/clio-wrklds-pipeline-tenant/cli-manager-operator-main/cli-manager-operator-main
+      source: registry.redhat.io/cli-manager/cli-manager-rhel9-operator
+    - mirrors:
+        - quay.io/redhat-user-workloads/clio-wrklds-pipeline-tenant/cli-manager-operator-main/cli-manager-main
+      source: registry.redhat.io/cli-manager/cli-manager-rhel9
