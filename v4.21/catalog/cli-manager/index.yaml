@@ -14,7 +14,7 @@ entries:
     replaces: cli-manager-operator.v0.1.1
   - name: cli-manager-operator.v0.1.1
 ---
-image: registry.redhat.io/cli-manager/cli-manager-operator-bundle@sha256:a996f7e5491b8d4f39c17b977ee8b41d8d45baaca3b18b90d3d8f4dfa792014b
+image: registry.redhat.io/cli-manager/cli-manager-operator-bundle@sha256:f84f5609ed0c329c810bb85d66f24e2be6b0ae421c9870048d6af6079f01abed
 name: cli-manager-operator.v0.2.0
 package: cli-manager
 properties:
@@ -116,11 +116,11 @@ properties:
       provider:
         name: Red Hat, Inc.
 relatedImages:
-  - image: registry.redhat.io/cli-manager/cli-manager-operator-bundle@sha256:a996f7e5491b8d4f39c17b977ee8b41d8d45baaca3b18b90d3d8f4dfa792014b
+  - image: registry.redhat.io/cli-manager/cli-manager-operator-bundle@sha256:f84f5609ed0c329c810bb85d66f24e2be6b0ae421c9870048d6af6079f01abed
     name: ""
-  - image: registry.redhat.io/cli-manager/cli-manager-rhel9-operator@sha256:b49a51bd85ee54f89e74df84b9d0606f4787ed745f1c98d87bdacdf7daf53033
+  - image: registry.redhat.io/cli-manager/cli-manager-rhel9-operator@sha256:e68b034798ebb1cfa7e17c055dbeec8c8aa46afa7d1291a7a2dbecbb691f71ba
     name: cli-manager-operator
-  - image: registry.redhat.io/cli-manager/cli-manager-rhel9@sha256:a8ea291b280cc456ce569062e5b37b7c60d24264b36a18df9458eddd83aedd52
+  - image: registry.redhat.io/cli-manager/cli-manager-rhel9@sha256:4185a2d8f361b3bafbf677e35229c2b58245d3a52dae44d67b5990b62ceffb94
     name: cli-manager
 schema: olm.bundle
 ---
