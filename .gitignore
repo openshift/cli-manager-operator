@@ -1,4 +1,6 @@
 cli-manager-operator
+/cli-manager-operator-tests-ext
+/cli-manager-operator-tests-ext.gz
 
 # Binaries for programs and plugins
 *.exe
