@@ -1,10 +1,12 @@
 FROM brew.registry.redhat.io/rh-osbs/openshift-golang-builder:rhel_9_1.24 as builder
 WORKDIR /go/src/github.com/openshift/cli-manager-operator
 COPY . .
-RUN make build --warn-undefined-variables
+RUN make build --warn-undefined-variables \
+    && gzip cli-manager-operator-tests-ext
 
 FROM registry.access.redhat.com/ubi9/ubi-minimal:latest@sha256:6fc28bcb6776e387d7a35a2056d9d2b985dc4e26031e98a2bd35a7137cd6fd71
 COPY --from=builder /go/src/github.com/openshift/cli-manager-operator/cli-manager-operator /usr/bin/
+COPY --from=builder /go/src/github.com/openshift/cli-manager-operator/cli-manager-operator-tests-ext.gz /usr/bin/
 RUN mkdir /licenses
 COPY --from=builder /go/src/github.com/openshift/cli-manager-operator/LICENSE /licenses/.
 
