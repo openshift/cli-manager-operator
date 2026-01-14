@@ -4,16 +4,17 @@ metadata:
   annotations:
     build.appstudio.openshift.io/repo: https://github.com/openshift/cli-manager-operator?rev={{revision}}
     build.appstudio.redhat.com/commit_sha: '{{revision}}'
+    build.appstudio.redhat.com/pull_request_number: '{{pull_request_number}}'
     build.appstudio.redhat.com/target_branch: '{{target_branch}}'
     pipelinesascode.tekton.dev/max-keep-runs: "3"
     pipelinesascode.tekton.dev/on-cel-expression: |
-      event == "push" && target_branch == "fbc-4-21" && ( "v4.21/***".pathChanged() || ".tekton/cli-manager-operator-fbc-4-21-push.yaml".pathChanged())
+      event == "pull_request" && target_branch == "fbc-4-22" && ( "v4.22/***".pathChanged() || ".tekton/cli-manager-operator-fbc-4-22-pull-request.yaml".pathChanged())
   creationTimestamp:
   labels:
-    appstudio.openshift.io/application: cli-manager-operator-fbc-4-21
-    appstudio.openshift.io/component: cli-manager-operator-fbc-4-21
+    appstudio.openshift.io/application: cli-manager-operator-fbc-4-22
+    appstudio.openshift.io/component: cli-manager-operator-fbc-4-22
     pipelines.appstudio.openshift.io/type: build
-  name: cli-manager-operator-fbc-4-21-on-push
+  name: cli-manager-operator-fbc-4-22-on-pull-request
   namespace: clio-wrklds-pipeline-tenant
 spec:
   params:
@@ -22,11 +23,13 @@ spec:
   - name: revision
     value: '{{revision}}'
   - name: output-image
-    value: quay.io/redhat-user-workloads/clio-wrklds-pipeline-tenant/cli-manager-operator-fbc-4-21:{{revision}}
+    value: quay.io/redhat-user-workloads/clio-wrklds-pipeline-tenant/cli-manager-operator-fbc-4-22:on-pr-{{revision}}
+  - name: image-expires-after
+    value: 5d
   - name: dockerfile
     value: catalog.Dockerfile
   - name: path-context
-    value: v4.21
+    value: v4.22
   - name: build-platforms
     value:
     - linux/x86_64
@@ -118,6 +121,10 @@ spec:
       default: oci
       type: string
       description: The format for the resulting image's mediaType. Valid values are oci or docker.
+    - name: enable-cache-proxy
+      default: 'false'
+      description: Enable cache proxy configuration
+      type: string
     results:
     - description: ""
       name: IMAGE_URL
@@ -140,6 +147,8 @@ spec:
         value: $(params.rebuild)
       - name: skip-checks
         value: $(params.skip-checks)
+      - name: enable-cache-proxy
+        value: $(params.enable-cache-proxy)
       taskRef:
         params:
         - name: name
@@ -236,6 +245,10 @@ spec:
         value: "true"
       - name: BUILDAH_FORMAT
         value: $(params.buildah-format)
+      - name: HTTP_PROXY
+        value: $(tasks.init.results.http-proxy)
+      - name: NO_PROXY
+        value: $(tasks.init.results.no-proxy)
       runAfter:
       - clone-repository
       taskRef:
@@ -400,7 +413,7 @@ spec:
     - name: netrc
       optional: true
   taskRunTemplate:
-    serviceAccountName: build-pipeline-cli-manager-operator-fbc-4-21
+    serviceAccountName: build-pipeline-cli-manager-operator-fbc-4-22
   workspaces:
   - name: git-auth
     secret:
