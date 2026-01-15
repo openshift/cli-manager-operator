@@ -2,39 +2,6 @@
 
 Run the CLI Manager in your OpenShift cluster to distribute CLIs.
 
-## Tests
-
-This repository is compatible with the [OpenShift Tests Extension (OTE)](https://github.com/openshift-eng/openshift-tests-extension) framework.
-
-### Building the test binary
-
-```bash
-make build
-```
-
-### Running test suites and tests
-
-```bash
-# Run a specific test suite or test
-./cli-manager-operator-tests-ext run-suite openshift/cli-manager-operator/all
-./cli-manager-operator-tests-ext run-test "test-name"
-
-# Run with JUnit output
-./cli-manager-operator-tests-ext run-suite openshift/cli-manager-operator/all --junit-path "${ARTIFACT_DIR}/junit.xml"
-```
-
-### Listing available tests and suites
-
-```bash
-# List all test suites
-./cli-manager-operator-tests-ext list suites
-
-# List tests in a suite
-./cli-manager-operator-tests-ext list tests --suite=openshift/cli-manager-operator/all
-```
-
-For more information about the OTE framework, see the [openshift-tests-extension documentation](https://github.com/openshift-eng/openshift-tests-extension).
-
 ## Deploy the operator
 
 ### Quick Development
@@ -96,3 +63,40 @@ This process refers to building the operator in a way that it can be installed l
    ```
 
 1. open the console Operators -> OperatorHub, search for `CLI Manager operator` and install the operator
+
+## Tests
+
+This repository is compatible with the [OpenShift Tests Extension (OTE)](https://github.com/openshift-eng/openshift-tests-extension) framework.
+
+### Building the test binary
+
+```bash
+make build
+```
+
+### Running test suites and tests
+
+```bash
+# Run a specific test suite or test
+./cli-manager-operator-tests-ext run-suite openshift/cli-manager-operator/operator/serial
+./cli-manager-operator-tests-ext run-test "test-name"
+
+# To run serial suites cases serially, use the following command:
+./cli-manager-operator-tests-ext run-suite openshift/cli-manager-operator/operator/serial -c 1
+
+# Run with JUnit output
+./cli-manager-operator-tests-ext run-suite openshift/cli-manager-operator/operator/serial --junit-path=/tmp/junit.xml
+./cli-manager-operator-tests-ext run-test "test-name" --junit-path=/tmp/junit.xml
+```
+
+### Listing available tests and suites
+
+```bash
+# List all test suites
+./cli-manager-operator-tests-ext list suites
+
+# List tests in a suite
+./cli-manager-operator-tests-ext list tests --suite=openshift/cli-manager-operator/operator/serial
+```
+
+For more information about the OTE framework, see the [openshift-tests-extension documentation](https://github.com/openshift-eng/openshift-tests-extension).
