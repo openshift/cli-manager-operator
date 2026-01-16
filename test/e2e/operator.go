@@ -13,6 +13,7 @@ import (
 	"time"
 
 	g "github.com/onsi/ginkgo/v2"
+	o "github.com/onsi/gomega"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
@@ -20,6 +21,7 @@ import (
 	machineryruntime "k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apimachinery/pkg/util/wait"
+	k8sclient "k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/util/homedir"
 	"k8s.io/klog/v2"
 	"k8s.io/utils/clock"
@@ -35,18 +37,50 @@ import (
 	"github.com/openshift/cli-manager-operator/test/e2e/bindata"
 )
 
-var _ = g.Describe("[Operator][Serial] CLI Manager Operator", func() {
-	g.BeforeEach(func() {
-		setupOperator(g.GinkgoTB())
+// Ginkgo test specs - calls the shared test functions
+var _ = g.Describe("[Operator][Serial] CLI Manager Operator", g.Ordered, func() {
+	var (
+		ctx        context.Context
+		cancelFnc  context.CancelFunc
+		kubeClient *k8sclient.Clientset
+	)
+
+	g.BeforeAll(func() {
+		g.By("Setting up the operator")
+		var err error
+		ctx, cancelFnc, kubeClient, err = setupOperator(g.GinkgoTB())
+		o.Expect(err).NotTo(o.HaveOccurred())
 	})
 
-	g.It("should successfully deploy and serve plugins via krew", func() {
-		testCLIManager(g.GinkgoTB())
+	g.AfterAll(func() {
+		if cancelFnc != nil {
+			cancelFnc()
+		}
+	})
+
+	g.It("should successfully deploy and serve plugins via krew [Suite:openshift/cli-manager-operator/operator/serial]", func() {
+		g.By("Testing CLI Manager functionality")
+		testCLIManager(g.GinkgoTB(), ctx, kubeClient)
 	})
 })
 
-// setupOperator sets up the operator environment and waits for it to be ready.
-func setupOperator(t testing.TB) {
+// setupOperator sets up the operator and waits for it to be ready.
+// This function works with both standard Go testing and Ginkgo.
+func setupOperator(t testing.TB) (context.Context, context.CancelFunc, *k8sclient.Clientset, error) {
+	ctx, cancelFnc := context.WithCancel(context.Background())
+
+	// Verify required environment variables
+	if os.Getenv("KUBECONFIG") == "" {
+		return ctx, cancelFnc, nil, fmt.Errorf("KUBECONFIG environment variable must be set")
+	}
+	if os.Getenv("RELEASE_IMAGE_LATEST") == "" {
+		return ctx, cancelFnc, nil, fmt.Errorf("RELEASE_IMAGE_LATEST environment variable must be set")
+	}
+	if os.Getenv("NAMESPACE") == "" {
+		return ctx, cancelFnc, nil, fmt.Errorf("NAMESPACE environment variable must be set")
+	}
+
+	// Initialize clients
 	kubeClient := GetKubeClient()
 	apiExtClient := GetApiExtensionClient()
 	cliManagerClient := GetCLIManagerClient()
@@ -54,18 +88,17 @@ func setupOperator(t testing.TB) {
 
 	eventRecorder := events.NewKubeRecorder(kubeClient.CoreV1().Events("default"), "test-e2e", &corev1.ObjectReference{}, clock.RealClock{})
 
-	ctx, cancelFnc := context.WithCancel(context.TODO())
-	defer cancelFnc()
-
 	// Get cluster version
 	cmd := exec.Command("oc", "get", "clusterversion", "-o", "jsonpath={.items[0].status.desired.version}")
 	versionOutput, err := cmd.Output()
 	if err != nil {
-		t.Fatalf("Unable to get cluster version: %v", err)
+		cancelFnc()
+		return nil, nil, nil, fmt.Errorf("unable to get cluster version: %w", err)
 	}
 	versionParts := strings.Split(string(versionOutput), ".")
 	if len(versionParts) < 2 {
-		t.Fatalf("Unable to parse cluster version: %s", string(versionOutput))
+		cancelFnc()
+		return nil, nil, nil, fmt.Errorf("unable to parse cluster version: %s", string(versionOutput))
 	}
 	ocpVersion := fmt.Sprintf("%s.%s", versionParts[0], versionParts[1])
 	klog.Infof("Detected OCP version: %s", ocpVersion)
@@ -174,7 +207,8 @@ func setupOperator(t testing.TB) {
 
 		return true, nil
 	}); err != nil {
-		t.Fatalf("Unable to create CLIO resources: %v", err)
+		cancelFnc()
+		return nil, nil, nil, fmt.Errorf("unable to create CLIO resources: %w", err)
 	}
 
 	var cliManagerOperatorPod *corev1.Pod
@@ -198,7 +232,8 @@ func setupOperator(t testing.TB) {
 		}
 		return false, nil
 	}); err != nil {
-		t.Fatalf("Unable to wait for the CLIO pod to run")
+		cancelFnc()
+		return nil, nil, nil, fmt.Errorf("unable to wait for the CLIO pod to run: %w", err)
 	}
 
 	klog.Infof("CLI Manager Operator running in %v", cliManagerOperatorPod.Name)
@@ -226,14 +261,16 @@ func setupOperator(t testing.TB) {
 		}
 		return false, nil
 	}); err != nil {
-		t.Fatalf("Unable to wait for the CLI Manager (operand) pod to run")
+		cancelFnc()
+		return nil, nil, nil, fmt.Errorf("unable to wait for the CLI Manager (operand) pod to run: %w", err)
 	}
 
 	klog.Infof("CLI Manager (operand) pod running in %v", cliManagerPod.Name)
 
 	r, err := routeClient.Routes("openshift-cli-manager-operator").Get(context.TODO(), "openshift-cli-manager", metav1.GetOptions{})
 	if err != nil {
-		t.Fatalf("Unable to get route host: %v", err)
+		cancelFnc()
+		return nil, nil, nil, fmt.Errorf("unable to get route host: %w", err)
 	}
 
 	krewUrl := fmt.Sprintf("https://%s/cli-manager", r.Spec.Host)
@@ -262,16 +299,19 @@ func setupOperator(t testing.TB) {
 		klog.Infof("still not alive, status code %d", resp.StatusCode)
 		return false, nil
 	}); err != nil {
-		t.Fatalf("Unable to wait for CLI Manager route")
+		cancelFnc()
+		return nil, nil, nil, fmt.Errorf("unable to wait for CLI Manager route: %w", err)
 	}
+
+	return ctx, cancelFnc, kubeClient, nil
 }
 
 // testCLIManager tests the CLI Manager functionality.
-func testCLIManager(t testing.TB) {
+func testCLIManager(t testing.TB, ctx context.Context, kubeClient *k8sclient.Clientset) {
 	customKrewIndexName := "test-e2e"
 	routeClient := GetRouteClient()
 
-	r, err := routeClient.Routes("openshift-cli-manager-operator").Get(context.TODO(), "openshift-cli-manager", metav1.GetOptions{})
+	r, err := routeClient.Routes("openshift-cli-manager-operator").Get(ctx, "openshift-cli-manager", metav1.GetOptions{})
 	if err != nil {
 		t.Fatalf("route get error %v", err)
 	}
@@ -321,12 +361,12 @@ func testCLIManager(t testing.TB) {
 		},
 	}
 
-	_, err = dynamicClient.Resource(schema.GroupVersionResource{Group: "config.openshift.io", Version: "v1alpha1", Resource: "plugins"}).Create(context.TODO(), plugin, metav1.CreateOptions{})
+	_, err = dynamicClient.Resource(schema.GroupVersionResource{Group: "config.openshift.io", Version: "v1alpha1", Resource: "plugins"}).Create(ctx, plugin, metav1.CreateOptions{})
 	if err != nil {
 		t.Fatalf("test plugin creation error %v", err)
 	}
 
-	err = wait.PollUntilContextTimeout(context.TODO(), 5*time.Second, 10*time.Minute, true, func(ctx context.Context) (bool, error) {
+	err = wait.PollUntilContextTimeout(ctx, 5*time.Second, 10*time.Minute, true, func(ctx context.Context) (bool, error) {
 		pluginName := fmt.Sprintf("%s/oc", customKrewIndexName)
 		cmd := exec.Command("oc", "krew", "update")
 		cmd.Env = []string{
@@ -392,7 +432,7 @@ func testCLIManager(t testing.TB) {
 		t.Fatalf("unexpected output of plugin execution %s", string(ver))
 	}
 
-	unstrctrd, err := dynamicClient.Resource(schema.GroupVersionResource{Group: "config.openshift.io", Version: "v1alpha1", Resource: "plugins"}).Get(context.TODO(), "oc", metav1.GetOptions{})
+	unstrctrd, err := dynamicClient.Resource(schema.GroupVersionResource{Group: "config.openshift.io", Version: "v1alpha1", Resource: "plugins"}).Get(ctx, "oc", metav1.GetOptions{})
 	if err != nil {
 		t.Fatalf("test plugin retrieval error %v", err)
 	}
