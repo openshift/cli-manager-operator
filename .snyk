@@ -5,15 +5,8 @@ exclude:
   global:
     - vendor/**
     - "**/*_test.go"
-
-# Ignore specific security rules with justification
-ignore:
-  'go/TooPermissiveTrustManager/test':
-    - 'test/e2e/operator.go':
-        reason: >
-          InsecureSkipVerify is intentionally used in e2e test code to verify
-          OpenShift routes with self-signed certificates. This is a test-only
-          scenario checking route availability, not production code. The test
-          validates that the route is accessible, which requires bypassing TLS
-          verification for routes using self-signed certificates in test clusters.
-        expires: '2027-01-16T00:00:00.000Z'
+    # Exclude e2e test files that intentionally use InsecureSkipVerify for testing
+    # OpenShift routes with self-signed certificates in test clusters. These are
+    # test-only scenarios, not production code.
+    - test/e2e/operator.go
+    - test/e2e/helpers.go
