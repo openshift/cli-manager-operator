@@ -14,28 +14,22 @@ import (
 
 	g "github.com/onsi/ginkgo/v2"
 	corev1 "k8s.io/api/core/v1"
-	apiextclientv1 "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	apiruntime "k8s.io/apimachinery/pkg/runtime"
 	machineryruntime "k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apimachinery/pkg/util/wait"
-	"k8s.io/client-go/dynamic"
-	k8sclient "k8s.io/client-go/kubernetes"
-	"k8s.io/client-go/tools/clientcmd"
 	"k8s.io/client-go/util/homedir"
 	"k8s.io/klog/v2"
 	"k8s.io/utils/clock"
 
 	"github.com/openshift/cli-manager/api/v1alpha1"
-	routev1client "github.com/openshift/client-go/route/clientset/versioned/typed/route/v1"
 	"github.com/openshift/library-go/pkg/operator/events"
 	"github.com/openshift/library-go/pkg/operator/resource/resourceapply"
 	"github.com/openshift/library-go/pkg/operator/resource/resourceread"
 
 	climanagerv1 "github.com/openshift/cli-manager-operator/pkg/apis/climanager/v1"
-	climanagerclient "github.com/openshift/cli-manager-operator/pkg/generated/clientset/versioned"
 	climanagerscheme "github.com/openshift/cli-manager-operator/pkg/generated/clientset/versioned/scheme"
 	"github.com/openshift/cli-manager-operator/pkg/operator/operatorclient"
 	"github.com/openshift/cli-manager-operator/test/e2e/bindata"
@@ -53,15 +47,28 @@ var _ = g.Describe("[Operator][Serial] CLI Manager Operator", func() {
 
 // setupOperator sets up the operator environment and waits for it to be ready.
 func setupOperator(t testing.TB) {
-	kubeClient := getKubeClientOrDie()
-	apiExtClient := getApiExtensionKubeClient()
-	cliManagerClient := getCLIManagerClient()
-	routeClient := getRouteClient()
+	kubeClient := GetKubeClient()
+	apiExtClient := GetApiExtensionClient()
+	cliManagerClient := GetCLIManagerClient()
+	routeClient := GetRouteClient()
 
 	eventRecorder := events.NewKubeRecorder(kubeClient.CoreV1().Events("default"), "test-e2e", &corev1.ObjectReference{}, clock.RealClock{})
 
 	ctx, cancelFnc := context.WithCancel(context.TODO())
 	defer cancelFnc()
+
+	// Get cluster version
+	cmd := exec.Command("oc", "get", "clusterversion", "-o", "jsonpath={.items[0].status.desired.version}")
+	versionOutput, err := cmd.Output()
+	if err != nil {
+		t.Fatalf("Unable to get cluster version: %v", err)
+	}
+	versionParts := strings.Split(string(versionOutput), ".")
+	if len(versionParts) < 2 {
+		t.Fatalf("Unable to parse cluster version: %s", string(versionOutput))
+	}
+	ocpVersion := fmt.Sprintf("%s.%s", versionParts[0], versionParts[1])
+	klog.Infof("Detected OCP version: %s", ocpVersion)
 
 	assets := []struct {
 		path           string
@@ -115,14 +122,16 @@ func setupOperator(t testing.TB) {
 				required := resourceread.ReadDeploymentV1OrDie(objBytes)
 				// override the operator image with the one built in the CI
 
-				// E.g. RELEASE_IMAGE_LATEST=registry.build01.ci.openshift.org/ci-op-fy99k61r/release@sha256:0d05e600baea6df9dcd453d3b72c925b8672685cd94f0615c1089af4aa39f215
-				registry := strings.Split(os.Getenv("RELEASE_IMAGE_LATEST"), "/")[0]
+				operatorImage := fmt.Sprintf("registry.ci.openshift.org/ocp/%s:cli-manager-operator", ocpVersion)
+				required.Spec.Template.Spec.Containers[0].Image = operatorImage
+				klog.Infof("Using operator image: %s", operatorImage)
 
-				required.Spec.Template.Spec.Containers[0].Image = registry + "/" + os.Getenv("NAMESPACE") + "/pipeline:cli-manager-operator"
 				// RELATED_IMAGE_OPERAND_IMAGE env
+				operandImage := fmt.Sprintf("registry.ci.openshift.org/ocp/%s:cli-manager", ocpVersion)
 				for i, env := range required.Spec.Template.Spec.Containers[0].Env {
 					if env.Name == "RELATED_IMAGE_OPERAND_IMAGE" {
-						required.Spec.Template.Spec.Containers[0].Env[i].Value = "registry.ci.openshift.org/ocp/4.19:cli-manager"
+						required.Spec.Template.Spec.Containers[0].Env[i].Value = operandImage
+						klog.Infof("Using operand image: %s", operandImage)
 						break
 					}
 				}
@@ -260,7 +269,7 @@ func setupOperator(t testing.TB) {
 // testCLIManager tests the CLI Manager functionality.
 func testCLIManager(t testing.TB) {
 	customKrewIndexName := "test-e2e"
-	routeClient := getRouteClient()
+	routeClient := GetRouteClient()
 
 	r, err := routeClient.Routes("openshift-cli-manager-operator").Get(context.TODO(), "openshift-cli-manager", metav1.GetOptions{})
 	if err != nil {
@@ -282,7 +291,7 @@ func testCLIManager(t testing.TB) {
 		t.Fatalf("oc krew index add operation failed %v output: %s", err, string(out))
 	}
 
-	dynamicClient := getApiDynamicClient()
+	dynamicClient := GetApiDynamicClient()
 	plugin := &unstructured.Unstructured{
 		Object: map[string]any{
 			"apiVersion": "config.openshift.io/v1alpha1",
@@ -401,81 +410,4 @@ func testCLIManager(t testing.TB) {
 	if latestPlugin.Status.Conditions[0].Status != metav1.ConditionTrue || latestPlugin.Status.Conditions[0].Reason != "Installed" {
 		t.Fatalf("unexpected condition of plugin %s reason %s", latestPlugin.Status.Conditions[0].Status, latestPlugin.Status.Conditions[0].Reason)
 	}
-}
-
-// Helper functions for getting clients - kept for backward compatibility with operator_test.go
-func getRouteClient() routev1client.RoutesGetter {
-	kubeconfig := os.Getenv("KUBECONFIG")
-	config, err := clientcmd.BuildConfigFromFlags("", kubeconfig)
-	if err != nil {
-		klog.Errorf("Unable to build config: %v", err)
-		os.Exit(1)
-	}
-
-	client, err := routev1client.NewForConfig(config)
-	if err != nil {
-		klog.Errorf("Unable to build client: %v", err)
-		os.Exit(1)
-	}
-	return client
-}
-
-func getKubeClientOrDie() *k8sclient.Clientset {
-	kubeconfig := os.Getenv("KUBECONFIG")
-	config, err := clientcmd.BuildConfigFromFlags("", kubeconfig)
-	if err != nil {
-		klog.Errorf("Unable to build config: %v", err)
-		os.Exit(1)
-	}
-	client, err := k8sclient.NewForConfig(config)
-	if err != nil {
-		klog.Errorf("Unable to build client: %v", err)
-		os.Exit(1)
-	}
-	return client
-}
-
-func getApiDynamicClient() *dynamic.DynamicClient {
-	kubeconfig := os.Getenv("KUBECONFIG")
-	config, err := clientcmd.BuildConfigFromFlags("", kubeconfig)
-	if err != nil {
-		klog.Errorf("Unable to build config: %v", err)
-		os.Exit(1)
-	}
-	client, err := dynamic.NewForConfig(config)
-	if err != nil {
-		klog.Errorf("Unable to build client: %v", err)
-		os.Exit(1)
-	}
-	return client
-}
-
-func getApiExtensionKubeClient() *apiextclientv1.Clientset {
-	kubeconfig := os.Getenv("KUBECONFIG")
-	config, err := clientcmd.BuildConfigFromFlags("", kubeconfig)
-	if err != nil {
-		klog.Errorf("Unable to build config: %v", err)
-		os.Exit(1)
-	}
-	client, err := apiextclientv1.NewForConfig(config)
-	if err != nil {
-		klog.Errorf("Unable to build client: %v", err)
-		os.Exit(1)
-	}
-	return client
-}
-
-func getCLIManagerClient() *climanagerclient.Clientset {
-	kubeconfig := os.Getenv("KUBECONFIG")
-	config, err := clientcmd.BuildConfigFromFlags("", kubeconfig)
-	if err != nil {
-		klog.Errorf("Unable to build config: %v", err)
-		os.Exit(1)
-	}
-	client, err := climanagerclient.NewForConfig(config)
-	if err != nil {
-		klog.Errorf("Unable to build client: %v", err)
-		os.Exit(1)
-	}
-	return client
 }

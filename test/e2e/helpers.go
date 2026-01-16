@@ -13,12 +13,6 @@ import (
 	routev1client "github.com/openshift/client-go/route/clientset/versioned/typed/route/v1"
 )
 
-// Init is a no-op function to ensure the package is initialized.
-// This ensures that the Ginkgo tests in this package are registered.
-func Init() {
-	// no-op
-}
-
 // GetKubeClient returns a Kubernetes clientset.
 func GetKubeClient() *k8sclient.Clientset {
 	kubeconfig := os.Getenv("KUBECONFIG")
