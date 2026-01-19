@@ -92,13 +92,11 @@ func setupOperator(t testing.TB) (context.Context, context.CancelFunc, *k8sclien
 	cmd := exec.Command("oc", "get", "clusterversion", "-o", "jsonpath={.items[0].status.desired.version}")
 	versionOutput, err := cmd.Output()
 	if err != nil {
-		cancelFnc()
-		return nil, nil, nil, fmt.Errorf("unable to get cluster version: %w", err)
+		return ctx, cancelFnc, nil, fmt.Errorf("unable to get cluster version: %w", err)
 	}
 	versionParts := strings.Split(string(versionOutput), ".")
 	if len(versionParts) < 2 {
-		cancelFnc()
-		return nil, nil, nil, fmt.Errorf("unable to parse cluster version: %s", string(versionOutput))
+		return ctx, cancelFnc, nil, fmt.Errorf("unable to parse cluster version: %s", string(versionOutput))
 	}
 	ocpVersion := fmt.Sprintf("%s.%s", versionParts[0], versionParts[1])
 	klog.Infof("Detected OCP version: %s", ocpVersion)
@@ -207,8 +205,7 @@ func setupOperator(t testing.TB) (context.Context, context.CancelFunc, *k8sclien
 
 		return true, nil
 	}); err != nil {
-		cancelFnc()
-		return nil, nil, nil, fmt.Errorf("unable to create CLIO resources: %w", err)
+		return ctx, cancelFnc, nil, fmt.Errorf("unable to create CLIO resources: %w", err)
 	}
 
 	var cliManagerOperatorPod *corev1.Pod
@@ -232,8 +229,7 @@ func setupOperator(t testing.TB) (context.Context, context.CancelFunc, *k8sclien
 		}
 		return false, nil
 	}); err != nil {
-		cancelFnc()
-		return nil, nil, nil, fmt.Errorf("unable to wait for the CLIO pod to run: %w", err)
+		return ctx, cancelFnc, nil, fmt.Errorf("unable to wait for the CLIO pod to run: %w", err)
 	}
 
 	klog.Infof("CLI Manager Operator running in %v", cliManagerOperatorPod.Name)
@@ -261,16 +257,14 @@ func setupOperator(t testing.TB) (context.Context, context.CancelFunc, *k8sclien
 		}
 		return false, nil
 	}); err != nil {
-		cancelFnc()
-		return nil, nil, nil, fmt.Errorf("unable to wait for the CLI Manager (operand) pod to run: %w", err)
+		return ctx, cancelFnc, nil, fmt.Errorf("unable to wait for the CLI Manager (operand) pod to run: %w", err)
 	}
 
 	klog.Infof("CLI Manager (operand) pod running in %v", cliManagerPod.Name)
 
 	r, err := routeClient.Routes("openshift-cli-manager-operator").Get(context.TODO(), "openshift-cli-manager", metav1.GetOptions{})
 	if err != nil {
-		cancelFnc()
-		return nil, nil, nil, fmt.Errorf("unable to get route host: %w", err)
+		return ctx, cancelFnc, nil, fmt.Errorf("unable to get route host: %w", err)
 	}
 
 	krewUrl := fmt.Sprintf("https://%s/cli-manager", r.Spec.Host)
@@ -299,8 +293,7 @@ func setupOperator(t testing.TB) (context.Context, context.CancelFunc, *k8sclien
 		klog.Infof("still not alive, status code %d", resp.StatusCode)
 		return false, nil
 	}); err != nil {
-		cancelFnc()
-		return nil, nil, nil, fmt.Errorf("unable to wait for CLI Manager route: %w", err)
+		return ctx, cancelFnc, nil, fmt.Errorf("unable to wait for CLI Manager route: %w", err)
 	}
 
 	return ctx, cancelFnc, kubeClient, nil
