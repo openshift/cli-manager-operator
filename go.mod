@@ -3,6 +3,8 @@ module github.com/openshift/cli-manager-operator
 go 1.24.0
 
 require (
+	github.com/onsi/ginkgo/v2 v2.25.1
+	github.com/onsi/gomega v1.38.1
 	github.com/openshift-eng/openshift-tests-extension v0.0.0-20251205182537-ff5553e56f33
 	github.com/openshift/api v0.0.0-20251020135558-286504b695bc
 	github.com/openshift/build-machinery-go v0.0.0-20251020112516-49aa9f5db6d8
@@ -67,8 +69,6 @@ require (
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
 	github.com/modern-go/reflect2 v1.0.3-0.20250322232337-35a7c28c31ee // indirect
 	github.com/munnerz/goautoneg v0.0.0-20191010083416-a7dc8b61c822 // indirect
-	github.com/onsi/ginkgo/v2 v2.25.1 // indirect
-	github.com/onsi/gomega v1.38.1 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/pkg/profile v1.7.0 // indirect
 	github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2 // indirect

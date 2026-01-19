@@ -5,3 +5,4 @@ exclude:
   global:
     - vendor/**
     - "**/*_test.go"
+    - test/e2e/operator.go # OpenShift routes with self-signed certificates in test clusters. These are test-only scenarios, not production code.
