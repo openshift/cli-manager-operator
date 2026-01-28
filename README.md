@@ -7,7 +7,8 @@ Run the CLI Manager in your OpenShift cluster to distribute CLIs.
 | version | ocp version | k8s version | golang |
 |---------|-------------|-------------|--------|
 | 0.1.0   | 4.17-4.21   | 1.30        | 1.22   |
-| 0.1.1   | 4.18-4.21   | 1.34        | 1.24   |
+| 0.1.1   | 4.18-4.21   | 1.32        | 1.23   |
+| 0.2.0   | 4.18-4.21   | 1.34        | 1.24   |
 
 ## Deploy the operator
 
