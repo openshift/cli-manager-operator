@@ -1,7 +1,5 @@
 reviewers:
-  - ardaguclu
-  - ingvagabund
+  - control-plane-approvers
 approvers:
-  - ardaguclu
-  - ingvagabund
+  - control-plane-approvers
 component: "openshift-cli-manager-operator"
