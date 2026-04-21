@@ -19,7 +19,7 @@ RUN hack/replace-image.sh manifests $REPLACED_OPERATOR_IMG $OPERATOR_IMAGE
 RUN mkdir licenses
 COPY LICENSE licenses/.
 
-FROM registry.access.redhat.com/ubi9/ubi-minimal:latest@sha256:fe688da81a696387ca53a4c19231e99289591f990c904ef913c51b6e87d4e4df
+FROM registry.access.redhat.com/ubi9/ubi-minimal:latest@sha256:175bafd5bc7893540ed6234bb979acfe3574fd6570e6762bbc527c757f854cea
 
 LABEL operators.operatorframework.io.bundle.mediatype.v1=registry+v1
 LABEL operators.operatorframework.io.bundle.manifests.v1=manifests/
