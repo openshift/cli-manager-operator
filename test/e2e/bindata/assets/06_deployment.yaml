@@ -10,6 +10,8 @@ spec:
       name: openshift-cli-manager-operator
   template:
     metadata:
+      annotations:
+        openshift.io/required-scc: restricted-v2
       labels:
         name: openshift-cli-manager-operator
     spec:
@@ -19,6 +21,7 @@ spec:
           type: RuntimeDefault
       containers:
         - name: openshift-cli-manager-operator
+          terminationMessagePolicy: FallbackToLogsOnError
           securityContext:
             allowPrivilegeEscalation: false
             readOnlyRootFilesystem: true
