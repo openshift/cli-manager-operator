@@ -74,37 +74,4 @@ This process refers to building the operator in a way that it can be installed l
 
 ## Tests
 
-This repository is compatible with the [OpenShift Tests Extension (OTE)](https://github.com/openshift-eng/openshift-tests-extension) framework.
-
-### Building the test binary
-
-```bash
-make build
-```
-
-### Running test suites and tests
-
-```bash
-# Run a specific test suite or test
-./cli-manager-operator-tests-ext run-suite openshift/cli-manager-operator/operator/serial
-./cli-manager-operator-tests-ext run-test "test-name"
-
-# To run serial suites cases serially, use the following command:
-./cli-manager-operator-tests-ext run-suite openshift/cli-manager-operator/operator/serial -c 1
-
-# Run with JUnit output
-./cli-manager-operator-tests-ext run-suite openshift/cli-manager-operator/operator/serial --junit-path=/tmp/junit.xml
-./cli-manager-operator-tests-ext run-test "test-name" --junit-path=/tmp/junit.xml
-```
-
-### Listing available tests and suites
-
-```bash
-# List all test suites
-./cli-manager-operator-tests-ext list suites
-
-# List tests in a suite
-./cli-manager-operator-tests-ext list tests --suite=openshift/cli-manager-operator/operator/serial
-```
-
-For more information about the OTE framework, see the [openshift-tests-extension documentation](https://github.com/openshift-eng/openshift-tests-extension).
+See [CONTRIBUTING.md](CONTRIBUTING.md) for testing guidelines ([unit/e2e](CONTRIBUTING.md#testing-guidelines), [OTE](CONTRIBUTING.md#openshift-tests-extension-ote)).
