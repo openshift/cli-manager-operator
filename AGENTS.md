@@ -1,6 +1,6 @@
 # CLI Manager Operator
 
-An OpenShift operator that manages the [CLI Manager](https://github.com/openshift/cli-manager) operand, which distributes CLI tools and kubectl plugins to cluster users via [krew](https://krew.sigs.k8s.io/). Built on the [library-go](https://github.com/openshift/library-go) controller framework, it watches a singleton `CliManager` custom resource and reconciles a Deployment, Route, Service, RBAC, and ServiceMonitor for the operand. Installed by the [Cluster Version Operator](https://github.com/openshift/cluster-version-operator) (CVO).
+An OpenShift operator that manages the [CLI Manager](https://github.com/openshift/cli-manager) operand, which distributes CLI tools and kubectl plugins to cluster users via [krew](https://krew.sigs.k8s.io/). Built on the [library-go](https://github.com/openshift/library-go) controller framework, it watches a singleton `CliManager` custom resource and reconciles a Deployment, Route, Service, RBAC, and ServiceMonitor for the operand. Installed by OLM (Operator Lifecycle Manager).
 
 See [ARCHITECTURE.md](ARCHITECTURE.md) for the full design and data flow.
 
@@ -30,7 +30,7 @@ Go version: see `go.mod`.
 | `pkg/cmd/operator/` | Cobra command factory for the `operator` subcommand |
 | `pkg/version/` | Build version info and Prometheus build_info metric |
 | `bindata/assets/cli-manager/` | Embedded operand manifests (Deployment, Service, Route, RBAC, ServiceMonitor) |
-| `manifests/` | CVO deployment manifests (CRD, CSV) |
+| `manifests/` | OLM deployment manifests (CRD, CSV) |
 | `deploy/` | Quick-start manifests for direct deployment (CRD, namespace, RBAC, operator Deployment, CR) |
 | `test/e2e/` | E2E test suite (deploys operator, creates Plugin CR, validates krew install) |
 

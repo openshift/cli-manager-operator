@@ -2,7 +2,7 @@
 
 ## Overview
 
-The CLI Manager Operator is an OpenShift operator that manages the [CLI Manager](https://github.com/openshift/cli-manager) operand — a service that distributes CLI tools and kubectl plugins to cluster users via [krew](https://krew.sigs.k8s.io/). It is deployed by the Cluster Version Operator (CVO) and uses the [library-go](https://github.com/openshift/library-go) controller framework.
+The CLI Manager Operator is an OpenShift operator that manages the [CLI Manager](https://github.com/openshift/cli-manager) operand — a service that distributes CLI tools and kubectl plugins to cluster users via [krew](https://krew.sigs.k8s.io/). It is deployed by OLM (Operator Lifecycle Manager) and uses the [library-go](https://github.com/openshift/library-go) controller framework.
 
 The operator's primary responsibilities:
 - Watch the singleton `CliManager` custom resource for desired state
