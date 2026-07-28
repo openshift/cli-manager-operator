@@ -2,7 +2,7 @@ FROM brew.registry.redhat.io/rh-osbs/openshift-golang-builder:rhel_9_1.25 as bui
 WORKDIR /go/src/github.com/openshift/cli-manager-operator
 COPY . .
 
-ARG OPERAND_IMAGE=registry.redhat.io/cli-manager/cli-manager-rhel9@sha256:cd32a58f12da35a206a50b1be3799d2a90df42e865c6aa0a080846af1e1293bc
+ARG OPERAND_IMAGE=registry.redhat.io/cli-manager/cli-manager-rhel9@sha256:68637927ba179f0aace3f4a67885fe7938b57294ec11eebc57bd439ae25ea186
 ARG REPLACED_OPERAND_IMG=quay.io/openshift/origin-cli-manager:latest
 
 # Replace the operand image in deploy/07_deployment.yaml with the one specified by the OPERAND_IMAGE build argument.
