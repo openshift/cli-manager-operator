@@ -230,6 +230,17 @@ spec:
             - update
             - patch
             - delete
+        - apiGroups:
+            - networking.k8s.io
+          resources:
+            - networkpolicies
+          verbs:
+            - create
+            - delete
+            - get
+            - list
+            - patch
+            - update
         serviceAccountName: openshift-cli-manager-operator
       deployments:
         - name: openshift-cli-manager-operator
