@@ -41,14 +41,10 @@ $(call verify-golang-versions,Dockerfile)
 
 $(call add-crd-gen,climanager,./pkg/apis/climanager/v1,./manifests/,./manifests/)
 
-install-krew:
-	./hack/install-krew.sh
-.PHONY: install-krew
-
 test-e2e: GO_TEST_PACKAGES :=./test/e2e
 # the e2e imports pkg/cmd which has a data race in the transport library with the library-go init code
 test-e2e: GO_TEST_FLAGS :=-v -timeout=3h
-test-e2e: install-krew test-unit
+test-e2e: test-unit
 .PHONY: test-e2e
 
 generate: update-codegen-crds generate-clients
