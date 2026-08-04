@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"runtime"
 	"strings"
 	"testing"
@@ -73,12 +74,6 @@ func setupOperator(t testing.TB) (context.Context, context.CancelFunc, *k8sclien
 	if os.Getenv("KUBECONFIG") == "" {
 		return ctx, cancelFnc, nil, fmt.Errorf("KUBECONFIG environment variable must be set")
 	}
-	if os.Getenv("RELEASE_IMAGE_LATEST") == "" {
-		return ctx, cancelFnc, nil, fmt.Errorf("RELEASE_IMAGE_LATEST environment variable must be set")
-	}
-	if os.Getenv("NAMESPACE") == "" {
-		return ctx, cancelFnc, nil, fmt.Errorf("NAMESPACE environment variable must be set")
-	}
 
 	// Initialize clients
 	kubeClient := GetKubeClient()
@@ -88,17 +83,31 @@ func setupOperator(t testing.TB) (context.Context, context.CancelFunc, *k8sclien
 
 	eventRecorder := events.NewKubeRecorder(kubeClient.CoreV1().Events("default"), "test-e2e", &corev1.ObjectReference{}, clock.RealClock{})
 
-	// Get operator image from environment variable
-	operatorImage := os.Getenv("OPERATOR_IMAGE")
-	if operatorImage == "" {
-		return ctx, cancelFnc, nil, fmt.Errorf("OPERATOR_IMAGE environment variable must be set")
+	var operatorImage string
+	if os.Getenv("OPERATOR_IMAGE") != "" {
+		operatorImage = os.Getenv("OPERATOR_IMAGE")
+	} else if sharedDir := os.Getenv("SHARED_DIR"); sharedDir != "" {
+		data, err := os.ReadFile(filepath.Join(sharedDir, "operator-image"))
+		if err != nil {
+			t.Fatalf("failed to read operator image from SHARED_DIR: %v", err)
+		}
+		operatorImage = strings.TrimSpace(string(data))
+	} else {
+		t.Fatalf("OPERATOR_IMAGE env var and SHARED_DIR are both unset")
 	}
 	klog.Infof("Using operator image: %s", operatorImage)
 
-	// Get operand image from environment variable
-	operandImage := os.Getenv("OPERAND_IMAGE")
-	if operandImage == "" {
-		return ctx, cancelFnc, nil, fmt.Errorf("OPERAND_IMAGE environment variable must be set")
+	var operandImage string
+	if os.Getenv("OPERAND_IMAGE") != "" {
+		operandImage = os.Getenv("OPERAND_IMAGE")
+	} else if sharedDir := os.Getenv("SHARED_DIR"); sharedDir != "" {
+		data, err := os.ReadFile(filepath.Join(sharedDir, "operand-image"))
+		if err != nil {
+			t.Fatalf("failed to read operand image from SHARED_DIR: %v", err)
+		}
+		operandImage = strings.TrimSpace(string(data))
+	} else {
+		t.Fatalf("OPERAND_IMAGE env var and SHARED_DIR are both unset")
 	}
 	klog.Infof("Using operand image: %s", operandImage)
 
@@ -297,8 +306,41 @@ func setupOperator(t testing.TB) (context.Context, context.CancelFunc, *k8sclien
 	return ctx, cancelFnc, kubeClient, nil
 }
 
+// installKrew downloads and installs krew.
+func installKrew(t testing.TB) {
+	tmpDir, err := os.MkdirTemp("", "krew-install")
+	if err != nil {
+		t.Fatalf("failed to create temp dir for krew install: %v", err)
+	}
+	defer os.RemoveAll(tmpDir)
+
+	krewFile := fmt.Sprintf("krew-%s_%s", runtime.GOOS, runtime.GOARCH)
+	tarball := krewFile + ".tar.gz"
+	url := fmt.Sprintf("https://github.com/kubernetes-sigs/krew/releases/latest/download/%s", tarball)
+
+	klog.Infof("Downloading krew from %s", url)
+	download := exec.Command("curl", "-fsSL", "-o", filepath.Join(tmpDir, tarball), url)
+	if out, err := download.CombinedOutput(); err != nil {
+		t.Fatalf("failed to download krew: %v\n%s", err, string(out))
+	}
+
+	extract := exec.Command("tar", "zxf", filepath.Join(tmpDir, tarball), "-C", tmpDir)
+	if out, err := extract.CombinedOutput(); err != nil {
+		t.Fatalf("failed to extract krew: %v\n%s", err, string(out))
+	}
+
+	install := exec.Command(filepath.Join(tmpDir, krewFile), "install", "krew")
+	if out, err := install.CombinedOutput(); err != nil {
+		t.Fatalf("failed to install krew: %v\n%s", err, string(out))
+	}
+
+	klog.Infof("krew installed successfully")
+}
+
 // testCLIManager tests the CLI Manager functionality.
 func testCLIManager(t testing.TB, ctx context.Context, kubeClient *k8sclient.Clientset) {
+	installKrew(t)
+
 	customKrewIndexName := "test-e2e"
 	routeClient := GetRouteClient()
 
