@@ -4,17 +4,16 @@ metadata:
   annotations:
     build.appstudio.openshift.io/repo: https://github.com/openshift/cli-manager-operator?rev={{revision}}
     build.appstudio.redhat.com/commit_sha: '{{revision}}'
-    build.appstudio.redhat.com/pull_request_number: '{{pull_request_number}}'
     build.appstudio.redhat.com/target_branch: '{{target_branch}}'
     pipelinesascode.tekton.dev/max-keep-runs: "3"
     pipelinesascode.tekton.dev/on-cel-expression: |
-      event == "pull_request" && target_branch == "fbc-4-22" && ( "v4.22/***".pathChanged() || ".tekton/cli-manager-operator-fbc-4-22-pull-request.yaml".pathChanged())
+      event == "push" && target_branch == "fbc-5-0" && ( "v5.0/***".pathChanged() || ".tekton/cli-manager-operator-fbc-5-0-push.yaml".pathChanged())
   creationTimestamp:
   labels:
-    appstudio.openshift.io/application: cli-manager-operator-fbc-4-22
-    appstudio.openshift.io/component: cli-manager-operator-fbc-4-22
+    appstudio.openshift.io/application: cli-manager-operator-fbc-5-0
+    appstudio.openshift.io/component: cli-manager-operator-fbc-5-0
     pipelines.appstudio.openshift.io/type: build
-  name: cli-manager-operator-fbc-4-22-on-pull-request
+  name: cli-manager-operator-fbc-5-0-on-push
   namespace: clio-wrklds-pipeline-tenant
 spec:
   params:
@@ -23,13 +22,11 @@ spec:
   - name: revision
     value: '{{revision}}'
   - name: output-image
-    value: quay.io/redhat-user-workloads/clio-wrklds-pipeline-tenant/cli-manager-operator-fbc-4-22:on-pr-{{revision}}
-  - name: image-expires-after
-    value: 5d
+    value: quay.io/redhat-user-workloads/clio-wrklds-pipeline-tenant/cli-manager-operator-fbc-5-0:{{revision}}
   - name: dockerfile
     value: catalog.Dockerfile
   - name: path-context
-    value: v4.22
+    value: v5.0
   - name: build-platforms
     value:
     - linux/x86_64
@@ -103,10 +100,6 @@ spec:
       default: oci
       type: string
       description: The format for the resulting image's mediaType. Valid values are oci or docker.
-    - name: enable-cache-proxy
-      default: 'false'
-      description: Enable cache proxy configuration
-      type: string
     - name: enable-package-registry-proxy
       default: 'true'
       description: Use the package registry proxy when prefetching dependencies
@@ -138,9 +131,6 @@ spec:
       value: $(tasks.clone-repository.results.commit)
     tasks:
     - name: init
-      params:
-      - name: enable-cache-proxy
-        value: $(params.enable-cache-proxy)
       taskRef:
         params:
         - name: name
@@ -234,10 +224,6 @@ spec:
         value: "true"
       - name: BUILDAH_FORMAT
         value: $(params.buildah-format)
-      - name: HTTP_PROXY
-        value: $(tasks.init.results.http-proxy)
-      - name: NO_PROXY
-        value: $(tasks.init.results.no-proxy)
       - name: SOURCE_DATE_EPOCH
         value: $(params.source-date-epoch)
       - name: REWRITE_TIMESTAMP
@@ -417,7 +403,7 @@ spec:
     - name: netrc
       optional: true
   taskRunTemplate:
-    serviceAccountName: build-pipeline-cli-manager-operator-fbc-4-22
+    serviceAccountName: build-pipeline-cli-manager-operator-fbc-5-0
   workspaces:
   - name: git-auth
     secret:
