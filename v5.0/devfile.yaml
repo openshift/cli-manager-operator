@@ -4,7 +4,7 @@ metadata:
   displayName: FBC v5.0
   description: 'File Based Catalog'
   language: fbc
-  provider: Red Hat
+  provider: Red Hat OpenShift
 components:
   - name: image-build
     image:
