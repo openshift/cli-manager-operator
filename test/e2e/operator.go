@@ -16,6 +16,7 @@ import (
 	g "github.com/onsi/ginkgo/v2"
 	o "github.com/onsi/gomega"
 	corev1 "k8s.io/api/core/v1"
+	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	apiruntime "k8s.io/apimachinery/pkg/runtime"
@@ -27,6 +28,7 @@ import (
 	"k8s.io/klog/v2"
 	"k8s.io/utils/clock"
 
+	operatorv1 "github.com/openshift/api/operator/v1"
 	"github.com/openshift/cli-manager/api/v1alpha1"
 	"github.com/openshift/library-go/pkg/operator/events"
 	"github.com/openshift/library-go/pkg/operator/resource/resourceapply"
@@ -35,7 +37,6 @@ import (
 	climanagerv1 "github.com/openshift/cli-manager-operator/pkg/apis/climanager/v1"
 	climanagerscheme "github.com/openshift/cli-manager-operator/pkg/generated/clientset/versioned/scheme"
 	"github.com/openshift/cli-manager-operator/pkg/operator/operatorclient"
-	"github.com/openshift/cli-manager-operator/test/e2e/bindata"
 )
 
 // Ginkgo test specs - calls the shared test functions
@@ -54,6 +55,7 @@ var _ = g.Describe("[Operator][Serial] CLI Manager Operator", g.Ordered, func() 
 	})
 
 	g.AfterAll(func() {
+		teardownOperator()
 		if cancelFnc != nil {
 			cancelFnc()
 		}
@@ -64,6 +66,53 @@ var _ = g.Describe("[Operator][Serial] CLI Manager Operator", g.Ordered, func() 
 		testCLIManager(g.GinkgoTB(), ctx, kubeClient)
 	})
 })
+
+func teardownOperator() {
+	ctx := context.Background()
+	klog.Infof("Tearing down operator resources...")
+
+	kubeClient := GetKubeClient()
+	apiExtClient := GetApiExtensionClient()
+	dynamicClient := GetApiDynamicClient()
+	cliManagerClient := GetCLIManagerClient()
+
+	if err := dynamicClient.Resource(schema.GroupVersionResource{
+		Group: "config.openshift.io", Version: "v1alpha1", Resource: "plugins",
+	}).Delete(ctx, "oc", metav1.DeleteOptions{}); err != nil {
+		klog.Errorf("Failed to delete Plugin CR: %v", err)
+	}
+
+	if err := cliManagerClient.ClimanagersV1().CliManagers(operatorclient.OperatorNamespace).Delete(ctx, operatorclient.OperatorConfigName, metav1.DeleteOptions{}); err != nil {
+		klog.Errorf("Failed to delete CliManager CR: %v", err)
+	}
+
+	if err := kubeClient.CoreV1().Namespaces().Delete(ctx, operatorclient.OperatorNamespace, metav1.DeleteOptions{}); err != nil {
+		klog.Errorf("Failed to delete namespace: %v", err)
+	}
+
+	if err := kubeClient.RbacV1().ClusterRoleBindings().Delete(ctx, "openshift-cli-manager-operator", metav1.DeleteOptions{}); err != nil {
+		klog.Errorf("Failed to delete ClusterRoleBinding: %v", err)
+	}
+
+	if err := kubeClient.RbacV1().ClusterRoles().Delete(ctx, "openshift-cli-manager-operator", metav1.DeleteOptions{}); err != nil {
+		klog.Errorf("Failed to delete ClusterRole: %v", err)
+	}
+
+	if err := apiExtClient.ApiextensionsV1().CustomResourceDefinitions().Delete(ctx, "climanagers.operator.openshift.io", metav1.DeleteOptions{}); err != nil {
+		klog.Errorf("Failed to delete CliManager CRD: %v", err)
+	}
+
+	if err := apiExtClient.ApiextensionsV1().CustomResourceDefinitions().Delete(ctx, "plugins.config.openshift.io", metav1.DeleteOptions{}); err != nil {
+		klog.Errorf("Failed to delete Plugins CRD: %v", err)
+	}
+
+	krewRoot := homedir.HomeDir() + "/.krew"
+	if err := os.RemoveAll(krewRoot); err != nil {
+		klog.Errorf("Failed to remove krew directory: %v", err)
+	}
+
+	klog.Infof("Teardown complete")
+}
 
 // setupOperator sets up the operator and waits for it to be ready.
 // This function works with both standard Go testing and Ginkgo.
@@ -113,52 +162,60 @@ func setupOperator(t testing.TB) (context.Context, context.CancelFunc, *k8sclien
 
 	assets := []struct {
 		path           string
+		read           func(string) []byte
 		readerAndApply func(objBytes []byte) error
 	}{
 		{
-			path: "assets/00_cli-manager-operator.crd.yaml",
+			path: "00_cli-manager-operator.crd.yaml",
+			read: mustDeployAsset,
 			readerAndApply: func(objBytes []byte) error {
 				_, _, err := resourceapply.ApplyCustomResourceDefinitionV1(ctx, apiExtClient.ApiextensionsV1(), eventRecorder, resourceread.ReadCustomResourceDefinitionV1OrDie(objBytes))
 				return err
 			},
 		},
 		{
-			path: "assets/01_namespace.yaml",
+			path: "01_namespace.yaml",
+			read: mustDeployAsset,
 			readerAndApply: func(objBytes []byte) error {
 				_, _, err := resourceapply.ApplyNamespace(ctx, kubeClient.CoreV1(), eventRecorder, resourceread.ReadNamespaceV1OrDie(objBytes))
 				return err
 			},
 		},
 		{
-			path: "assets/02_config.openshift.io_plugins.yaml",
+			path: "02_config.openshift.io_plugins.yaml",
+			read: mustDeployAsset,
 			readerAndApply: func(objBytes []byte) error {
 				_, _, err := resourceapply.ApplyCustomResourceDefinitionV1(ctx, apiExtClient.ApiextensionsV1(), eventRecorder, resourceread.ReadCustomResourceDefinitionV1OrDie(objBytes))
 				return err
 			},
 		},
 		{
-			path: "assets/03_clusterrole.yaml",
+			path: "03_clusterrole.yaml",
+			read: mustDeployAsset,
 			readerAndApply: func(objBytes []byte) error {
 				_, _, err := resourceapply.ApplyClusterRole(ctx, kubeClient.RbacV1(), eventRecorder, resourceread.ReadClusterRoleV1OrDie(objBytes))
 				return err
 			},
 		},
 		{
-			path: "assets/04_clusterrolebinding.yaml",
+			path: "04_clusterrolebinding.yaml",
+			read: mustDeployAsset,
 			readerAndApply: func(objBytes []byte) error {
 				_, _, err := resourceapply.ApplyClusterRoleBinding(ctx, kubeClient.RbacV1(), eventRecorder, resourceread.ReadClusterRoleBindingV1OrDie(objBytes))
 				return err
 			},
 		},
 		{
-			path: "assets/05_serviceaccount.yaml",
+			path: "05_serviceaccount.yaml",
+			read: mustDeployAsset,
 			readerAndApply: func(objBytes []byte) error {
 				_, _, err := resourceapply.ApplyServiceAccount(ctx, kubeClient.CoreV1(), eventRecorder, resourceread.ReadServiceAccountV1OrDie(objBytes))
 				return err
 			},
 		},
 		{
-			path: "assets/06_deployment.yaml",
+			path: "07_deployment.yaml",
+			read: mustDeployAsset,
 			readerAndApply: func(objBytes []byte) error {
 				required := resourceread.ReadDeploymentV1OrDie(objBytes)
 
@@ -174,6 +231,17 @@ func setupOperator(t testing.TB) (context.Context, context.CancelFunc, *k8sclien
 					}
 				}
 
+				// e2e-only: serve krew artifacts over HTTP so tests skip TLS setup
+				required.Spec.Template.Spec.Containers[0].Args = append(
+					required.Spec.Template.Spec.Containers[0].Args,
+					"--serve-artifacts-in-http",
+				)
+
+				required.Spec.Template.Spec.Containers[0].Resources.Requests = corev1.ResourceList{
+					corev1.ResourceMemory: resource.MustParse("50Mi"),
+					corev1.ResourceCPU:    resource.MustParse("10m"),
+				}
+
 				_, _, err := resourceapply.ApplyDeployment(
 					ctx,
 					kubeClient.AppsV1(),
@@ -185,14 +253,17 @@ func setupOperator(t testing.TB) (context.Context, context.CancelFunc, *k8sclien
 			},
 		},
 		{
-			path: "assets/07_cli-manager-operator-cr.yaml",
+			path: "06_cli-manager-operator-cr.yaml",
+			read: mustDeployAsset,
 			readerAndApply: func(objBytes []byte) error {
 				requiredObj, err := apiruntime.Decode(climanagerscheme.Codecs.UniversalDecoder(climanagerv1.SchemeGroupVersion), objBytes)
 				if err != nil {
-					klog.Errorf("Unable to decode assets/07_cli-manager-operator-cr.yaml: %v", err)
+					klog.Errorf("Unable to decode %s: %v", "06_cli-manager-operator-cr.yaml", err)
 					return err
 				}
 				requiredCLI := requiredObj.(*climanagerv1.CliManager)
+				requiredCLI.Spec.LogLevel = operatorv1.Trace
+				requiredCLI.Spec.OperatorLogLevel = operatorv1.Trace
 
 				_, err = cliManagerClient.ClimanagersV1().CliManagers(requiredCLI.Namespace).Create(ctx, requiredCLI, metav1.CreateOptions{})
 				return err
@@ -204,7 +275,7 @@ func setupOperator(t testing.TB) (context.Context, context.CancelFunc, *k8sclien
 	if err := wait.PollUntilContextTimeout(context.TODO(), 1*time.Second, 30*time.Second, true, func(ctx context.Context) (bool, error) {
 		for _, asset := range assets {
 			klog.Infof("Creating %v", asset.path)
-			if err := asset.readerAndApply(bindata.MustAsset(asset.path)); err != nil {
+			if err := asset.readerAndApply(asset.read(asset.path)); err != nil {
 				klog.Errorf("Unable to create %v: %v", asset.path, err)
 				return false, nil
 			}
@@ -308,6 +379,11 @@ func setupOperator(t testing.TB) (context.Context, context.CancelFunc, *k8sclien
 
 // installKrew downloads and installs krew.
 func installKrew(t testing.TB) {
+	krewRoot := homedir.HomeDir() + "/.krew"
+	if err := os.RemoveAll(krewRoot); err != nil {
+		klog.Warningf("Failed to clean stale krew directory: %v", err)
+	}
+
 	tmpDir, err := os.MkdirTemp("", "krew-install")
 	if err != nil {
 		t.Fatalf("failed to create temp dir for krew install: %v", err)
