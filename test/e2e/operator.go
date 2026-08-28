@@ -158,6 +158,13 @@ func setupOperator(t testing.TB) (context.Context, context.CancelFunc, *k8sclien
 			},
 		},
 		{
+			path: "assets/08_operator-service.yaml",
+			readerAndApply: func(objBytes []byte) error {
+				_, _, err := resourceapply.ApplyService(ctx, kubeClient.CoreV1(), eventRecorder, resourceread.ReadServiceV1OrDie(objBytes))
+				return err
+			},
+		},
+		{
 			path: "assets/06_deployment.yaml",
 			readerAndApply: func(objBytes []byte) error {
 				required := resourceread.ReadDeploymentV1OrDie(objBytes)
