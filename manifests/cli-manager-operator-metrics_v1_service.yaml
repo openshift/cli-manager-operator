@@ -2,7 +2,6 @@ apiVersion: v1
 kind: Service
 metadata:
   name: cli-manager-operator-metrics
-  namespace: openshift-cli-manager-operator
   annotations:
     service.beta.openshift.io/serving-cert-secret-name: cli-manager-operator-serving-cert
   labels:
