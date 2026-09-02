@@ -280,6 +280,9 @@ spec:
                     volumeMounts:
                       - name: tmp
                         mountPath: "/tmp"
+                      - name: serving-cert
+                        mountPath: /var/run/secrets/serving-cert
+                        readOnly: true
                     securityContext:
                       allowPrivilegeEscalation: false
                       readOnlyRootFilesystem: true
@@ -288,12 +291,33 @@ spec:
                     imagePullPolicy: Always
                     name: openshift-cli-manager-operator
                     ports:
-                      - containerPort: 60000
-                        name: metrics
-                    resources: {}
+                      - containerPort: 8443
+                        name: https
+                    resources:
+                      requests:
+                        memory: 50Mi
+                        cpu: 10m
+                    livenessProbe:
+                      httpGet:
+                        scheme: HTTPS
+                        port: 8443
+                        path: /healthz
+                      initialDelaySeconds: 45
+                      timeoutSeconds: 10
+                    readinessProbe:
+                      httpGet:
+                        scheme: HTTPS
+                        port: 8443
+                        path: /healthz
+                      initialDelaySeconds: 10
+                      timeoutSeconds: 10
                 serviceAccountName: openshift-cli-manager-operator
                 volumes:
                   - name: tmp
                     emptyDir: {}
+                  - name: serving-cert
+                    secret:
+                      secretName: cli-manager-operator-serving-cert
+                      optional: true
     strategy: deployment
 

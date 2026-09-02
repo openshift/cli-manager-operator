@@ -79,6 +79,7 @@ func setupOperator(t testing.TB) (context.Context, context.CancelFunc, *k8sclien
 	kubeClient := GetKubeClient()
 	apiExtClient := GetApiExtensionClient()
 	cliManagerClient := GetCLIManagerClient()
+	dynamicClient := GetApiDynamicClient()
 	routeClient := GetRouteClient()
 
 	eventRecorder := events.NewKubeRecorder(kubeClient.CoreV1().Events("default"), "test-e2e", &corev1.ObjectReference{}, clock.RealClock{})
@@ -154,6 +155,20 @@ func setupOperator(t testing.TB) (context.Context, context.CancelFunc, *k8sclien
 			path: "assets/05_serviceaccount.yaml",
 			readerAndApply: func(objBytes []byte) error {
 				_, _, err := resourceapply.ApplyServiceAccount(ctx, kubeClient.CoreV1(), eventRecorder, resourceread.ReadServiceAccountV1OrDie(objBytes))
+				return err
+			},
+		},
+		{
+			path: "assets/08_operator-service.yaml",
+			readerAndApply: func(objBytes []byte) error {
+				_, _, err := resourceapply.ApplyService(ctx, kubeClient.CoreV1(), eventRecorder, resourceread.ReadServiceV1OrDie(objBytes))
+				return err
+			},
+		},
+		{
+			path: "assets/09_operator-servicemonitor.yaml",
+			readerAndApply: func(objBytes []byte) error {
+				_, _, err := resourceapply.ApplyServiceMonitor(ctx, dynamicClient, eventRecorder, resourceread.ReadUnstructuredOrDie(objBytes))
 				return err
 			},
 		},

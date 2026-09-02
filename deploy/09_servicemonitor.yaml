@@ -1,0 +1,25 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: cli-manager-operator
+  namespace: openshift-cli-manager-operator
+spec:
+  selector:
+    matchLabels:
+      name: openshift-cli-manager-operator
+  endpoints:
+    - port: https
+      scheme: https
+      interval: 30s
+      bearerTokenFile: /var/run/secrets/kubernetes.io/serviceaccount/token
+      tlsConfig:
+        caFile: /etc/prometheus/configmaps/serving-certs-ca-bundle/service-ca.crt
+      relabelings:
+        - sourceLabels:
+            - __meta_kubernetes_service_name
+            - __meta_kubernetes_namespace
+          separator: "."
+          regex: "(.*)"
+          targetLabel: __address__
+          replacement: "${1}.svc:8443"
+          action: replace
