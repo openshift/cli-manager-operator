@@ -328,9 +328,9 @@ func setServiceMonitorServerName(sm *unstructured.Unstructured, serverName strin
 	if !ok {
 		return fmt.Errorf("ServiceMonitor spec.endpoints[0] is not an object")
 	}
-	tlsConfig, _ := ep["tlsConfig"].(map[string]interface{})
-	if tlsConfig == nil {
-		tlsConfig = map[string]interface{}{}
+	tlsConfig, ok := ep["tlsConfig"].(map[string]interface{})
+	if !ok || tlsConfig == nil {
+		return fmt.Errorf("ServiceMonitor spec.endpoints[0].tlsConfig is missing or not an object")
 	}
 	tlsConfig["serverName"] = serverName
 	ep["tlsConfig"] = tlsConfig
