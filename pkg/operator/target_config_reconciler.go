@@ -11,6 +11,7 @@ import (
 	"k8s.io/apimachinery/pkg/api/equality"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	utilruntime "k8s.io/apimachinery/pkg/util/runtime"
 	"k8s.io/apimachinery/pkg/util/wait"
 	"k8s.io/client-go/dynamic"
@@ -143,7 +144,7 @@ func (c *TargetConfigReconciler) sync() error {
 
 	_, err = c.manageServiceMonitor(cliManager)
 	if err != nil {
-		klog.Errorf("unable to manage service account err: %v", err)
+		klog.Errorf("unable to manage service monitor err: %v", err)
 		return err
 	}
 
@@ -294,8 +295,50 @@ func (c *TargetConfigReconciler) manageServiceAccount(cliManager *climanagerv1.C
 
 func (c *TargetConfigReconciler) manageServiceMonitor(cliManager *climanagerv1.CliManager) (bool, error) {
 	required := resourceread.ReadUnstructuredOrDie(bindata.MustAsset("assets/cli-manager/servicemonitor.yaml"))
+	required.SetNamespace(cliManager.Namespace)
+
+	ownerReference := metav1.OwnerReference{
+		APIVersion: "operator.openshift.io/v1",
+		Kind:       "CliManager",
+		Name:       cliManager.Name,
+		UID:        cliManager.UID,
+	}
+	controller.EnsureOwnerRef(required, ownerReference)
+
+	// Bindata has a hardcoded namespace in serverName. SetNestedField cannot address
+	// slice indexes (spec.endpoints[0]), so update tlsConfig.serverName via NestedSlice.
+	serverName := fmt.Sprintf("metrics.%s.svc", cliManager.Namespace)
+	if err := setServiceMonitorServerName(required, serverName); err != nil {
+		return false, err
+	}
+
 	_, changed, err := resourceapply.ApplyKnownUnstructured(c.ctx, c.dynamicClient, c.eventRecorder, required)
 	return changed, err
+}
+
+func setServiceMonitorServerName(sm *unstructured.Unstructured, serverName string) error {
+	endpoints, found, err := unstructured.NestedSlice(sm.Object, "spec", "endpoints")
+	if err != nil {
+		return fmt.Errorf("failed to read ServiceMonitor endpoints: %w", err)
+	}
+	if !found || len(endpoints) == 0 {
+		return fmt.Errorf("ServiceMonitor spec.endpoints is empty")
+	}
+	ep, ok := endpoints[0].(map[string]interface{})
+	if !ok {
+		return fmt.Errorf("ServiceMonitor spec.endpoints[0] is not an object")
+	}
+	tlsConfig, _ := ep["tlsConfig"].(map[string]interface{})
+	if tlsConfig == nil {
+		tlsConfig = map[string]interface{}{}
+	}
+	tlsConfig["serverName"] = serverName
+	ep["tlsConfig"] = tlsConfig
+	endpoints[0] = ep
+	if err := unstructured.SetNestedSlice(sm.Object, endpoints, "spec", "endpoints"); err != nil {
+		return fmt.Errorf("failed to set ServiceMonitor serverName %q: %w", serverName, err)
+	}
+	return nil
 }
 
 func (c *TargetConfigReconciler) manageDeployments(cliManager *climanagerv1.CliManager) (*appsv1.Deployment, bool, error) {
