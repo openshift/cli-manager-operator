@@ -15,6 +15,7 @@ import (
 	"github.com/openshift/cli-manager-operator/pkg/operator/operatorclient"
 	"github.com/openshift/library-go/pkg/controller/controllercmd"
 	"github.com/openshift/library-go/pkg/operator/loglevel"
+	"github.com/openshift/library-go/pkg/operator/v1helpers"
 )
 
 const (
@@ -34,6 +35,11 @@ func RunOperator(ctx context.Context, cc *controllercmd.ControllerContext) error
 		return err
 	}
 
+	// Create informers for operator namespace to watch NetworkPolicies
+	kubeInformersForNamespaces := v1helpers.NewKubeInformersForNamespaces(kubeClient,
+		operatorclient.OperatorNamespace,
+	)
+
 	operatorConfigClient, err := operatorconfigclient.NewForConfig(cc.KubeConfig)
 	if err != nil {
 		return err
@@ -50,23 +56,28 @@ func RunOperator(ctx context.Context, cc *controllercmd.ControllerContext) error
 		return err
 	}
 
-	targetConfigReconciler := NewTargetConfigReconciler(
+	targetConfigReconciler, err := NewTargetConfigReconciler(
 		ctx,
 		os.Getenv("RELATED_IMAGE_OPERAND_IMAGE"),
 		operatorConfigClient.ClimanagersV1(),
 		routeClient,
 		operatorConfigInformers.Climanagers().V1().CliManagers(),
+		kubeInformersForNamespaces,
 		cliManagerClient,
 		dynamicClient,
 		kubeClient,
 		ServeArtifactAsHttp,
 		cc.EventRecorder,
 	)
+	if err != nil {
+		return err
+	}
 
 	logLevelController := loglevel.NewClusterOperatorLoggingController(cliManagerClient, cc.EventRecorder)
 
 	klog.Infof("Starting informers")
 	operatorConfigInformers.Start(ctx.Done())
+	kubeInformersForNamespaces.Start(ctx.Done())
 
 	klog.Infof("Starting log level controller")
 	go logLevelController.Run(ctx, 1)
