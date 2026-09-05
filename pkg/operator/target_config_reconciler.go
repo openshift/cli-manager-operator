@@ -7,6 +7,7 @@ import (
 
 	appsv1 "k8s.io/api/apps/v1"
 	v1 "k8s.io/api/core/v1"
+	networkingv1 "k8s.io/api/networking/v1"
 	rbacv1 "k8s.io/api/rbac/v1"
 	"k8s.io/apimachinery/pkg/api/equality"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
@@ -57,12 +58,13 @@ func NewTargetConfigReconciler(
 	operatorConfigClient operatorconfigclientv1.ClimanagersV1Interface,
 	routeCLient routev1client.RouteV1Interface,
 	operatorClientInformer operatorclientinformers.CliManagerInformer,
+	kubeInformersForNamespaces v1helpers.KubeInformersForNamespaces,
 	cliManagerClient *operatorclient.CLIManagerClient,
 	dynamicClient dynamic.Interface,
 	kubeClient kubernetes.Interface,
 	insecureHTTP bool,
 	eventRecorder events.Recorder,
-) *TargetConfigReconciler {
+) (*TargetConfigReconciler, error) {
 	c := &TargetConfigReconciler{
 		ctx:              ctx,
 		operatorClient:   operatorConfigClient,
@@ -78,7 +80,22 @@ func NewTargetConfigReconciler(
 
 	operatorClientInformer.Informer().AddEventHandler(c.eventHandler())
 
-	return c
+	// Watch NetworkPolicies in operator namespace for immediate reconciliation on deletion or modification.
+	// Only watches operator namespace because all operand resources (including NetworkPolicies)
+	// are created in the same namespace as the CliManager CR (always operator namespace).
+	_, err := kubeInformersForNamespaces.InformersFor(operatorclient.OperatorNamespace).Networking().V1().NetworkPolicies().Informer().AddEventHandler(cache.ResourceEventHandlerFuncs{
+		UpdateFunc: func(oldObj, newObj interface{}) {
+			c.queue.Add(workQueueKey)
+		},
+		DeleteFunc: func(obj interface{}) {
+			c.queue.Add(workQueueKey)
+		},
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return c, nil
 }
 
 func (c *TargetConfigReconciler) sync() error {
@@ -86,6 +103,31 @@ func (c *TargetConfigReconciler) sync() error {
 	if err != nil {
 		klog.ErrorS(err, "unable to get operator configuration", "namespace", operatorclient.OperatorNamespace, "openshift-cli-manager", operatorclient.OperatorConfigName)
 		return err
+	}
+
+	// Create allow policy first
+	_, _, err = c.manageOperandNetworkPolicyAllow(cliManager)
+	if err != nil {
+		klog.Errorf("unable to manage operand allow network policy err: %v", err)
+		return err
+	}
+
+	// Handle default-deny policy: only create if allow policy exists.
+	// This prevents traffic blocking if the allow policy is accidentally deleted.
+	// If allow policy is missing, delete default-deny so traffic continues.
+	allowExists := c.checkNetworkPolicyExists(cliManager.Namespace, "allow-all-egress-and-metrics-ingress-operand")
+	if allowExists {
+		_, _, err = c.manageOperandDefaultDenyNetworkPolicy(cliManager)
+		if err != nil {
+			klog.Errorf("unable to manage operand default-deny network policy err: %v", err)
+			return err
+		}
+	} else {
+		// Allow policy doesn't exist (creation failed or was deleted), ensure default-deny is also gone
+		if err := c.deleteOperandDefaultDenyNetworkPolicy(cliManager); err != nil {
+			klog.ErrorS(err, "failed to delete operand default-deny policy")
+			// Don't return error - this is cleanup, not critical
+		}
 	}
 
 	_, _, err = c.manageClusterRole(cliManager)
@@ -432,6 +474,59 @@ func (c *TargetConfigReconciler) processNextWorkItem() bool {
 	c.queue.AddRateLimited(dsKey)
 
 	return true
+}
+
+// manageOperandNetworkPolicyAllow manages the allow network policy for the operand pods
+func (c *TargetConfigReconciler) manageOperandNetworkPolicyAllow(cliManager *climanagerv1.CliManager) (*networkingv1.NetworkPolicy, bool, error) {
+	required := resourceread.ReadNetworkPolicyV1OrDie(bindata.MustAsset("assets/cli-manager/networkpolicy-operand-allow.yaml"))
+	required.Namespace = cliManager.Namespace
+	ownerReference := metav1.OwnerReference{
+		APIVersion: "operator.openshift.io/v1",
+		Kind:       "CliManager",
+		Name:       cliManager.Name,
+		UID:        cliManager.UID,
+	}
+	required.OwnerReferences = []metav1.OwnerReference{
+		ownerReference,
+	}
+	controller.EnsureOwnerRef(required, ownerReference)
+
+	return resourceapply.ApplyNetworkPolicy(c.ctx, c.kubeClient.NetworkingV1(), c.eventRecorder, required, resourceapply.NewResourceCache())
+}
+
+// manageOperandDefaultDenyNetworkPolicy manages the default-deny network policy for operand pods only
+func (c *TargetConfigReconciler) manageOperandDefaultDenyNetworkPolicy(cliManager *climanagerv1.CliManager) (*networkingv1.NetworkPolicy, bool, error) {
+	required := resourceread.ReadNetworkPolicyV1OrDie(bindata.MustAsset("assets/cli-manager/networkpolicy-operand-default-deny.yaml"))
+	required.Namespace = cliManager.Namespace
+	ownerReference := metav1.OwnerReference{
+		APIVersion: "operator.openshift.io/v1",
+		Kind:       "CliManager",
+		Name:       cliManager.Name,
+		UID:        cliManager.UID,
+	}
+	required.OwnerReferences = []metav1.OwnerReference{
+		ownerReference,
+	}
+	controller.EnsureOwnerRef(required, ownerReference)
+
+	return resourceapply.ApplyNetworkPolicy(c.ctx, c.kubeClient.NetworkingV1(), c.eventRecorder, required, resourceapply.NewResourceCache())
+}
+
+// checkNetworkPolicyExists checks if a network policy exists in a given namespace
+func (c *TargetConfigReconciler) checkNetworkPolicyExists(namespace, policyName string) bool {
+	_, err := c.kubeClient.NetworkingV1().NetworkPolicies(namespace).Get(c.ctx, policyName, metav1.GetOptions{})
+	if err != nil && !apierrors.IsNotFound(err) {
+		klog.V(4).InfoS("unexpected error checking network policy existence", "namespace", namespace, "name", policyName, "error", err)
+	}
+	return err == nil
+}
+
+// deleteOperandDefaultDenyNetworkPolicy deletes the operand default-deny network policy
+func (c *TargetConfigReconciler) deleteOperandDefaultDenyNetworkPolicy(cliManager *climanagerv1.CliManager) error {
+	required := resourceread.ReadNetworkPolicyV1OrDie(bindata.MustAsset("assets/cli-manager/networkpolicy-operand-default-deny.yaml"))
+	required.Namespace = cliManager.Namespace
+	_, _, err := resourceapply.DeleteNetworkPolicy(c.ctx, c.kubeClient.NetworkingV1(), c.eventRecorder, required)
+	return err
 }
 
 // eventHandler queues the operator to check spec and status
