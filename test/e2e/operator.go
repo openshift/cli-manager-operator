@@ -152,28 +152,42 @@ func setupOperator(t testing.TB) (context.Context, context.CancelFunc, *k8sclien
 			},
 		},
 		{
-			path: "assets/05_serviceaccount.yaml",
+			path: "assets/05_operatorrole.yaml",
+			readerAndApply: func(objBytes []byte) error {
+				_, _, err := resourceapply.ApplyRole(ctx, kubeClient.RbacV1(), eventRecorder, resourceread.ReadRoleV1OrDie(objBytes))
+				return err
+			},
+		},
+		{
+			path: "assets/06_operatorrolebinding.yaml",
+			readerAndApply: func(objBytes []byte) error {
+				_, _, err := resourceapply.ApplyRoleBinding(ctx, kubeClient.RbacV1(), eventRecorder, resourceread.ReadRoleBindingV1OrDie(objBytes))
+				return err
+			},
+		},
+		{
+			path: "assets/07_serviceaccount.yaml",
 			readerAndApply: func(objBytes []byte) error {
 				_, _, err := resourceapply.ApplyServiceAccount(ctx, kubeClient.CoreV1(), eventRecorder, resourceread.ReadServiceAccountV1OrDie(objBytes))
 				return err
 			},
 		},
 		{
-			path: "assets/08_operator-service.yaml",
+			path: "assets/10_operator-service.yaml",
 			readerAndApply: func(objBytes []byte) error {
 				_, _, err := resourceapply.ApplyService(ctx, kubeClient.CoreV1(), eventRecorder, resourceread.ReadServiceV1OrDie(objBytes))
 				return err
 			},
 		},
 		{
-			path: "assets/09_operator-servicemonitor.yaml",
+			path: "assets/11_operator-servicemonitor.yaml",
 			readerAndApply: func(objBytes []byte) error {
 				_, _, err := resourceapply.ApplyServiceMonitor(ctx, dynamicClient, eventRecorder, resourceread.ReadUnstructuredOrDie(objBytes))
 				return err
 			},
 		},
 		{
-			path: "assets/06_deployment.yaml",
+			path: "assets/09_deployment.yaml",
 			readerAndApply: func(objBytes []byte) error {
 				required := resourceread.ReadDeploymentV1OrDie(objBytes)
 
@@ -200,11 +214,11 @@ func setupOperator(t testing.TB) (context.Context, context.CancelFunc, *k8sclien
 			},
 		},
 		{
-			path: "assets/07_cli-manager-operator-cr.yaml",
+			path: "assets/08_cli-manager-operator-cr.yaml",
 			readerAndApply: func(objBytes []byte) error {
 				requiredObj, err := apiruntime.Decode(climanagerscheme.Codecs.UniversalDecoder(climanagerv1.SchemeGroupVersion), objBytes)
 				if err != nil {
-					klog.Errorf("Unable to decode assets/07_cli-manager-operator-cr.yaml: %v", err)
+					klog.Errorf("Unable to decode assets/08_cli-manager-operator-cr.yaml: %v", err)
 					return err
 				}
 				requiredCLI := requiredObj.(*climanagerv1.CliManager)
