@@ -15,7 +15,7 @@ Run the CLI Manager in your OpenShift cluster to distribute CLIs.
 ### Quick Development
 
 1. Build and push the operator image to a registry:
-2. Ensure the `image` spec in `deploy/07_deployment.yaml` refers to the operator image you pushed
+2. Ensure the `image` spec in `deploy/09_deployment.yaml` refers to the operator image you pushed
 3. Run `oc create -f deploy/.`
 
 ### OperatorHub install with custom index image
