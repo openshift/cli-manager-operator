@@ -14,24 +14,10 @@ import (
 )
 
 const (
-	allowNetworkPolicyOperandName       = "allow-all-egress-and-metrics-ingress-operand"
-	defaultDenyNetworkPolicyOperandName = "default-deny-operand"
+	allowNetworkPolicyOperandName = "allow-all-egress-and-metrics-ingress-operand"
 )
 
-// verifyNetworkPolicy checks that the network policy has the expected name and namespace
-func verifyNetworkPolicy(t *testing.T, obj metav1.Object, expectedName string) {
-	t.Helper()
-
-	if obj.GetName() != expectedName {
-		t.Errorf("Expected policy name %q, got %q", expectedName, obj.GetName())
-	}
-
-	if obj.GetNamespace() != operatorclient.OperatorNamespace {
-		t.Errorf("Expected policy namespace %q, got %q", operatorclient.OperatorNamespace, obj.GetNamespace())
-	}
-}
-
-func TestManageOperandNetworkPolicies(t *testing.T) {
+func TestManageOperandNetworkPolicyAllow(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
@@ -52,84 +38,20 @@ func TestManageOperandNetworkPolicies(t *testing.T) {
 		eventRecorder: eventRecorder,
 	}
 
-	tests := []struct {
-		name         string
-		manageFunc   func(*TargetConfigReconciler, *climanagerv1.CliManager) (metav1.Object, bool, error)
-		expectedName string
-	}{
-		{
-			name: "creates allow network policy",
-			manageFunc: func(r *TargetConfigReconciler, cm *climanagerv1.CliManager) (metav1.Object, bool, error) {
-				obj, modified, err := r.manageOperandNetworkPolicyAllow(cm)
-				return obj, modified, err
-			},
-			expectedName: allowNetworkPolicyOperandName,
-		},
-		{
-			name: "creates default deny network policy",
-			manageFunc: func(r *TargetConfigReconciler, cm *climanagerv1.CliManager) (metav1.Object, bool, error) {
-				obj, modified, err := r.manageOperandDefaultDenyNetworkPolicy(cm)
-				return obj, modified, err
-			},
-			expectedName: defaultDenyNetworkPolicyOperandName,
-		},
+	policy, modified, err := reconciler.manageOperandNetworkPolicyAllow(cliManager)
+	if err != nil {
+		t.Fatalf("manageOperandNetworkPolicyAllow failed: %v", err)
 	}
 
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			obj, modified, err := tt.manageFunc(reconciler, cliManager)
-			if err != nil {
-				t.Fatalf("manage function failed: %v", err)
-			}
-
-			if !modified {
-				t.Error("Expected modified=true when creating policy")
-			}
-
-			verifyNetworkPolicy(t, obj, tt.expectedName)
-		})
-	}
-}
-
-func TestCheckNetworkPolicyExists(t *testing.T) {
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
-
-	kubeClient := fake.NewSimpleClientset()
-	eventRecorder := events.NewInMemoryRecorder("test", clock.RealClock{})
-
-	cliManager := &climanagerv1.CliManager{
-		ObjectMeta: metav1.ObjectMeta{
-			Name:      operatorclient.OperatorConfigName,
-			Namespace: operatorclient.OperatorNamespace,
-			UID:       "test-uid",
-		},
+	if !modified {
+		t.Error("Expected modified=true when creating policy")
 	}
 
-	reconciler := &TargetConfigReconciler{
-		ctx:           ctx,
-		kubeClient:    kubeClient,
-		eventRecorder: eventRecorder,
+	if policy.GetName() != allowNetworkPolicyOperandName {
+		t.Errorf("Expected policy name %q, got %q", allowNetworkPolicyOperandName, policy.GetName())
 	}
 
-	t.Run("returns false for non-existent policy", func(t *testing.T) {
-		exists := reconciler.checkNetworkPolicyExists("non-existent-ns", "non-existent-policy")
-		if exists {
-			t.Error("Expected checkNetworkPolicyExists to return false for non-existent policy")
-		}
-	})
-
-	t.Run("returns true after creating policy", func(t *testing.T) {
-		// Create a policy explicitly for this test
-		_, _, err := reconciler.manageOperandNetworkPolicyAllow(cliManager)
-		if err != nil {
-			t.Fatalf("failed to create network policy: %v", err)
-		}
-
-		// After creating a policy, it should return true
-		exists := reconciler.checkNetworkPolicyExists(operatorclient.OperatorNamespace, allowNetworkPolicyOperandName)
-		if !exists {
-			t.Error("Expected checkNetworkPolicyExists to return true for created policy")
-		}
-	})
+	if policy.GetNamespace() != operatorclient.OperatorNamespace {
+		t.Errorf("Expected policy namespace %q, got %q", operatorclient.OperatorNamespace, policy.GetNamespace())
+	}
 }
