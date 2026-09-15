@@ -80,10 +80,14 @@ func NewTargetConfigReconciler(
 
 	operatorClientInformer.Informer().AddEventHandler(c.eventHandler())
 
-	// Watch NetworkPolicies in operator namespace for immediate reconciliation on deletion or modification.
+	// Watch NetworkPolicies in operator namespace for immediate reconciliation on addition, deletion, or modification.
 	// Only watches operator namespace because all operand resources (including NetworkPolicies)
 	// are created in the same namespace as the CliManager CR (always operator namespace).
+	// AddFunc handles cluster restart scenarios where existing network policies need reconciliation.
 	_, err := kubeInformersForNamespaces.InformersFor(operatorclient.OperatorNamespace).Networking().V1().NetworkPolicies().Informer().AddEventHandler(cache.ResourceEventHandlerFuncs{
+		AddFunc: func(obj interface{}) {
+			c.queue.Add(workQueueKey)
+		},
 		UpdateFunc: func(oldObj, newObj interface{}) {
 			c.queue.Add(workQueueKey)
 		},
