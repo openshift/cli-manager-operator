@@ -171,16 +171,31 @@ func testOperandPluginIngress(t testing.TB, ctx context.Context, kubeClient k8sc
 	leaderIPs := PodIPs(leader)
 	testLabels := map[string]string{"test": "cli-manager-netpol"}
 
+	// Use a temp namespace with the ingress policy-group label instead of
+	// openshift-ingress directly — that namespace has deny-all policies
+	// blocking non-router pods on OCP 5.x+.
+	ingressNS, cleanup := createTempIngressNamespace(t, ctx, kubeClient)
+	defer cleanup()
+
 	t.Logf("=== Testing plugin download ingress on port %d to leader %s ===", pluginPort, leader.Name)
 
-	t.Logf("3.6 Allowed — Ingress from %s on port %d", openshiftIngressNamespace, pluginPort)
-	ExpectConnectivity(ctx, t, kubeClient, openshiftIngressNamespace, testLabels, leaderIPs, pluginPort, true)
+	t.Logf("3.6 Allowed — Ingress from %s (policy-group ingress label) on port %d", ingressNS, pluginPort)
+	ExpectConnectivity(ctx, t, kubeClient, ingressNS, testLabels, leaderIPs, pluginPort, true)
 
 	t.Logf("3.7 Blocked — Ingress from default namespace on port %d", pluginPort)
 	ExpectConnectivity(ctx, t, kubeClient, "default", testLabels, leaderIPs, pluginPort, false)
 
 	t.Logf("3.10 Blocked — Ingress from operator namespace on port %d (no ingress policy-group label)", pluginPort)
 	ExpectConnectivity(ctx, t, kubeClient, operatorclient.OperatorNamespace, testLabels, leaderIPs, pluginPort, false)
+
+	if ingressNamespaceHasDenyAll(ctx, kubeClient) {
+		t.Logf("3.11 Blocked — Non-router pod in %s blocked by %s deny-all on port %d",
+			openshiftIngressNamespace, openshiftIngressDenyAllPolicy, pluginPort)
+		ExpectConnectivity(ctx, t, kubeClient, openshiftIngressNamespace, testLabels, leaderIPs, pluginPort, false)
+	} else {
+		t.Logf("3.11 Skipping — %s/%s not present, non-router pods can egress",
+			openshiftIngressNamespace, openshiftIngressDenyAllPolicy)
+	}
 
 	t.Logf("=== plugin download ingress verified ===")
 }

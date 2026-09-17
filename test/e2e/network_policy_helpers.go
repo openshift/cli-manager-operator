@@ -39,6 +39,7 @@ const (
 	openshiftMonitoringNamespace  = "openshift-monitoring"
 	openshiftUWMNamespace         = "openshift-user-workload-monitoring"
 	openshiftIngressNamespace     = "openshift-ingress"
+	openshiftIngressDenyAllPolicy = "openshift-ingress-deny-all"
 	openshiftDNSNamespace         = "openshift-dns"
 	prometheusK8sServiceName      = "prometheus-k8s"
 	operandMetricsServiceName     = "openshift-cli-manager-metrics"
@@ -581,4 +582,39 @@ func getLeaderOperandPod(ctx context.Context, client kubernetes.Interface) (*cor
 
 func operandClientLabels() map[string]string {
 	return map[string]string{operandAppLabelKey: operatorclient.OperandName}
+}
+
+func ingressNamespaceHasDenyAll(ctx context.Context, client kubernetes.Interface) bool {
+	_, err := client.NetworkingV1().NetworkPolicies(openshiftIngressNamespace).Get(ctx, openshiftIngressDenyAllPolicy, metav1.GetOptions{})
+	return err == nil
+}
+
+// createTempIngressNamespace creates a temporary namespace with the
+// policy-group.network.openshift.io/ingress label so connectivity tests
+// don't depend on openshift-ingress, which may have deny-all policies
+// blocking non-router pods (OCP 5.x+).
+func createTempIngressNamespace(t testing.TB, ctx context.Context, client kubernetes.Interface) (string, func()) {
+	t.Helper()
+	name := fmt.Sprintf("np-ingress-test-%s", rand.String(5))
+	ns := &corev1.Namespace{
+		ObjectMeta: metav1.ObjectMeta{
+			Name: name,
+			Labels: map[string]string{
+				ingressPolicyGroupKey:                        "",
+				"pod-security.kubernetes.io/enforce":         "restricted",
+				"pod-security.kubernetes.io/enforce-version": "latest",
+			},
+		},
+	}
+	_, err := client.CoreV1().Namespaces().Create(ctx, ns, metav1.CreateOptions{})
+	if err != nil {
+		t.Fatalf("failed to create temp ingress namespace %s: %v", name, err)
+	}
+	t.Logf("created temp namespace %s with label %s", name, ingressPolicyGroupKey)
+	cleanup := func() {
+		if delErr := client.CoreV1().Namespaces().Delete(context.Background(), name, metav1.DeleteOptions{}); delErr != nil {
+			t.Logf("failed to delete temp namespace %s: %v", name, delErr)
+		}
+	}
+	return name, cleanup
 }
