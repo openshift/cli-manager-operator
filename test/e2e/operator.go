@@ -16,6 +16,7 @@ import (
 	g "github.com/onsi/ginkgo/v2"
 	o "github.com/onsi/gomega"
 	corev1 "k8s.io/api/core/v1"
+	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	apiruntime "k8s.io/apimachinery/pkg/runtime"
@@ -54,6 +55,7 @@ var _ = g.Describe("[Operator][Serial] CLI Manager Operator", g.Ordered, func() 
 	})
 
 	g.AfterAll(func() {
+		teardownOperator()
 		if cancelFnc != nil {
 			cancelFnc()
 		}
@@ -359,6 +361,46 @@ func setupOperator(t testing.TB) (context.Context, context.CancelFunc, *k8sclien
 	}
 
 	return ctx, cancelFnc, kubeClient, nil
+}
+
+// teardownOperator removes resources created by setupOperator. It runs from
+// AfterAll, so a single-spec run still cleans the cluster, and a full suite
+// waits until every spec in the Ordered container has finished.
+func teardownOperator() {
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Minute)
+	defer cancel()
+
+	kubeClient := GetKubeClient()
+
+	klog.Infof("Tearing down CLI Manager operator resources")
+
+	// Delete namespace; this cascades deletion of all namespaced resources (CliManager CR, Deployment, Service, etc.)
+	err := kubeClient.CoreV1().Namespaces().Delete(ctx, operatorclient.OperatorNamespace, metav1.DeleteOptions{})
+	if err != nil && !apierrors.IsNotFound(err) {
+		klog.Warningf("failed to delete namespace %s: %v", operatorclient.OperatorNamespace, err)
+	}
+
+	waitErr := wait.PollUntilContextTimeout(ctx, 2*time.Second, 2*time.Minute, true, func(ctx context.Context) (bool, error) {
+		_, getErr := kubeClient.CoreV1().Namespaces().Get(ctx, operatorclient.OperatorNamespace, metav1.GetOptions{})
+		if apierrors.IsNotFound(getErr) {
+			return true, nil
+		}
+		return false, nil
+	})
+	if waitErr != nil {
+		klog.Warningf("timed out waiting for namespace %s deletion: %v", operatorclient.OperatorNamespace, waitErr)
+	}
+
+	// Cluster-scoped resources (ClusterRole, ClusterRoleBinding) are not cascade-deleted with the namespace
+	// and must be cleaned up explicitly to avoid polluting the cluster.
+	if err := kubeClient.RbacV1().ClusterRoleBindings().Delete(ctx, "openshift-cli-manager-operator", metav1.DeleteOptions{}); err != nil && !apierrors.IsNotFound(err) {
+		klog.Warningf("failed to delete ClusterRoleBinding: %v", err)
+	}
+	if err := kubeClient.RbacV1().ClusterRoles().Delete(ctx, "openshift-cli-manager-operator", metav1.DeleteOptions{}); err != nil && !apierrors.IsNotFound(err) {
+		klog.Warningf("failed to delete ClusterRole: %v", err)
+	}
+
+	klog.Infof("CLI Manager operator teardown complete")
 }
 
 // installKrew downloads and installs krew.
