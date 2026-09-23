@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  generateName: netpol-curl-test-
+  namespace: {{NAMESPACE}}
+spec:
+  restartPolicy: Never
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 1000
+    seccompProfile:
+      type: RuntimeDefault
+  containers:
+  - name: curl
+    image: curlimages/curl:8.13.0
+    command: ["curl", "-sk", "--connect-timeout", "5", "-o", "/dev/null", "-w", "%{http_code}", "{{TARGET}}"]
+    securityContext:
+      allowPrivilegeEscalation: false
+      capabilities:
+        drop: ["ALL"]
