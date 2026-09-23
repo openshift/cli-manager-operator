@@ -21,8 +21,8 @@ import (
 	"github.com/openshift/cli-manager-operator/pkg/operator/operatorclient"
 )
 
-//go:embed testdata/curl-test-pod.yaml
-var curlPodTemplate embed.FS
+//go:embed testdata/connectivity-test-pod.yaml
+var testData embed.FS
 
 const (
 	operandNetworkPolicyName = "allow-all-egress-and-metrics-ingress-operand"
@@ -351,13 +351,13 @@ func serviceClusterIPs(svc *corev1.Service) []string {
 }
 
 func runConnectivityCheck(ctx context.Context, kubeClient k8sclient.Interface, namespace string, labels map[string]string, serverIP string, port int32, hostNetwork bool, nodeName string) (bool, error) {
-	podYAML, err := curlPodTemplate.ReadFile("testdata/curl-test-pod.yaml")
+	podYAML, err := testData.ReadFile("testdata/connectivity-test-pod.yaml")
 	if err != nil {
 		return false, fmt.Errorf("failed to load embedded pod manifest: %w", err)
 	}
 
 	podYAML = []byte(strings.ReplaceAll(string(podYAML), "{{NAMESPACE}}", namespace))
-	podYAML = []byte(strings.ReplaceAll(string(podYAML), "{{TARGET}}", fmt.Sprintf("https://%s:%d", serverIP, port)))
+	podYAML = []byte(strings.ReplaceAll(string(podYAML), "{{TARGET}}", fmt.Sprintf("%s:%d", serverIP, port)))
 
 	pod := &corev1.Pod{}
 	if err := yaml.Unmarshal(podYAML, pod); err != nil {
