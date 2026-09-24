@@ -25,7 +25,7 @@ import (
 var testData embed.FS
 
 const (
-	operandNetworkPolicyName = "allow-all-egress-and-metrics-ingress-operand"
+	operandNetworkPolicyName = "cli-manager-operand"
 	operandAppLabelKey       = "app"
 	operandLeaseName         = "cli-manager-lock"
 	operatorDeploymentName   = "openshift-cli-manager-operator"
