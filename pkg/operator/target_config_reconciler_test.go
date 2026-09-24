@@ -14,7 +14,7 @@ import (
 )
 
 const (
-	allowNetworkPolicyOperandName = "allow-all-egress-and-metrics-ingress-operand"
+	allowNetworkPolicyOperandName = "cli-manager-operand"
 )
 
 func TestManageOperandNetworkPolicyAllow(t *testing.T) {
