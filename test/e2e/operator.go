@@ -67,6 +67,7 @@ var _ = g.Describe("[Operator][Serial] CLI Manager Operator", g.Ordered, func() 
 
 // setupOperator sets up the operator and waits for it to be ready.
 // This function works with both standard Go testing and Ginkgo.
+// It is idempotent - if resources already exist, it skips creation.
 func setupOperator(t testing.TB) (context.Context, context.CancelFunc, *k8sclient.Clientset, error) {
 	ctx, cancelFnc := context.WithCancel(context.Background())
 
@@ -111,6 +112,31 @@ func setupOperator(t testing.TB) (context.Context, context.CancelFunc, *k8sclien
 		t.Fatalf("OPERAND_IMAGE env var and SHARED_DIR are both unset")
 	}
 	klog.Infof("Using operand image: %s", operandImage)
+
+	// Check if operator is already deployed (idempotent - don't recreate if exists)
+	operatorDeploy, err := kubeClient.AppsV1().Deployments(operatorclient.OperatorNamespace).Get(ctx, operatorclient.OperandName+"-operator", metav1.GetOptions{})
+	if err == nil && operatorDeploy != nil {
+		klog.Infof("Operator already deployed, skipping resource creation")
+		// Wait for operator to be ready and return early
+		var cliManagerOperatorPod *corev1.Pod
+		if err := wait.PollUntilContextTimeout(context.TODO(), 5*time.Second, 5*time.Minute, true, func(ctx context.Context) (bool, error) {
+			podItems, err := kubeClient.CoreV1().Pods(operatorclient.OperatorNamespace).List(ctx, metav1.ListOptions{})
+			if err != nil {
+				return false, nil
+			}
+			for _, pod := range podItems.Items {
+				if strings.HasPrefix(pod.Name, operatorclient.OperandName+"-operator") && pod.Status.Phase == corev1.PodRunning && pod.GetDeletionTimestamp() == nil {
+					cliManagerOperatorPod = pod.DeepCopy()
+					return true, nil
+				}
+			}
+			return false, nil
+		}); err != nil {
+			return ctx, cancelFnc, nil, fmt.Errorf("unable to wait for the CLIO pod to run: %w", err)
+		}
+		klog.Infof("CLI Manager Operator already running in %v", cliManagerOperatorPod.Name)
+		return ctx, cancelFnc, kubeClient, nil
+	}
 
 	assets := []struct {
 		path           string
