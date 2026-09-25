@@ -45,7 +45,10 @@ func TestExtended(t *testing.T) {
 		if err != nil {
 			t.Fatalf("Failed to setup operator: %v", err)
 		}
-		defer cancelFnc()
+		defer func() {
+			teardownOperator()
+			cancelFnc()
+		}()
 
 		t.Run("CLI Manager functionality", func(t *testing.T) {
 			testCLIManager(t, ctx, kubeClient)

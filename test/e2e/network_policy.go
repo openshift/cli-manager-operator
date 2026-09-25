@@ -65,6 +65,7 @@ var _ = g.Describe("[Operator][Serial] CLI Manager NetworkPolicy", g.Ordered, fu
 	})
 
 	g.AfterAll(func() {
+		teardownOperator()
 		if cancelFnc != nil {
 			cancelFnc()
 		}
