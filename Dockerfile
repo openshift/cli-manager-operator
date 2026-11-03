@@ -4,7 +4,7 @@ COPY . .
 RUN make build --warn-undefined-variables \
     && gzip cli-manager-operator-tests-ext
 
-FROM registry.access.redhat.com/ubi9/ubi-minimal:latest@sha256:6f3a78179e0b30b930a186e7f68a4af52e51bb82406c9653be10bddd624e40f5
+FROM registry.access.redhat.com/ubi9/ubi-minimal:latest@sha256:dfa0eb04abc59221544e74862432496add1f491f915c9b531880f91affc0e12c
 COPY --from=builder /go/src/github.com/openshift/cli-manager-operator/cli-manager-operator /usr/bin/
 COPY --from=builder /go/src/github.com/openshift/cli-manager-operator/cli-manager-operator-tests-ext.gz /usr/bin/
 RUN mkdir /licenses
