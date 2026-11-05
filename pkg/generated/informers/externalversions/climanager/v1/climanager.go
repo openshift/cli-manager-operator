@@ -12,16 +12,45 @@ import (
 	climanagerv1 "github.com/openshift/cli-manager-operator/pkg/generated/listers/climanager/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	runtime "k8s.io/apimachinery/pkg/runtime"
+	schema "k8s.io/apimachinery/pkg/runtime/schema"
 	watch "k8s.io/apimachinery/pkg/watch"
 	cache "k8s.io/client-go/tools/cache"
 )
 
 // CliManagerInformer provides access to a shared informer and lister for
-// CliManagers.
+// CliManagers. Prefer using the type-safe variant (see [TypedCliManagerInformer]).
 type CliManagerInformer interface {
 	Informer() cache.SharedIndexInformer
 	Lister() climanagerv1.CliManagerLister
 }
+
+// TypedCliManagerInformer provides access to a shared informer and lister for
+// CliManagers, including the type-safe TypedInformer variant.
+// It is a superset of CliManagerInformer.
+type TypedCliManagerInformer interface {
+	Informer() cache.SharedIndexInformer
+	TypedInformer() CliManagerIndexInformer
+	Lister() climanagerv1.CliManagerLister
+}
+
+// CliManagerIndexInformer is a wrapper around the underlying [cache.SharedIndexInformer]
+// with type-safe variants of several methods.
+type CliManagerIndexInformer cache.TypedSharedIndexInformer[*apisclimanagerv1.CliManager]
+
+// CliManagerHandlerFuncs is a specialization of [cache.TypedResourceEventHandlerFuncs] for CliManager.
+type CliManagerHandlerFuncs = cache.TypedResourceEventHandlerFuncs[*apisclimanagerv1.CliManager]
+
+// CliManagerDetailedHandlerFuncs is a specialization of [cache.TypedResourceEventHandlerDetailedFuncs] for CliManager.
+type CliManagerDetailedHandlerFuncs = cache.TypedResourceEventHandlerDetailedFuncs[*apisclimanagerv1.CliManager]
+
+// CliManagerFilteringHandler is a specialization of [cache.TypedFilteringResourceEventHandler] for CliManager.
+type CliManagerFilteringHandler = cache.TypedFilteringResourceEventHandler[*apisclimanagerv1.CliManager]
+
+// CliManagerIndexers is a specialization of [cache.TypedIndexers] for CliManager.
+type CliManagerIndexers = cache.TypedIndexers[*apisclimanagerv1.CliManager]
+
+// DeletedCliManager is a specialization of [cache.DeletedObject] for CliManager.
+type DeletedCliManager = cache.DeletedObject[*apisclimanagerv1.CliManager]
 
 type cliManagerInformer struct {
 	factory          internalinterfaces.SharedInformerFactory
@@ -32,55 +61,132 @@ type cliManagerInformer struct {
 // NewCliManagerInformer constructs a new informer for CliManager type.
 // Always prefer using an informer factory to get a shared informer instead of getting an independent
 // one. This reduces memory footprint and number of connections to the server.
+// If you really need an independent one, prefer using the type-safe variant (see [NewTypedCliManagerInformer]).
 func NewCliManagerInformer(client versioned.Interface, namespace string, resyncPeriod time.Duration, indexers cache.Indexers) cache.SharedIndexInformer {
-	return NewFilteredCliManagerInformer(client, namespace, resyncPeriod, indexers, nil)
+	return NewCliManagerInformerWithOptions(client, namespace, internalinterfaces.InformerOptions{ResyncPeriod: resyncPeriod, Indexers: indexers})
+}
+
+// NewTypedCliManagerInformer constructs a new informer for CliManager type.
+// Always prefer using an informer factory to get a shared informer instead of getting an independent
+// one. This reduces memory footprint and number of connections to the server.
+func NewTypedCliManagerInformer(client versioned.Interface, namespace string, resyncPeriod time.Duration, indexers CliManagerIndexers) CliManagerIndexInformer {
+	return NewTypedCliManagerInformerWithOptions(client, namespace, internalinterfaces.InformerOptions{ResyncPeriod: resyncPeriod, Indexers: cache.TypedIndexersToIndexers(indexers)})
 }
 
 // NewFilteredCliManagerInformer constructs a new informer for CliManager type.
 // Always prefer using an informer factory to get a shared informer instead of getting an independent
 // one. This reduces memory footprint and number of connections to the server.
+// If you really need an independent one, prefer using the type-safe variant (see [NewTypedFilteredCliManagerInformer]).
 func NewFilteredCliManagerInformer(client versioned.Interface, namespace string, resyncPeriod time.Duration, indexers cache.Indexers, tweakListOptions internalinterfaces.TweakListOptionsFunc) cache.SharedIndexInformer {
-	return cache.NewSharedIndexInformer(
-		&cache.ListWatch{
-			ListFunc: func(options metav1.ListOptions) (runtime.Object, error) {
+	return NewTypedCliManagerInformerWithOptions(client, namespace, internalinterfaces.InformerOptions{ResyncPeriod: resyncPeriod, Indexers: indexers, TweakListOptions: tweakListOptions})
+}
+
+// NewTypedFilteredCliManagerInformer constructs a new informer for CliManager type.
+// Always prefer using an informer factory to get a shared informer instead of getting an independent
+// one. This reduces memory footprint and number of connections to the server.
+func NewTypedFilteredCliManagerInformer(client versioned.Interface, namespace string, resyncPeriod time.Duration, indexers CliManagerIndexers, tweakListOptions internalinterfaces.TweakListOptionsFunc) CliManagerIndexInformer {
+	return NewTypedCliManagerInformerWithOptions(client, namespace, internalinterfaces.InformerOptions{ResyncPeriod: resyncPeriod, Indexers: cache.TypedIndexersToIndexers(indexers), TweakListOptions: tweakListOptions})
+}
+
+// NewCliManagerInformerWithOptions constructs a new informer for CliManager type with additional options.
+// Always prefer using an informer factory to get a shared informer instead of getting an independent
+// one. This reduces memory footprint and number of connections to the server.
+// If you really need an independent one, prefer using the type-safe variant (see [NewTypedCliManagerInformerWithOptions]).
+func NewCliManagerInformerWithOptions(client versioned.Interface, namespace string, options internalinterfaces.InformerOptions) cache.SharedIndexInformer {
+	return NewTypedCliManagerInformerWithOptions(client, namespace, options)
+}
+
+// NewTypedCliManagerInformerWithOptions constructs a new informer for CliManager type with additional options.
+// Always prefer using an informer factory to get a shared informer instead of getting an independent
+// one. This reduces memory footprint and number of connections to the server.
+func NewTypedCliManagerInformerWithOptions(client versioned.Interface, namespace string, options internalinterfaces.InformerOptions) CliManagerIndexInformer {
+	gvr := schema.GroupVersionResource{Group: "operator.openshift.io", Version: "v1", Resource: "climanagers"}
+	identifier := options.InformerName.WithResource(gvr)
+	tweakListOptions := options.TweakListOptions
+	return cache.NewTypedSharedIndexInformer[*apisclimanagerv1.CliManager](cache.NewSharedIndexInformerWithOptions(
+		cache.ToListWatcherWithWatchListSemantics(&cache.ListWatch{
+			ListFunc: func(opts metav1.ListOptions) (runtime.Object, error) {
 				if tweakListOptions != nil {
-					tweakListOptions(&options)
+					tweakListOptions(&opts)
 				}
-				return client.ClimanagersV1().CliManagers(namespace).List(context.Background(), options)
+				return client.ClimanagersV1().CliManagers(namespace).List(context.Background(), opts)
 			},
-			WatchFunc: func(options metav1.ListOptions) (watch.Interface, error) {
+			WatchFunc: func(opts metav1.ListOptions) (watch.Interface, error) {
 				if tweakListOptions != nil {
-					tweakListOptions(&options)
+					tweakListOptions(&opts)
 				}
-				return client.ClimanagersV1().CliManagers(namespace).Watch(context.Background(), options)
+				return client.ClimanagersV1().CliManagers(namespace).Watch(context.Background(), opts)
 			},
-			ListWithContextFunc: func(ctx context.Context, options metav1.ListOptions) (runtime.Object, error) {
+			ListWithContextFunc: func(ctx context.Context, opts metav1.ListOptions) (runtime.Object, error) {
 				if tweakListOptions != nil {
-					tweakListOptions(&options)
+					tweakListOptions(&opts)
 				}
-				return client.ClimanagersV1().CliManagers(namespace).List(ctx, options)
+				return client.ClimanagersV1().CliManagers(namespace).List(ctx, opts)
 			},
-			WatchFuncWithContext: func(ctx context.Context, options metav1.ListOptions) (watch.Interface, error) {
+			WatchFuncWithContext: func(ctx context.Context, opts metav1.ListOptions) (watch.Interface, error) {
 				if tweakListOptions != nil {
-					tweakListOptions(&options)
+					tweakListOptions(&opts)
 				}
-				return client.ClimanagersV1().CliManagers(namespace).Watch(ctx, options)
+				return client.ClimanagersV1().CliManagers(namespace).Watch(ctx, opts)
 			},
-		},
+		}, client),
 		&apisclimanagerv1.CliManager{},
-		resyncPeriod,
-		indexers,
-	)
+		cache.SharedIndexInformerOptions{
+			ResyncPeriod: options.ResyncPeriod,
+			Indexers:     options.Indexers,
+			Identifier:   identifier,
+		},
+	))
 }
 
 func (f *cliManagerInformer) defaultInformer(client versioned.Interface, resyncPeriod time.Duration) cache.SharedIndexInformer {
-	return NewFilteredCliManagerInformer(client, f.namespace, resyncPeriod, cache.Indexers{cache.NamespaceIndex: cache.MetaNamespaceIndexFunc}, f.tweakListOptions)
+	return NewTypedCliManagerInformerWithOptions(client, f.namespace, internalinterfaces.InformerOptions{ResyncPeriod: resyncPeriod, Indexers: cache.Indexers{cache.NamespaceIndex: cache.MetaNamespaceIndexFunc}, InformerName: f.factory.InformerName(), TweakListOptions: f.tweakListOptions})
 }
 
 func (f *cliManagerInformer) Informer() cache.SharedIndexInformer {
-	return f.factory.InformerFor(&apisclimanagerv1.CliManager{}, f.defaultInformer)
+	return f.TypedInformer()
+}
+
+func (f *cliManagerInformer) TypedInformer() CliManagerIndexInformer {
+	return cache.NewTypedSharedIndexInformer[*apisclimanagerv1.CliManager](f.factory.InformerFor(&apisclimanagerv1.CliManager{}, f.defaultInformer))
 }
 
 func (f *cliManagerInformer) Lister() climanagerv1.CliManagerLister {
 	return climanagerv1.NewCliManagerLister(f.Informer().GetIndexer())
+}
+
+// ToTypedCliManagerInformer converts an untyped informer into a TypedCliManagerInformer.
+//
+// WARNING: this conversion is only safe if the informer handles objects of type
+// *CliManager. If that is not the case, calling type-safe methods of the returned
+// TypedCliManagerInformer leads to runtime panics. A safer alternative is to pass
+// around a TypedCliManagerInformer instances that was obtained from a
+// SharedInformerFactory.
+func ToTypedCliManagerInformer(informer CliManagerInformer) TypedCliManagerInformer {
+	if informer, ok := informer.(TypedCliManagerInformer); ok {
+		return informer
+	}
+	return &cliManagerTypedInformerAdapter{informer}
+}
+
+type cliManagerTypedInformerAdapter struct {
+	CliManagerInformer
+}
+
+func (a *cliManagerTypedInformerAdapter) TypedInformer() CliManagerIndexInformer {
+	return cache.NewTypedSharedIndexInformer[*apisclimanagerv1.CliManager](a.Informer())
+}
+
+// ToCliManagerIndexInformer converts an untyped informer into a CliManagerIndexInformer.
+//
+// WARNING: this conversion is only safe if the informer handles objects of type
+// *CliManager. If that is not the case, calling type-safe methods of the returned
+// CliManagerIndexInformer leads to runtime panics. A safer alternative is to pass
+// around a CliManagerIndexInformer instances that was obtained from a
+// SharedInformerFactory.
+func ToCliManagerIndexInformer(informer cache.SharedIndexInformer) CliManagerIndexInformer {
+	if informer, ok := informer.(CliManagerIndexInformer); ok {
+		return informer
+	}
+	return cache.NewTypedSharedIndexInformer[*apisclimanagerv1.CliManager](informer)
 }

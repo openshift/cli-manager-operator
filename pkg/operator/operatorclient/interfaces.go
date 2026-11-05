@@ -112,7 +112,7 @@ func (c *CLIManagerClient) ApplyOperatorSpec(ctx context.Context, fieldManager s
 	case err != nil:
 		return fmt.Errorf("unable to get operator configuration: %w", err)
 	default:
-		original, err := climanagerapplyconfiguration.ExtractCLIManager(instance, fieldManager)
+		original, err := climanagerapplyconfiguration.ExtractCliManager(instance, fieldManager)
 		if err != nil {
 			return fmt.Errorf("unable to extract operator configuration: %w", err)
 		}
@@ -151,7 +151,7 @@ func (c *CLIManagerClient) ApplyOperatorStatus(ctx context.Context, fieldManager
 	case err != nil:
 		return fmt.Errorf("unable to get operator configuration: %w", err)
 	default:
-		original, err := climanagerapplyconfiguration.ExtractCLIManagerStatus(instance, fieldManager)
+		original, err := climanagerapplyconfiguration.ExtractCliManagerStatus(instance, fieldManager)
 		if err != nil {
 			return fmt.Errorf("unable to extract operator configuration: %w", err)
 		}

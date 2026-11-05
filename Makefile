@@ -39,7 +39,23 @@ $(call build-image,ocp-cli-manager-operator,$(IMAGE_REGISTRY)/ocp/5.1:cli-manage
 
 $(call verify-golang-versions,Dockerfile)
 
-$(call add-crd-gen,climanager,./pkg/apis/climanager/v1,./manifests/,./manifests/)
+# Regenerate the CRD with controller-gen built from vendored controller-tools.
+.PHONY: regen-crd
+regen-crd:
+	go build -o _output/tools/bin/controller-gen ./vendor/sigs.k8s.io/controller-tools/cmd/controller-gen
+	cp manifests/openshift-cli-manager-operator.crd.yaml manifests/operator.openshift.io_climanagers.yaml
+	_output/tools/bin/controller-gen crd:crdVersions=v1 paths=./pkg/apis/climanager/v1 output:crd:dir=./manifests
+	mv manifests/operator.openshift.io_climanagers.yaml manifests/openshift-cli-manager-operator.crd.yaml
+	sed -i '1{/^---$$/d;}' manifests/openshift-cli-manager-operator.crd.yaml
+	cp manifests/openshift-cli-manager-operator.crd.yaml deploy/00_cli-manager-operator.crd.yaml
+	cp manifests/openshift-cli-manager-operator.crd.yaml test/e2e/bindata/assets/00_cli-manager-operator.crd.yaml
+
+update-codegen-crds: regen-crd
+.PHONY: update-codegen-crds
+
+verify-codegen-crds: update-codegen-crds
+	git diff --exit-code
+.PHONY: verify-codegen-crds
 
 test-e2e: GO_TEST_PACKAGES :=./test/e2e
 # the e2e imports pkg/cmd which has a data race in the transport library with the library-go init code

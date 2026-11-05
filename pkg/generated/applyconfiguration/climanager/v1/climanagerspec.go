@@ -10,8 +10,10 @@ import (
 
 // CliManagerSpecApplyConfiguration represents a declarative configuration of the CliManagerSpec type for use
 // with apply.
+//
+// CliManagerSpec defines the desired state of CliManager
 type CliManagerSpecApplyConfiguration struct {
-	operatorv1.OperatorSpecApplyConfiguration `json:",inline"`
+	operatorv1.OperatorSpecApplyConfiguration `json:""`
 }
 
 // CliManagerSpecApplyConfiguration constructs a declarative configuration of the CliManagerSpec type for use with

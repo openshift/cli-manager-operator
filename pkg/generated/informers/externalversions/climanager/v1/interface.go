@@ -9,7 +9,7 @@ import (
 // Interface provides access to all the informers in this group version.
 type Interface interface {
 	// CliManagers returns a CliManagerInformer.
-	CliManagers() CliManagerInformer
+	CliManagers() TypedCliManagerInformer
 }
 
 type version struct {
@@ -23,7 +23,7 @@ func New(f internalinterfaces.SharedInformerFactory, namespace string, tweakList
 	return &version{factory: f, namespace: namespace, tweakListOptions: tweakListOptions}
 }
 
-// CliManagers returns a CliManagerInformer.
-func (v *version) CliManagers() CliManagerInformer {
+// CliManagers returns a TypedCliManagerInformer.
+func (v *version) CliManagers() TypedCliManagerInformer {
 	return &cliManagerInformer{factory: v.factory, namespace: v.namespace, tweakListOptions: v.tweakListOptions}
 }
