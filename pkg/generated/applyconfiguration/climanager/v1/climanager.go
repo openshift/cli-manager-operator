@@ -4,20 +4,24 @@ package v1
 
 import (
 	climanagerv1 "github.com/openshift/cli-manager-operator/pkg/apis/climanager/v1"
-	"github.com/openshift/cli-manager-operator/pkg/generated/applyconfiguration/internal"
+	internal "github.com/openshift/cli-manager-operator/pkg/generated/applyconfiguration/internal"
 	apismetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	types "k8s.io/apimachinery/pkg/types"
-	"k8s.io/apimachinery/pkg/util/managedfields"
+	managedfields "k8s.io/apimachinery/pkg/util/managedfields"
 	metav1 "k8s.io/client-go/applyconfigurations/meta/v1"
 )
 
 // CliManagerApplyConfiguration represents a declarative configuration of the CliManager type for use
 // with apply.
+//
+// CliManager is the Schema for the CliManager API
 type CliManagerApplyConfiguration struct {
-	metav1.TypeMetaApplyConfiguration    `json:",inline"`
+	metav1.TypeMetaApplyConfiguration    `json:""`
 	*metav1.ObjectMetaApplyConfiguration `json:"metadata,omitempty"`
-	Spec                                 *CliManagerSpecApplyConfiguration   `json:"spec,omitempty"`
-	Status                               *CliManagerStatusApplyConfiguration `json:"status,omitempty"`
+	// spec holds user settable values for configuration
+	Spec *CliManagerSpecApplyConfiguration `json:"spec,omitempty"`
+	// status holds observed values from the cluster. They may not be overridden.
+	Status *CliManagerStatusApplyConfiguration `json:"status,omitempty"`
 }
 
 // CliManager constructs a declarative configuration of the CliManager type for use with
@@ -30,6 +34,48 @@ func CliManager(name, namespace string) *CliManagerApplyConfiguration {
 	b.WithAPIVersion("operator.openshift.io/v1")
 	return b
 }
+
+// ExtractCliManagerFrom extracts the applied configuration owned by fieldManager from
+// cliManager for the specified subresource. Pass an empty string for subresource to extract
+// the main resource. Common subresources include "status", "scale", etc.
+// cliManager must be a unmodified CliManager API object that was retrieved from the Kubernetes API.
+// ExtractCliManagerFrom provides a way to perform a extract/modify-in-place/apply workflow.
+// Note that an extracted apply configuration will contain fewer fields than what the fieldManager previously
+// applied if another fieldManager has updated or force applied any of the previously applied fields.
+func ExtractCliManagerFrom(cliManager *climanagerv1.CliManager, fieldManager string, subresource string) (*CliManagerApplyConfiguration, error) {
+	b := &CliManagerApplyConfiguration{}
+	err := managedfields.ExtractInto(cliManager, internal.Parser().Type("com.github.openshift.cli-manager-operator.pkg.apis.climanager.v1.CliManager"), fieldManager, b, subresource)
+	if err != nil {
+		return nil, err
+	}
+	b.WithName(cliManager.Name)
+	b.WithNamespace(cliManager.Namespace)
+
+	b.WithKind("CliManager")
+	b.WithAPIVersion("operator.openshift.io/v1")
+	return b, nil
+}
+
+// ExtractCliManager extracts the applied configuration owned by fieldManager from
+// cliManager. If no managedFields are found in cliManager for fieldManager, a
+// CliManagerApplyConfiguration is returned with only the Name, Namespace (if applicable),
+// APIVersion and Kind populated. It is possible that no managed fields were found for because other
+// field managers have taken ownership of all the fields previously owned by fieldManager, or because
+// the fieldManager never owned fields any fields.
+// cliManager must be a unmodified CliManager API object that was retrieved from the Kubernetes API.
+// ExtractCliManager provides a way to perform a extract/modify-in-place/apply workflow.
+// Note that an extracted apply configuration will contain fewer fields than what the fieldManager previously
+// applied if another fieldManager has updated or force applied any of the previously applied fields.
+func ExtractCliManager(cliManager *climanagerv1.CliManager, fieldManager string) (*CliManagerApplyConfiguration, error) {
+	return ExtractCliManagerFrom(cliManager, fieldManager, "")
+}
+
+// ExtractCliManagerStatus extracts the applied configuration owned by fieldManager from
+// cliManager for the status subresource.
+func ExtractCliManagerStatus(cliManager *climanagerv1.CliManager, fieldManager string) (*CliManagerApplyConfiguration, error) {
+	return ExtractCliManagerFrom(cliManager, fieldManager, "status")
+}
+
 func (b CliManagerApplyConfiguration) IsApplyConfiguration() {}
 
 // WithKind sets the Kind field in the declarative configuration to the given value
@@ -46,41 +92,6 @@ func (b *CliManagerApplyConfiguration) WithKind(value string) *CliManagerApplyCo
 func (b *CliManagerApplyConfiguration) WithAPIVersion(value string) *CliManagerApplyConfiguration {
 	b.TypeMetaApplyConfiguration.APIVersion = &value
 	return b
-}
-
-// ExtractCLIManager extracts the applied configuration owned by fieldManager from
-// cliManager. If no managedFields are found in cliManager for fieldManager, a
-// CliManagerApplyConfiguration is returned with only the Name, Namespace (if applicable),
-// APIVersion and Kind populated. It is possible that no managed fields were found for because other
-// field managers have taken ownership of all the fields previously owned by fieldManager, or because
-// the fieldManager never owned fields any fields.
-// cliManager must be a unmodified CliManager API object that was retrieved from the Kubernetes API.
-// ExtractCLIManager provides a way to perform a extract/modify-in-place/apply workflow.
-// Note that an extracted apply configuration will contain fewer fields than what the fieldManager previously
-// applied if another fieldManager has updated or force applied any of the previously applied fields.
-// Experimental!
-func ExtractCLIManager(cliManager *climanagerv1.CliManager, fieldManager string) (*CliManagerApplyConfiguration, error) {
-	return extractCLIManager(cliManager, fieldManager, "")
-}
-
-// ExtractCLIManagerStatus is the same as ExtractCLIManager except
-// that it extracts the status subresource applied configuration.
-// Experimental!
-func ExtractCLIManagerStatus(cliManager *climanagerv1.CliManager, fieldManager string) (*CliManagerApplyConfiguration, error) {
-	return extractCLIManager(cliManager, fieldManager, "status")
-}
-
-func extractCLIManager(cliManager *climanagerv1.CliManager, fieldManager string, subresource string) (*CliManagerApplyConfiguration, error) {
-	b := &CliManagerApplyConfiguration{}
-	err := managedfields.ExtractInto(cliManager, internal.Parser().Type("com.github.openshift.api.operator.v1.CliManager"), fieldManager, b, subresource)
-	if err != nil {
-		return nil, err
-	}
-	b.WithName(cliManager.Name)
-
-	b.WithKind("CliManager")
-	b.WithAPIVersion("operator.openshift.io/v1")
-	return b, nil
 }
 
 // WithName sets the Name field in the declarative configuration to the given value

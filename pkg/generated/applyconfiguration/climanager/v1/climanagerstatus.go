@@ -8,8 +8,10 @@ import (
 
 // CliManagerStatusApplyConfiguration represents a declarative configuration of the CliManagerStatus type for use
 // with apply.
+//
+// CliManagerStatus defines the observed state of CliManager
 type CliManagerStatusApplyConfiguration struct {
-	operatorv1.OperatorStatusApplyConfiguration `json:",inline"`
+	operatorv1.OperatorStatusApplyConfiguration `json:""`
 }
 
 // CliManagerStatusApplyConfiguration constructs a declarative configuration of the CliManagerStatus type for use with
