@@ -37,6 +37,13 @@ CODEGEN_GROUPS_VERSION :=climanager:v1
 # $4 - context directory for image build
 $(call build-image,ocp-cli-manager-operator,$(IMAGE_REGISTRY)/ocp/5.1:cli-manager-operator, ./Dockerfile,.)
 
+# Override verify-Dockerfile-builder-golang-version to support both old and new golang-builder image formats
+# Old format: golang-X.Y (e.g., rhel_9_golang_1.26)
+# New format: golang-builder-vX.Y (e.g., golang-builder-v1.26-rhel9)
+define verify-Dockerfile-builder-golang-version
+$(call verify-golang-version-reference,$(1),$(shell grep "AS builder" "$(1)" | sed -E 's/.*golang-(builder-v)?([0-9]+\.[0-9]+).*/\2/'))
+endef
+
 $(call verify-golang-versions,Dockerfile)
 
 # Regenerate the CRD with controller-gen built from vendored controller-tools.
