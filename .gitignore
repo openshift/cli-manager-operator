@@ -1,6 +1,9 @@
-cli-manager-operator
+/cli-manager-operator
+/cli-manager-operator-testing
 /cli-manager-operator-tests-ext
 /cli-manager-operator-tests-ext.gz
+bundle/
+tmp/
 
 # Binaries for programs and plugins
 *.exe
